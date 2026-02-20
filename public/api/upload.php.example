@@ -1,0 +1,57 @@
+<?php
+header('Content-Type: application/json');
+
+$secret = 'CHANGE_THIS_UPLOAD_SECRET';
+$headerSecret = $_SERVER['HTTP_X_UPLOAD_SECRET'] ?? '';
+if ($headerSecret !== $secret) {
+  http_response_code(401);
+  echo json_encode(['error' => 'Unauthorized']);
+  exit;
+}
+
+$allowedTypes = ['image/jpeg','image/png','image/webp','image/svg+xml'];
+$maxSize = 5 * 1024 * 1024; // 5MB
+
+$folder = $_POST['folder'] ?? '';
+$map = [
+  'blogs' => 'uploads/blogs/',
+  'works' => 'uploads/works/',
+  'clients' => 'uploads/clients/'
+];
+
+if (!isset($map[$folder]) || !isset($_FILES['file'])) {
+  http_response_code(400);
+  echo json_encode(['error' => 'Invalid request']);
+  exit;
+}
+
+$file = $_FILES['file'];
+if ($file['size'] > $maxSize) {
+  http_response_code(400);
+  echo json_encode(['error' => 'File too large']);
+  exit;
+}
+
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+$mime = finfo_file($finfo, $file['tmp_name']);
+finfo_close($finfo);
+
+if (!in_array($mime, $allowedTypes)) {
+  http_response_code(400);
+  echo json_encode(['error' => 'Invalid file type']);
+  exit;
+}
+
+$ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+$newName = time() . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
+$target = __DIR__ . '/../' . $map[$folder] . $newName;
+
+if (!move_uploaded_file($file['tmp_name'], $target)) {
+  http_response_code(500);
+  echo json_encode(['error' => 'Upload failed']);
+  exit;
+}
+
+$domain = 'https://praaviconsultants.in';
+echo json_encode(['url' => $domain . '/' . $map[$folder] . $newName]);
+
