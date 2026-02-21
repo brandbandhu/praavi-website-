@@ -7,9 +7,9 @@ const contactInfo = [
     title: "Address",
     icon: MapPin,
     content: [
-      "Second floor, next to Ankur Balrugnalay,",
-      "above Nakoda Jewellers, Pune,",
-      "Loni Kalbhor, Maharashtra 412201",
+      "1st Floor, Anand Complex, Solapur - Pune Hwy,",
+      "near Ambika Jewellers, Loni Kalbhor, Pune,",
+      "Maharashtra 412201",
     ],
   },
   {

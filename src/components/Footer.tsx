@@ -70,7 +70,7 @@ const Footer = () => {
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail size={14} className="text-primary flex-shrink-0" />
-                praavi.consultants@gmail.com
+                <span className="break-all">praavi.consultants@gmail.com</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone size={14} className="text-primary flex-shrink-0" />
@@ -78,9 +78,9 @@ const Footer = () => {
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin size={14} className="text-primary flex-shrink-0" />
-                <span>
-                  Second floor, next to Ankur Balrugnalay, above Nakoda Jewellers, Pune, Loni Kalbhor, Maharashtra
-                  412201
+                <span className="break-words">
+                  1st Floor, Anand Complex, Solapur - Pune Hwy, near Ambika Jewellers, Loni Kalbhor, Pune,
+                  Maharashtra 412201
                 </span>
               </div>
             </div>
