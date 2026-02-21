@@ -33,6 +33,7 @@ const normalizeTags = (value: unknown): string[] => {
 
 const toIso = (value: number) => new Date(value).toISOString();
 const asUuidOrUndefined = (value: string) => (UUID_RE.test(value) ? value : undefined);
+const normalizeName = (value: string) => value.trim().toLowerCase();
 
 export const fetchPublishedBlogPosts = async (): Promise<BlogPost[]> => {
   const { data, error } = await supabase
@@ -114,7 +115,7 @@ export const fetchActiveClients = async (): Promise<ClientItem[]> => {
 
   if (error) throw error;
 
-  return (data ?? []).map((row: any) => ({
+  const mapped = (data ?? []).map((row: any) => ({
     id: String(row.id),
     name: row.name ?? "Client",
     category: row.category ?? "Client",
@@ -122,6 +123,14 @@ export const fetchActiveClients = async (): Promise<ClientItem[]> => {
     websiteUrl: row.website_url ?? "",
     createdAt: toTimestamp(row.created_at),
   }));
+
+  const seen = new Set<string>();
+  return mapped.filter((client) => {
+    const key = normalizeName(client.name);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 };
 
 export const upsertBlogPostsToSupabase = async (posts: BlogPost[]) => {
@@ -210,7 +219,12 @@ export const deletePortfolioItemFromSupabase = async (id: string) => {
 };
 
 export const upsertClientsToSupabase = async (clients: ClientItem[]) => {
-  const richPayload = clients.map((client) => ({
+  const dedupedClients = clients.filter((client, index, arr) => {
+    const key = normalizeName(client.name);
+    return arr.findIndex((c) => normalizeName(c.name) === key) === index;
+  });
+
+  const richPayload = dedupedClients.map((client) => ({
     ...(asUuidOrUndefined(client.id) ? { id: asUuidOrUndefined(client.id) } : {}),
     name: client.name,
     category: client.category || "Client",
@@ -223,7 +237,7 @@ export const upsertClientsToSupabase = async (clients: ClientItem[]) => {
   if (!error) return;
 
   // Fallback for minimal schemas.
-  const minimalPayload = clients.map((client) => ({
+  const minimalPayload = dedupedClients.map((client) => ({
     ...(asUuidOrUndefined(client.id) ? { id: asUuidOrUndefined(client.id) } : {}),
     name: client.name,
     logo_url: client.logoUrl || DEFAULT_IMAGE,
@@ -234,11 +248,7 @@ export const upsertClientsToSupabase = async (clients: ClientItem[]) => {
   error = fallback.error;
   if (!error) return;
 
-  // Last fallback for schemas without unique name constraint: insert new rows.
-  const insertFallback = await supabase.from("clients").insert(
-    minimalPayload.map(({ id: _id, ...row }) => row)
-  );
-  if (insertFallback.error) throw insertFallback.error;
+  throw error;
 };
 
 export const deleteClientFromSupabase = async (id: string) => {

@@ -18,6 +18,7 @@ const defaultClients: ClientItem[] = [
 ];
 
 const canUseStorage = () => typeof window !== "undefined" && !!window.localStorage;
+const normalizeName = (value: string) => value.trim().toLowerCase();
 
 const normalizeClient = (client: Partial<ClientItem>): ClientItem | null => {
   if (!client.id || !client.name || !client.category) return null;
@@ -35,7 +36,8 @@ const normalizeClients = (clients: Partial<ClientItem>[]) =>
   clients
     .map(normalizeClient)
     .filter((client): client is ClientItem => !!client)
-    .sort((a, b) => b.createdAt - a.createdAt);
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .filter((client, index, arr) => arr.findIndex((c) => normalizeName(c.name) === normalizeName(client.name)) === index);
 
 export const getClientsItems = (): ClientItem[] => {
   if (!canUseStorage()) return normalizeClients(defaultClients);

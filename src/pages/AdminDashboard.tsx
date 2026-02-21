@@ -238,6 +238,7 @@ const AdminDashboardPage = () => {
 
     const normalizedLogo = clientLogoUrl.trim() || "/placeholder.svg";
     const isEditMode = !!editingClientId;
+    const normalizedName = clientName.trim().toLowerCase();
 
     const updated = isEditMode
       ? clients.map((client) =>
@@ -251,17 +252,33 @@ const AdminDashboardPage = () => {
               }
             : client
         )
-      : [
-          {
-            id: `client-${Date.now()}`,
-            name: clientName.trim(),
-            category: "Client",
-            logoUrl: normalizedLogo,
-            websiteUrl: "",
-            createdAt: Date.now(),
-          },
-          ...clients,
-        ];
+      : (() => {
+          const existing = clients.find((client) => client.name.trim().toLowerCase() === normalizedName);
+          if (existing) {
+            return clients.map((client) =>
+              client.id === existing.id
+                ? {
+                    ...client,
+                    name: clientName.trim(),
+                    category: client.category || "Client",
+                    logoUrl: normalizedLogo,
+                    websiteUrl: client.websiteUrl || "",
+                  }
+                : client
+            );
+          }
+          return [
+            {
+              id: `client-${Date.now()}`,
+              name: clientName.trim(),
+              category: "Client",
+              logoUrl: normalizedLogo,
+              websiteUrl: "",
+              createdAt: Date.now(),
+            },
+            ...clients,
+          ];
+        })();
 
     setClients(updated);
     saveClientsItems(updated);
