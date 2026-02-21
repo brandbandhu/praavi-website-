@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { checkSupabaseConnection, supabase } from "@/lib/supabase";
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
@@ -11,20 +11,20 @@ const AdminLoginPage = () => {
 
   useEffect(() => {
     const verifySession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
-      if (!session) return;
+        if (!session) return;
 
-      const { data } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
-        .maybeSingle();
+        const { data } = await supabase.from("profiles").select("role").eq("id", session.user.id).maybeSingle();
 
-      if (data?.role === "admin") {
-        navigate("/admin/dashboard", { replace: true });
+        if (data?.role === "admin") {
+          navigate("/admin/dashboard", { replace: true });
+        }
+      } catch {
+        setError("Unable to connect to Supabase. Check Vercel env vars and network access.");
       }
     };
 
@@ -35,43 +35,59 @@ const AdminLoginPage = () => {
     e.preventDefault();
     setError("");
     setSubmitting(true);
+    try {
+      const isSupabaseReachable = await checkSupabaseConnection();
+      if (!isSupabaseReachable) {
+        setError("Cannot reach Supabase. Recheck Vercel env vars and redeploy.");
+        setSubmitting(false);
+        return;
+      }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-    if (signInError) {
-      setError(signInError.message || "Invalid email or password.");
+      if (signInError) {
+        const isNetworkError = signInError.message?.toLowerCase().includes("failed to fetch");
+        setError(
+          isNetworkError
+            ? "Cannot reach Supabase. Verify VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel."
+            : signInError.message || "Invalid email or password."
+        );
+        setSubmitting(false);
+        return;
+      }
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        setError("Login failed. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      if (profileError || !profile || profile.role !== "admin") {
+        await supabase.auth.signOut();
+        setError("Access denied. This user is not an admin.");
+        setSubmitting(false);
+        return;
+      }
+
       setSubmitting(false);
-      return;
-    }
-
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session) {
-      setError("Login failed. Please try again.");
+      navigate("/admin/dashboard");
+    } catch {
+      setError("Cannot reach Supabase. Verify Vercel env vars and network access.");
       setSubmitting(false);
-      return;
     }
-
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .maybeSingle();
-
-    if (profileError || !profile || profile.role !== "admin") {
-      await supabase.auth.signOut();
-      setError("Access denied. This user is not an admin.");
-      setSubmitting(false);
-      return;
-    }
-
-    setSubmitting(false);
-    navigate("/admin/dashboard");
   };
 
   return (
