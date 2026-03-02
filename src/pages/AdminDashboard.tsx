@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createSlug, getBlogPosts, saveBlogPosts, type BlogPost } from "@/lib/blogStore";
 import { getPortfolioItems, savePortfolioItems, type PortfolioItem } from "@/lib/portfolioStore";
@@ -9,6 +9,9 @@ import {
   deleteBlogPostFromSupabase,
   deleteClientFromSupabase,
   deletePortfolioItemFromSupabase,
+  fetchActiveClients,
+  fetchPublishedBlogPosts,
+  fetchPublishedPortfolioItems,
   upsertBlogPostsToSupabase,
   upsertClientsToSupabase,
   upsertPortfolioItemsToSupabase,
@@ -67,6 +70,35 @@ const AdminDashboardPage = () => {
   const [syncMessage, setSyncMessage] = useState("");
   const [syncError, setSyncError] = useState("");
   const [syncing, setSyncing] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    Promise.all([fetchPublishedBlogPosts(), fetchPublishedPortfolioItems(), fetchActiveClients()])
+      .then(([livePosts, liveWorks, liveClients]) => {
+        if (!mounted) return;
+
+        if (livePosts.length > 0) {
+          setPosts(livePosts);
+          saveBlogPosts(livePosts);
+        }
+        if (liveWorks.length > 0) {
+          setWorks(liveWorks);
+          savePortfolioItems(liveWorks);
+        }
+        if (liveClients.length > 0) {
+          setClients(liveClients);
+          saveClientsItems(liveClients);
+        }
+      })
+      .catch(() => {
+        // Keep local fallback when Supabase is unavailable or empty.
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const syncAllToSupabase = async () => {
     setSyncing(true);
