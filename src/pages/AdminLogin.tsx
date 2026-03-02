@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { checkSupabaseConnection, supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
@@ -36,13 +36,6 @@ const AdminLoginPage = () => {
     setError("");
     setSubmitting(true);
     try {
-      const isSupabaseReachable = await checkSupabaseConnection();
-      if (!isSupabaseReachable) {
-        setError("Cannot reach Supabase. Recheck Vercel env vars and redeploy.");
-        setSubmitting(false);
-        return;
-      }
-
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
