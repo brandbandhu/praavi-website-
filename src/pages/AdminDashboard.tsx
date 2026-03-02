@@ -357,8 +357,8 @@ const AdminDashboardPage = () => {
       const uploadedUrl = await uploadImageToGodaddy(file, "blogs");
       setImageUrl(uploadedUrl);
       setError("");
-    } catch {
-      setError("Could not upload blog image to GoDaddy.");
+    } catch (error) {
+      setError(`Could not upload blog image: ${getErrorMessage(error)}`);
     }
   };
 
@@ -368,8 +368,8 @@ const AdminDashboardPage = () => {
       const uploadedUrl = await uploadImageToGodaddy(file, "works");
       setWorkImageUrl(uploadedUrl);
       setWorkError("");
-    } catch {
-      setWorkError("Could not upload work image to GoDaddy.");
+    } catch (error) {
+      setWorkError(`Could not upload work image: ${getErrorMessage(error)}`);
     }
   };
 
@@ -379,8 +379,8 @@ const AdminDashboardPage = () => {
       const uploadedUrl = await uploadImageToGodaddy(file, "clients");
       setClientLogoUrl(uploadedUrl);
       setClientError("");
-    } catch {
-      setClientError("Could not upload client logo to GoDaddy.");
+    } catch (error) {
+      setClientError(`Could not upload client logo: ${getErrorMessage(error)}`);
     }
   };
 
