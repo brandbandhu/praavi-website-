@@ -67,6 +67,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Poppins', 'Inter', sans-serif;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -244,4 +245,9 @@
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+html, body, #root {
+  max-width: 100%;
 }
