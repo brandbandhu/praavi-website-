@@ -35,6 +35,66 @@ const toIso = (value: number) => new Date(value).toISOString();
 const asUuidOrUndefined = (value: string) => (UUID_RE.test(value) ? value : undefined);
 const normalizeName = (value: string) => value.trim().toLowerCase();
 
+const toBlogRichPayload = (post: BlogPost) => ({
+  ...(asUuidOrUndefined(post.id) ? { id: asUuidOrUndefined(post.id) } : {}),
+  title: post.title,
+  slug: post.slug,
+  excerpt: post.excerpt,
+  content: post.content,
+  image_url: post.imageUrl || DEFAULT_IMAGE,
+  category: post.category || "General",
+  read_time: post.readTime || "5 min read",
+  status: "published",
+  published_at: toIso(post.createdAt),
+});
+
+const toBlogMinimalPayload = (post: BlogPost) => ({
+  ...(asUuidOrUndefined(post.id) ? { id: asUuidOrUndefined(post.id) } : {}),
+  title: post.title,
+  slug: post.slug,
+  excerpt: post.excerpt,
+  content: post.content,
+  image_url: post.imageUrl || DEFAULT_IMAGE,
+  status: "published",
+});
+
+const isMissingOnConflictConstraint = (message: string) =>
+  /no unique|no exclusion|on conflict/i.test(message);
+
+const syncBlogPostsWithoutOnConflict = async (posts: BlogPost[]) => {
+  for (const post of posts) {
+    const richPayload = toBlogRichPayload(post);
+    const minimalPayload = toBlogMinimalPayload(post);
+
+    if (asUuidOrUndefined(post.id)) {
+      const updateById = await supabase
+        .from("blog_posts")
+        .update(richPayload)
+        .eq("id", post.id)
+        .select("id")
+        .limit(1);
+      if (!updateById.error && (updateById.data?.length ?? 0) > 0) continue;
+    }
+
+    const updateBySlug = await supabase
+      .from("blog_posts")
+      .update(richPayload)
+      .eq("slug", post.slug)
+      .select("id")
+      .limit(1);
+
+    if (!updateBySlug.error && (updateBySlug.data?.length ?? 0) > 0) {
+      continue;
+    }
+
+    let insertAttempt = await supabase.from("blog_posts").insert(richPayload);
+    if (!insertAttempt.error) continue;
+
+    insertAttempt = await supabase.from("blog_posts").insert(minimalPayload);
+    if (insertAttempt.error) throw insertAttempt.error;
+  }
+};
+
 export const fetchPublishedBlogPosts = async (): Promise<BlogPost[]> => {
   const { data, error } = await supabase
     .from("blog_posts")
@@ -134,36 +194,24 @@ export const fetchActiveClients = async (): Promise<ClientItem[]> => {
 };
 
 export const upsertBlogPostsToSupabase = async (posts: BlogPost[]) => {
-  const payload = posts.map((post) => ({
-    ...(asUuidOrUndefined(post.id) ? { id: asUuidOrUndefined(post.id) } : {}),
-    title: post.title,
-    slug: post.slug,
-    excerpt: post.excerpt,
-    content: post.content,
-    image_url: post.imageUrl || DEFAULT_IMAGE,
-    category: post.category || "General",
-    read_time: post.readTime || "5 min read",
-    status: "published",
-    published_at: toIso(post.createdAt),
-  }));
+  const payload = posts.map(toBlogRichPayload);
 
   let { error } = await supabase.from("blog_posts").upsert(payload, { onConflict: "slug" });
   if (!error) return;
 
   // Fallback for minimal schemas.
-  const minimalPayload = posts.map((post) => ({
-    ...(asUuidOrUndefined(post.id) ? { id: asUuidOrUndefined(post.id) } : {}),
-    title: post.title,
-    slug: post.slug,
-    excerpt: post.excerpt,
-    content: post.content,
-    image_url: post.imageUrl || DEFAULT_IMAGE,
-    status: "published",
-  }));
+  const minimalPayload = posts.map(toBlogMinimalPayload);
 
   const fallback = await supabase.from("blog_posts").upsert(minimalPayload, { onConflict: "slug" });
   error = fallback.error;
-  if (error) throw error;
+  if (!error) return;
+
+  if (isMissingOnConflictConstraint(error.message ?? "")) {
+    await syncBlogPostsWithoutOnConflict(posts);
+    return;
+  }
+
+  throw error;
 };
 
 export const deleteBlogPostFromSupabase = async (id: string) => {

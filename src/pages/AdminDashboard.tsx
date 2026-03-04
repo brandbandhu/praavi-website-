@@ -30,6 +30,9 @@ const parseTags = (input: string) =>
     .map((tag) => tag.trim())
     .filter(Boolean);
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const getErrorMessage = (error: unknown) => {
   if (typeof error === "object" && error !== null && "message" in error) {
     return String((error as { message: unknown }).message);
@@ -99,6 +102,24 @@ const AdminDashboardPage = () => {
       mounted = false;
     };
   }, []);
+
+  // Legacy local posts used timestamp IDs; normalize once so Supabase sync always gets UUID IDs.
+  useEffect(() => {
+    const normalizedPosts = posts.map((post) =>
+      UUID_RE.test(post.id)
+        ? post
+        : {
+            ...post,
+            id: crypto.randomUUID(),
+          }
+    );
+
+    const changed = normalizedPosts.some((post, index) => post.id !== posts[index]?.id);
+    if (!changed) return;
+
+    setPosts(normalizedPosts);
+    saveBlogPosts(normalizedPosts);
+  }, [posts]);
 
   const syncAllToSupabase = async () => {
     setSyncing(true);
@@ -174,7 +195,7 @@ const AdminDashboardPage = () => {
         })
       : [
           {
-            id: String(Date.now()),
+            id: crypto.randomUUID(),
             slug: posts.some((p) => p.slug === slugBase) ? `${slugBase}-${Date.now()}` : slugBase,
             title: title.trim(),
             excerpt: excerpt.trim(),
@@ -190,8 +211,8 @@ const AdminDashboardPage = () => {
 
     setPosts(updated);
     saveBlogPosts(updated);
-    void upsertBlogPostsToSupabase(updated).catch(() => {
-      setError("Saved locally, but failed to sync blog to Supabase.");
+    void upsertBlogPostsToSupabase(updated).catch((syncError: unknown) => {
+      setError(`Saved locally, but failed to sync blog to Supabase: ${getErrorMessage(syncError)}`);
     });
     resetBlogForm();
   };
