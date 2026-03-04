@@ -24,12 +24,35 @@ async function sendLeadToGoogleSheets(body: Record<string, string>): Promise<voi
     ...body,
     api_key: GOOGLE_SHEETS_API_KEY,
   };
+  const formEncodedPayload = new URLSearchParams(
+    Object.entries(payload).map(([key, value]) => [key, value ?? ""]),
+  ).toString();
 
   try {
     const res = await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      keepalive: true,
+    });
+    if (res.ok) return;
+
+    let errorBody = "";
+    try {
+      errorBody = await res.text();
+    } catch {
+      // Ignore response body read failures.
+    }
+    console.error("Google Sheets webhook JSON request failed:", res.status, errorBody);
+  } catch {
+    // Fall through to no-cors fallback.
+  }
+
+  try {
+    const res = await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: formEncodedPayload,
       keepalive: true,
     });
     if (res.ok) return;
@@ -46,7 +69,7 @@ async function sendLeadToGoogleSheets(body: Record<string, string>): Promise<voi
       keepalive: true,
     });
   } catch {
-    // Ignore sheet errors so primary flow is not blocked.
+    console.error("Google Sheets webhook request failed in all modes.");
   }
 }
 
