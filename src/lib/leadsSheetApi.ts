@@ -12,9 +12,11 @@ export interface LeadSheetRow {
 }
 
 const GOOGLE_SHEETS_WEBHOOK_URL =
-  (import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL as string | undefined)?.trim() || "";
+  (import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL as string | undefined)?.trim() ||
+  "https://script.google.com/macros/s/AKfycbwc-j-1gEGjGQO_80I_NYxDT2zOBSs34oDiUXsMYls4abSdxtA4OhRa32mcGsj1-nMIcQ/exec";
 const GOOGLE_SHEETS_API_KEY =
-  (import.meta.env.VITE_GOOGLE_SHEETS_API_KEY as string | undefined)?.trim() || "";
+  (import.meta.env.VITE_GOOGLE_SHEETS_API_KEY as string | undefined)?.trim() ||
+  "optional-shared-secret";
 
 interface LeadsApiResponse {
   ok?: boolean;
@@ -84,7 +86,7 @@ const fetchLeadRowsByJsonp = (endpoint: string): Promise<LeadsApiResponse> =>
 export async function fetchLeadSheetRows(limit = 500): Promise<LeadSheetRow[]> {
   const endpoint = buildLeadsEndpoint(limit);
   if (!endpoint) {
-    throw new Error("VITE_GOOGLE_SHEETS_WEBHOOK_URL is not configured.");
+    throw new Error("Google Sheets webhook URL is not configured.");
   }
 
   let payload: LeadsApiResponse;

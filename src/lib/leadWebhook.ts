@@ -10,10 +10,15 @@ export interface LeadPayload {
 const PRIVYR_WEBHOOK_URL =
   (import.meta.env.VITE_PRIVYR_WEBHOOK_URL as string | undefined)?.trim() ||
   "https://www.privyr.com/api/v1/incoming-leads/0vZfjMQw/cgVVSiYW";
+const DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL =
+  "https://script.google.com/macros/s/AKfycbwc-j-1gEGjGQO_80I_NYxDT2zOBSs34oDiUXsMYls4abSdxtA4OhRa32mcGsj1-nMIcQ/exec";
+const DEFAULT_GOOGLE_SHEETS_API_KEY = "optional-shared-secret";
 const GOOGLE_SHEETS_WEBHOOK_URL =
-  (import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL as string | undefined)?.trim() || "";
+  (import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL as string | undefined)?.trim() ||
+  DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
 const GOOGLE_SHEETS_API_KEY =
-  (import.meta.env.VITE_GOOGLE_SHEETS_API_KEY as string | undefined)?.trim() || "";
+  (import.meta.env.VITE_GOOGLE_SHEETS_API_KEY as string | undefined)?.trim() ||
+  DEFAULT_GOOGLE_SHEETS_API_KEY;
 
 const clean = (value?: string) => value?.trim() || "";
 
