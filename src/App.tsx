@@ -55,12 +55,15 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/website-development" element={<WebsiteDevelopment />} />
+            <Route path="/website-development" element={<WebsiteDevelopment />} />
             <Route path="/services/seo" element={<SEOService />} />
+            <Route path="/seo-services" element={<SEOService />} />
             <Route path="/services/google-ads" element={<GoogleAdsService />} />
             <Route path="/services/graphic-design" element={<GraphicDesignService />} />
             <Route path="/services/digital-marketing" element={<DigitalMarketingService />} />
             <Route path="/services/social-media-management" element={<SocialMediaManagementService />} />
             <Route path="/services/social-media-marketing" element={<SocialMediaManagementService />} />
+            <Route path="/social-media-marketing" element={<SocialMediaManagementService />} />
             <Route path="/services/shopify-development" element={<ShopifyDevelopmentService />} />
             <Route path="/services/google-ads/search-ads" element={<SearchAds />} />
             <Route path="/services/google-ads/display-ads" element={<DisplayAds />} />

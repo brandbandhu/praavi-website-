@@ -571,7 +571,11 @@ const AdminDashboardPage = () => {
                 <article key={client.id} className="service-card">
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div className="flex items-start gap-3">
-                      <img src={client.logoUrl} alt={client.name} className="w-12 h-12 rounded-lg object-cover border border-border" />
+                      <img
+                        src={client.logoUrl}
+                        alt={`${client.name} logo`}
+                        className="w-12 h-12 rounded-lg object-cover border border-border"
+                      />
                       <div>
                         <h3 className="font-display text-lg font-semibold">{client.name}</h3>
                       </div>

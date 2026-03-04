@@ -2,6 +2,7 @@ import { ArrowRight, Code2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
+import SeoHead from "@/components/SeoHead";
 
 const subServices = [
   { label: "React Development", path: "/services/web-development/react-development" },
@@ -92,9 +93,14 @@ const techStack = [
 const WebsiteDevelopmentPage = () => {
   return (
     <>
+      <SeoHead
+        title="Website Development Company in Loni Kalbhor | Web Development Company in Pune"
+        description="Praavi Consultants is a website development company in Loni Kalbhor delivering business websites, ecommerce website development Pune projects, and WordPress website development Pune solutions."
+        canonicalPath="/website-development"
+      />
       <PageHero
         tag="Web Development Services"
-        title="Website Development Service"
+        title="Website Development Services in Pune"
         highlightWord="Website Development"
         subtitle="Custom-built, high-performance websites using React, Next.js, and modern frameworks."
       />

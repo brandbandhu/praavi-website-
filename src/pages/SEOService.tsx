@@ -2,6 +2,7 @@ import { BarChart3, Link2, Search, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
+import SeoHead from "@/components/SeoHead";
 
 const coreCards = [
   {
@@ -72,17 +73,23 @@ const seoServices = [
 const SEOServicePage = () => {
   return (
     <>
+      <SeoHead
+        title="SEO Services in Loni Kalbhor Pune | Professional SEO Company in Pune"
+        description="Praavi Consultants offers professional SEO services Pune businesses trust, including technical SEO, local SEO services in Pune, and on-page optimization for higher rankings."
+        canonicalPath="/seo-services"
+      />
       <PageHero
         tag="SEO Services"
-        title="#1 SEO Agency in India"
-        subtitle="Drive qualified traffic, increase conversions, and maximize ROI with performance-focused SEO services."
+        title="SEO Services in Loni Kalbhor Pune"
+        subtitle="Drive qualified traffic, increase conversions, and maximize ROI with performance-focused SEO services for Pune businesses."
       />
 
       <section className="section-padding">
         <div className="container-max max-w-4xl text-center">
           <p className="text-muted-foreground leading-relaxed">
             We combine technical precision, content strategy, and authority building to improve rankings and grow
-            organic business outcomes. Our SEO approach is built for measurable results.
+            organic business outcomes. If you are looking for SEO experts in Loni Kalbhor, our team builds practical
+            strategies for local and regional search growth.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link

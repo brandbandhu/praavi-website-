@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
 import { getBlogPosts, type BlogPost } from "@/lib/blogStore";
 import { fetchPublishedBlogPosts } from "@/lib/contentApi";
+import SeoHead from "@/components/SeoHead";
 
 const BlogPage = () => {
   const [posts, setPosts] = useState<BlogPost[]>(getBlogPosts());
@@ -26,6 +27,11 @@ const BlogPage = () => {
 
   return (
     <>
+      <SeoHead
+        title="Digital Marketing Tips Pune | SEO Strategies & Website Development Guide Pune"
+        description="Read Praavi blog posts on digital marketing tips Pune businesses can apply, website development guide Pune insights, local SEO services Pune tactics, and practical growth strategies."
+        canonicalPath="/blog"
+      />
       <PageHero
         tag="Insights & Resources"
         title="Praavi Blog"
@@ -34,12 +40,20 @@ const BlogPage = () => {
 
       <section className="section-padding">
         <div className="container-max">
+          <div className="service-card mb-8">
+            <h2 className="font-display text-2xl font-bold mb-3">Blog Topics for Pune Businesses</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Explore digital marketing tips Pune brands can apply, a practical website development guide Pune
+              founders can follow, and SEO strategies for small businesses. Our content also covers local SEO services
+              Pune teams can use and the best marketing strategies for businesses in Pune.
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post) => (
               <article key={post.id} className="service-card flex flex-col overflow-hidden">
                 <img
                   src={post.imageUrl}
-                  alt={post.title}
+                  alt={`${post.title} - digital marketing tips Pune`}
                   className="w-full h-44 object-cover rounded-xl mb-4"
                   loading="lazy"
                 />

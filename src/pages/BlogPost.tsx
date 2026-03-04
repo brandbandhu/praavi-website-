@@ -3,6 +3,7 @@ import { Calendar, Clock } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { getBlogPostBySlug, type BlogPost } from "@/lib/blogStore";
 import { fetchPublishedBlogPostBySlug } from "@/lib/contentApi";
+import SeoHead from "@/components/SeoHead";
 
 const renderContent = (content: string) => {
   const lines = content
@@ -89,36 +90,43 @@ const BlogPostPage = () => {
   }
 
   return (
-    <section className="section-padding">
-      <article className="container-max max-w-3xl service-card">
-        <img
-          src={post.imageUrl}
-          alt={post.title}
-          className="w-full h-64 sm:h-80 object-cover rounded-xl mb-6"
-        />
-        <p className="text-xs text-muted-foreground mb-3">{post.category}</p>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight mb-4">{post.title}</h1>
-        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground mb-6">
-          <span className="inline-flex items-center gap-2">
-            <Calendar size={14} className="text-primary" />
-            {post.date}
-          </span>
-          <span className="inline-flex items-center gap-2">
-            <Clock size={14} className="text-primary" />
-            {post.readTime}
-          </span>
-        </div>
+    <>
+      <SeoHead
+        title={`${post.title} | Praavi Blog`}
+        description={post.excerpt}
+        canonicalPath={`/blog/${post.slug}`}
+      />
+      <section className="section-padding">
+        <article className="container-max max-w-3xl service-card">
+          <img
+            src={post.imageUrl}
+            alt={`${post.title} - website development company in Pune`}
+            className="w-full h-64 sm:h-80 object-cover rounded-xl mb-6"
+          />
+          <p className="text-xs text-muted-foreground mb-3">{post.category}</p>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight mb-4">{post.title}</h1>
+          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground mb-6">
+            <span className="inline-flex items-center gap-2">
+              <Calendar size={14} className="text-primary" />
+              {post.date}
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <Clock size={14} className="text-primary" />
+              {post.readTime}
+            </span>
+          </div>
 
-        <p className="text-sm text-muted-foreground mb-5">{post.excerpt}</p>
-        <div className="space-y-3">{renderContent(post.content)}</div>
+          <p className="text-sm text-muted-foreground mb-5">{post.excerpt}</p>
+          <div className="space-y-3">{renderContent(post.content)}</div>
 
-        <div className="mt-8">
-          <Link to="/blog" className="text-sm text-primary hover:underline">
-            Back to all blogs
-          </Link>
-        </div>
-      </article>
-    </section>
+          <div className="mt-8">
+            <Link to="/blog" className="text-sm text-primary hover:underline">
+              Back to all blogs
+            </Link>
+          </div>
+        </article>
+      </section>
+    </>
   );
 };
 

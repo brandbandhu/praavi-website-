@@ -74,7 +74,7 @@ const LeadPopup = () => {
               <div className="relative hidden md:block">
                 <img
                   src={popupImage}
-                  alt="Growth strategy visual"
+                  alt="Google Ads management Pune and SEO services in Loni Kalbhor strategy session"
                   onError={(e) => {
                     e.currentTarget.src = "/placeholder.svg";
                   }}

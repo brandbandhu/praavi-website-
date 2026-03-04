@@ -1,6 +1,7 @@
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
 import { Mail, MapPin, Phone } from "lucide-react";
+import SeoHead from "@/components/SeoHead";
 
 const contactInfo = [
   {
@@ -56,11 +57,16 @@ const ContactInfoSection = () => {
 const ContactPage = () => {
   return (
     <>
+      <SeoHead
+        title="Contact Praavi Consultants | Digital Marketing Agency in Loni Kalbhor Pune"
+        description="Contact Praavi Consultants for digital marketing, website development, SEO services, and Google Ads management in Loni Kalbhor, Hadapsar, Manjri, Uruli Kanchan, and Pune."
+        canonicalPath="/contact"
+      />
       <PageHero
         tag="Contact Us"
         title="Let's Build Something Great"
         highlightWord="Great"
-        subtitle="Ready to transform your digital presence? Get in touch today."
+        subtitle="Ready to transform your digital presence in Loni Kalbhor, Hadapsar, Manjri, Uruli Kanchan, and Pune? Get in touch today."
       />
       <ContactInfoSection />
       <ContactForm />

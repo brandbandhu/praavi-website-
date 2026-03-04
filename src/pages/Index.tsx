@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 import LeadPopup from "@/components/LeadPopup";
+import SeoHead from "@/components/SeoHead";
 import heroBanner from "@/assets/banner.jpg";
 
 /* ---- Hero ---- */
@@ -37,8 +38,7 @@ const Hero = () => (
         transition={{ duration: 0.7, delay: 0.15 }}
         className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight max-w-5xl mx-auto"
       >
-        Kickstart Your Business with{" "}
-        <span className="gradient-text">Praavi Consultants</span>
+        Best Digital Marketing Agency in Loni Kalbhor Pune
       </motion.h1>
 
       <motion.h2
@@ -47,16 +47,16 @@ const Hero = () => (
         transition={{ duration: 0.6, delay: 0.3 }}
         className="font-display text-lg sm:text-xl md:text-2xl font-semibold text-accent mt-4"
       >
-        Best Digital Marketing Agency Worldwide
+        Website Development, SEO Services, Google Ads, and Social Media Marketing
       </motion.h2>
 
       <motion.p
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
-        className="text-muted-foreground mt-3 text-sm sm:text-base"
+        className="text-muted-foreground mt-3 text-sm sm:text-base max-w-3xl mx-auto"
       >
-        Are you ready to fly with us?
+        Praavi Consultants helps local businesses in Loni Kalbhor, Hadapsar, Manjri, Uruli Kanchan, and Pune grow with data-driven online marketing services.
       </motion.p>
 
       <motion.div
@@ -69,13 +69,13 @@ const Hero = () => (
           to="/contact"
           className="gradient-bg px-8 py-3.5 rounded-xl font-semibold text-primary-foreground flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
-          Get Started <ArrowRight size={18} />
+          Talk to a digital marketing agency near me team <ArrowRight size={18} />
         </Link>
         <Link
           to="/services"
           className="glass-card glass-card-hover px-8 py-3.5 rounded-xl font-semibold text-foreground transition-all"
         >
-          Our Services
+          Explore professional website development services
         </Link>
       </motion.div>
     </div>
@@ -367,12 +367,125 @@ const WhyChooseUs = () => {
   );
 };
 
+const localSeoSections = [
+  {
+    title: "Website Development Services in Pune",
+    description:
+      "We are a website development company in Loni Kalbhor and web development company in Pune delivering business website development Pune brands can scale with. As a website design company Pune businesses trust and a website development agency near me option, our team includes some of the best website designers in Pune.",
+  },
+  {
+    title: "SEO Services in Loni Kalbhor",
+    description:
+      "As an SEO company in Pune, we provide professional SEO services Pune businesses use to improve rankings, leads, and conversions. If you are searching for an SEO expert near me or best SEO agency near me, our local SEO services in Pune are designed for measurable growth.",
+  },
+  {
+    title: "Social Media Marketing Agency in Pune",
+    description:
+      "Praavi is a top social media marketing agency Pune brands trust for platform strategy, content, and paid campaigns. As a social media marketing agency in Pune, we support small business digital marketing Pune companies need to improve visibility and generate qualified inquiries.",
+  },
+  {
+    title: "Google Ads & PPC Services Pune",
+    description:
+      "Need a Google Ads agency in Pune with performance focus? We manage PPC services Pune businesses rely on, including search, display, video, and remarketing. Our media buyers include a Google Ads expert in Pune and provide Meta Ads agency in Pune campaign planning and optimization.",
+  },
+  {
+    title: "E-Commerce Website Development Pune",
+    description:
+      "Our ecommerce website development Pune service includes conversion-focused storefronts, product architecture, secure checkout, and marketing integrations. We also deliver WordPress website development Pune companies choose for flexible content management and growth.",
+  },
+  {
+    title: "Local SEO Services for Small Businesses",
+    description:
+      "For businesses in Loni Kalbhor, Hadapsar, Manjri, Uruli Kanchan, and across Pune, we combine maps optimization, local landing pages, and review strategies to improve local discovery. That makes us a best digital marketing company in Loni Kalbhor Pune option for near-me intent searches.",
+  },
+];
+
+const LocalSeoContentSection = () => {
+  return (
+    <section className="section-padding bg-card">
+      <div className="container-max">
+        <div className="text-center mb-10">
+          <h2 className="font-display text-3xl sm:text-4xl font-bold">
+            Digital Marketing Services in <span className="gradient-text">Loni Kalbhor & Pune</span>
+          </h2>
+          <p className="text-muted-foreground mt-3 max-w-3xl mx-auto text-sm sm:text-base">
+            We work as your digital marketing company near me partner for growth-focused campaigns and websites, with
+            digital marketing services in Loni Kalbhor Pune businesses can grow from.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {localSeoSections.map((section) => (
+            <article key={section.title} className="service-card">
+              <h2 className="font-display text-2xl font-bold mb-3">{section.title}</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">{section.description}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="service-card mt-8">
+          <h3 className="font-display text-xl font-semibold mb-3">Helpful Links</h3>
+          <div className="flex flex-wrap gap-3 text-sm">
+            <Link to="/services" className="text-primary hover:underline">
+              best digital marketing agency in Pune
+            </Link>
+            <Link to="/website-development" className="text-primary hover:underline">
+              professional website development services
+            </Link>
+            <Link to="/seo-services" className="text-primary hover:underline">
+              SEO experts in Loni Kalbhor
+            </Link>
+            <Link to="/social-media-marketing" className="text-primary hover:underline">
+              top digital marketing company near me
+            </Link>
+            <Link to="/contact" className="text-primary hover:underline">
+              best digital marketing agency in Loni Kalbhor
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 /* ---- Page ---- */
 const Index = () => {
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "DigitalMarketingAgency",
+    name: "Praavi Consultants",
+    url: "https://www.praaviconsultants.in",
+    image: "https://www.praaviconsultants.in/favicon.png",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "1st Floor, Anand Complex, Solapur - Pune Hwy, near Ambika Jewellers, Loni Kalbhor",
+      addressLocality: "Pune",
+      addressRegion: "Maharashtra",
+      postalCode: "412201",
+      addressCountry: "IN",
+    },
+    areaServed: ["Loni Kalbhor", "Hadapsar", "Manjri", "Uruli Kanchan", "Pune"],
+    knowsAbout: [
+      "Digital Marketing",
+      "Website Development",
+      "SEO Services",
+      "Google Ads",
+      "Social Media Marketing",
+    ],
+    telephone: "+91-9699369117",
+  };
+
   return (
     <>
+      <SeoHead
+        title="Best Digital Marketing Agency in Loni Kalbhor Pune | Website Development & SEO Services | Praavi Consultants"
+        description="Praavi Consultants is a leading digital marketing agency in Loni Kalbhor Pune offering website development, SEO services, social media marketing, and Google Ads management to grow your business online."
+        canonicalPath="/"
+        schema={localBusinessSchema}
+      />
       <Hero />
       <ServiceTabsSection />
+      <LocalSeoContentSection />
       <IndustriesSection />
       <WhyChooseUs />
       <ContactForm />

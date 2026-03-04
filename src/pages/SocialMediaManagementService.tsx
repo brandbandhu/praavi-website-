@@ -2,6 +2,7 @@ import { BarChart3, Megaphone, Sparkles, Target, TrendingUp, Users } from "lucid
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
+import SeoHead from "@/components/SeoHead";
 
 const platforms = [
   { name: "Facebook", users: "2.9B+ users" },
@@ -44,9 +45,14 @@ const resultStats = [
 const SocialMediaManagementServicePage = () => {
   return (
     <>
+      <SeoHead
+        title="Social Media Marketing Agency in Pune | Meta Ads Agency in Pune"
+        description="Praavi Consultants is a social media marketing agency in Pune offering content strategy, paid campaigns, and Meta Ads management for consistent lead generation."
+        canonicalPath="/social-media-marketing"
+      />
       <PageHero
         tag="Social Media Marketing Services"
-        title="#1 Social Media Marketing Agency"
+        title="Social Media Marketing Agency in Pune"
         subtitle="Grow your brand, engage your audience, and drive conversions with expert social media marketing across major platforms."
       />
 

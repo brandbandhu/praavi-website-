@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
+import SeoHead from "@/components/SeoHead";
 
 const services = [
   {
@@ -114,6 +115,11 @@ const ServicesPage = () => {
 
   return (
     <>
+      <SeoHead
+        title="Digital Marketing Services in Loni Kalbhor Pune | Praavi Consultants"
+        description="Explore digital marketing services in Loni Kalbhor Pune including SEO, website development, social media marketing, Google Ads, and PPC management by Praavi Consultants."
+        canonicalPath="/services"
+      />
       <PageHero
         title="Services That Drive Real Results"
         highlightWord="Real Results"

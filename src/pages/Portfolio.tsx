@@ -76,7 +76,11 @@ const PortfolioPage = () => {
                 className="service-card overflow-hidden"
               >
                 <div className="-mx-6 -mt-6 h-44 mb-6 overflow-hidden">
-                  <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover" />
+                  <img
+                    src={project.imageUrl}
+                    alt={`${project.title} - website development company in Pune portfolio`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
 
                 <p className="text-xs text-primary mb-2">{project.client}</p>

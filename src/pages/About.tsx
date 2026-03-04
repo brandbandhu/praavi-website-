@@ -46,7 +46,7 @@ const AboutPage = () => {
             >
               <img
                 src={aboutImage}
-                alt="About Praavi Consultants"
+                alt="Praavi Consultants team - digital marketing agency in Pune"
                 className="w-full h-full object-cover"
               />
             </motion.div>

@@ -56,7 +56,11 @@ const ClientsPage = () => {
                 className="client-logo-card flex-col gap-3 p-6"
               >
                 <div className="w-24 h-24 rounded-2xl bg-secondary flex items-center justify-center overflow-hidden border border-border">
-                  <img src={client.logoUrl} alt={client.name} className="w-full h-full object-cover" />
+                  <img
+                    src={client.logoUrl}
+                    alt={`${client.name} - social media marketing agency Pune client`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span className="font-medium text-base text-foreground text-center">{client.name}</span>
               </motion.div>
