@@ -7,145 +7,29 @@ export interface LeadPayload {
   message?: string;
 }
 
+const PRIVYR_WEBHOOK_URL =
+  (import.meta.env.VITE_PRIVYR_WEBHOOK_URL as string | undefined)?.trim() ||
+  "https://www.privyr.com/api/v1/incoming-leads/0vZfjMQw/cgVVSiYW";
 const GOOGLE_SHEETS_WEBHOOK_URL =
   (import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL as string | undefined)?.trim() || "";
 const GOOGLE_SHEETS_API_KEY =
   (import.meta.env.VITE_GOOGLE_SHEETS_API_KEY as string | undefined)?.trim() || "";
 
 const clean = (value?: string) => value?.trim() || "";
-const redactApiKey = (value: string) => (value ? `${value.slice(0, 4)}***${value.slice(-4)}` : "");
-const isCrossOrigin = (url: string) => {
-  if (typeof window === "undefined") return false;
-  try {
-    return new URL(url, window.location.origin).origin !== window.location.origin;
-  } catch {
-    return false;
-  }
+
+type LeadRequestBody = {
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  message: string;
+  source_form: LeadPayload["sourceForm"];
+  source_website: string;
+  source_page: string;
+  submitted_at: string;
 };
 
-// async function sendLeadToGoogleSheets(body: Record<string, string>): Promise<void> {
-//   if (!GOOGLE_SHEETS_WEBHOOK_URL) return;
-
-//   const payload = {
-//     ...body,
-//     api_key: GOOGLE_SHEETS_API_KEY,
-//   };
-//   const formEncodedPayload = new URLSearchParams(
-//     Object.entries(payload).map(([key, value]) => [key, value ?? ""]),
-//   ).toString();
-//   const debugContext = {
-//     webhookUrl: GOOGLE_SHEETS_WEBHOOK_URL,
-//     payload: { ...body, api_key: redactApiKey(GOOGLE_SHEETS_API_KEY) },
-//   };
-//   const crossOrigin = isCrossOrigin(GOOGLE_SHEETS_WEBHOOK_URL);
-
-//   if (crossOrigin) {
-//     // Apps Script usually does not expose CORS headers, so send as fire-and-forget.
-//     try {
-//       await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
-//         method: "POST",
-//         mode: "no-cors",
-//         headers: { "Content-Type": "text/plain;charset=UTF-8" },
-//         body: JSON.stringify(payload),
-//         keepalive: true,
-//       });
-//       return;
-//     } catch (error) {
-//       console.error("Google Sheets webhook no-cors request threw:", error);
-//       console.error("Google Sheets webhook no-cors request context:", debugContext);
-//       return;
-//     }
-//   }
-
-//   try {
-//     const res = await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify(payload),
-//       keepalive: true,
-//     });
-//     if (res.ok) return;
-
-//     let errorBody = "";
-//     try {
-//       errorBody = await res.text();
-//     } catch {
-//       // Ignore response body read failures.
-//     }
-//     console.error("Google Sheets webhook JSON request failed:", res.status, errorBody);
-//     console.error("Google Sheets webhook JSON request context:", debugContext);
-//   } catch (error) {
-//     console.error("Google Sheets webhook JSON request threw:", error);
-//     console.error("Google Sheets webhook JSON request context:", debugContext);
-//   }
-
-//   try {
-//     const res = await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-//       body: formEncodedPayload,
-//       keepalive: true,
-//     });
-//     if (res.ok) return;
-
-//     let errorBody = "";
-//     try {
-//       errorBody = await res.text();
-//     } catch {
-//       // Ignore response body read failures.
-//     }
-//     console.error("Google Sheets webhook form request failed:", res.status, errorBody);
-//     console.error("Google Sheets webhook form request context:", debugContext);
-//   } catch (error) {
-//     console.error("Google Sheets webhook form request threw:", error);
-//     console.error("Google Sheets webhook form request context:", debugContext);
-//   }
-
-//   try {
-//     await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
-//       method: "POST",
-//       mode: "no-cors",
-//       headers: { "Content-Type": "text/plain;charset=UTF-8" },
-//       body: JSON.stringify(payload),
-//       keepalive: true,
-//     });
-//   } catch (error) {
-//     console.error("Google Sheets webhook request failed in all modes:", error);
-//     console.error("Google Sheets webhook no-cors request context:", debugContext);
-//   }
-// }
-
-async function sendLeadToGoogleSheets(body: Record<string, string>): Promise<void> {
-
-  if (!GOOGLE_SHEETS_WEBHOOK_URL) return;
-
-  const payload = {
-    ...body,
-    api_key: GOOGLE_SHEETS_API_KEY,
-    submitted_at: new Date().toISOString()
-  };
-
-  try {
-    await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
-      method: "POST",
-      // headers: {
-      //   "Content-Type": "application/json"
-      // },
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "text/plain;charset=UTF-8"
-      },
-      body: JSON.stringify(payload),
-      keepalive: true,
-      redirect: "follow"
-    });
-
-  } catch (err) {
-    console.error("Google Sheets webhook error:", err);
-  }
-}
-
-export async function sendLeadToPrivyr(payload: LeadPayload): Promise<void> {
+const createLeadBody = (payload: LeadPayload): LeadRequestBody => {
   const body = {
     name: clean(payload.name),
     email: clean(payload.email),
@@ -157,7 +41,95 @@ export async function sendLeadToPrivyr(payload: LeadPayload): Promise<void> {
     source_page: window.location.href,
     submitted_at: new Date().toISOString(),
   };
+  return body;
+};
 
-  // Keep current integration path limited to Apps Script webhook only.
-  await sendLeadToGoogleSheets(body);
+async function sendLeadToGoogleSheets(body: LeadRequestBody): Promise<boolean> {
+  if (!GOOGLE_SHEETS_WEBHOOK_URL) return false;
+
+  const payload = GOOGLE_SHEETS_API_KEY ? { ...body, api_key: GOOGLE_SHEETS_API_KEY } : body;
+  const formEncodedPayload = new URLSearchParams(
+    Object.entries(payload).map(([key, value]) => [key, value ?? ""]),
+  ).toString();
+
+  try {
+    const res = await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    });
+    if (res.ok) return true;
+  } catch {
+    // Try additional modes below.
+  }
+
+  try {
+    const res = await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: formEncodedPayload,
+      keepalive: true,
+    });
+    if (res.ok) return true;
+  } catch {
+    // Try no-cors below.
+  }
+
+  try {
+    await fetch(GOOGLE_SHEETS_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function sendLeadToPrivyrWebhook(body: LeadRequestBody): Promise<boolean> {
+  try {
+    const res = await fetch(PRIVYR_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      keepalive: true,
+    });
+
+    if (res.ok) return true;
+  } catch {
+    // Fall through to no-cors fallback.
+  }
+
+  try {
+    await fetch(PRIVYR_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body: JSON.stringify(body),
+      keepalive: true,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function sendLeadToPrivyr(payload: LeadPayload): Promise<void> {
+  const body = createLeadBody(payload);
+  const [googleSheetsResult, privyrResult] = await Promise.allSettled([
+    sendLeadToGoogleSheets(body),
+    sendLeadToPrivyrWebhook(body),
+  ]);
+
+  const googleSheetsSuccess =
+    googleSheetsResult.status === "fulfilled" ? googleSheetsResult.value : false;
+  const privyrSuccess = privyrResult.status === "fulfilled" ? privyrResult.value : false;
+
+  if (!googleSheetsSuccess && !privyrSuccess) {
+    throw new Error("Lead submission failed for both Google Sheets and Privyr.");
+  }
 }
