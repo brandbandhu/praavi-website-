@@ -1,10 +1,21 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
+import { RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createSlug, getBlogPosts, saveBlogPosts, type BlogPost } from "@/lib/blogStore";
 import { getPortfolioItems, savePortfolioItems, type PortfolioItem } from "@/lib/portfolioStore";
 import { getClientsItems, saveClientsItems, type ClientItem } from "@/lib/clientsStore";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { supabase } from "@/lib/supabase";
 import { uploadImageToGodaddy } from "@/lib/uploadApi";
+import { fetchLeadSheetRows, type LeadSheetRow } from "@/lib/leadsSheetApi";
 import {
   deleteBlogPostFromSupabase,
   deleteClientFromSupabase,
@@ -40,9 +51,27 @@ const getErrorMessage = (error: unknown) => {
   return "Unknown error";
 };
 
+const LEAD_TABLE_COLUMNS = [
+  { key: "submitted_at", label: "Submitted At" },
+  { key: "source_form", label: "Source Form" },
+  { key: "name", label: "Name" },
+  { key: "email", label: "Email" },
+  { key: "phone", label: "Phone" },
+  { key: "service", label: "Service" },
+  { key: "message", label: "Message" },
+  { key: "source_page", label: "Source Page" },
+] as const;
+
+const formatLeadDateTime = (value?: string) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString();
+};
+
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState<"blog" | "work" | "clients">("blog");
+  const [activeSection, setActiveSection] = useState<"blog" | "work" | "clients" | "details">("blog");
 
   const [posts, setPosts] = useState<BlogPost[]>(getBlogPosts());
   const [title, setTitle] = useState("");
@@ -73,6 +102,11 @@ const AdminDashboardPage = () => {
   const [syncMessage, setSyncMessage] = useState("");
   const [syncError, setSyncError] = useState("");
   const [syncing, setSyncing] = useState(false);
+  const [leadRows, setLeadRows] = useState<LeadSheetRow[]>([]);
+  const [leadLoading, setLeadLoading] = useState(false);
+  const [leadRefreshing, setLeadRefreshing] = useState(false);
+  const [leadError, setLeadError] = useState("");
+  const [leadLastUpdated, setLeadLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -120,6 +154,39 @@ const AdminDashboardPage = () => {
     setPosts(normalizedPosts);
     saveBlogPosts(normalizedPosts);
   }, [posts]);
+
+  const loadLeadRows = useCallback(async (silent = false) => {
+    if (silent) {
+      setLeadRefreshing(true);
+    } else {
+      setLeadLoading(true);
+    }
+
+    setLeadError("");
+    try {
+      const data = await fetchLeadSheetRows();
+      setLeadRows(data);
+      setLeadLastUpdated(new Date());
+    } catch (error) {
+      setLeadError(error instanceof Error ? error.message : "Unable to load sheet data.");
+    } finally {
+      setLeadLoading(false);
+      setLeadRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeSection !== "details") return;
+
+    void loadLeadRows();
+    const interval = window.setInterval(() => {
+      void loadLeadRows(true);
+    }, 30000);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [activeSection, loadLeadRows]);
 
   const syncAllToSupabase = async () => {
     setSyncing(true);
@@ -497,6 +564,14 @@ const AdminDashboardPage = () => {
           >
             Clients Management
           </button>
+          <button
+            onClick={() => setActiveSection("details")}
+            className={`px-5 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
+              activeSection === "details" ? "gradient-bg text-primary-foreground border-transparent" : "border-border hover:bg-secondary"
+            }`}
+          >
+            View Details
+          </button>
         </div>
 
         {activeSection === "blog" ? (
@@ -570,7 +645,7 @@ const AdminDashboardPage = () => {
               ))}
             </div>
           </>
-        ) : (
+        ) : activeSection === "clients" ? (
           <>
             <div className="service-card">
               <h2 className="font-display text-xl font-semibold mb-4">{editingClientId ? "Edit Client" : "Add Client"}</h2>
@@ -610,6 +685,71 @@ const AdminDashboardPage = () => {
               ))}
             </div>
           </>
+        ) : (
+          <div className="service-card p-4 sm:p-6 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="text-sm text-muted-foreground">
+                <span>Total Rows: {leadRows.length}</span>
+                {leadLastUpdated ? (
+                  <span className="ml-3">Last Updated: {leadLastUpdated.toLocaleTimeString()}</span>
+                ) : null}
+              </div>
+              <Button
+                type="button"
+                onClick={() => void loadLeadRows(true)}
+                disabled={leadLoading || leadRefreshing}
+                className="inline-flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${leadRefreshing ? "animate-spin" : ""}`} />
+                Refresh
+              </Button>
+            </div>
+
+            {leadError ? (
+              <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                {leadError}
+              </div>
+            ) : null}
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>#</TableHead>
+                  {LEAD_TABLE_COLUMNS.map((column) => (
+                    <TableHead key={column.key}>{column.label}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {leadLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={LEAD_TABLE_COLUMNS.length + 1} className="text-center text-muted-foreground">
+                      Loading records...
+                    </TableCell>
+                  </TableRow>
+                ) : leadRows.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={LEAD_TABLE_COLUMNS.length + 1} className="text-center text-muted-foreground">
+                      No records found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  leadRows.map((row, index) => (
+                    <TableRow key={`${row.submitted_at || "row"}-${index}`}>
+                      <TableCell>{index + 1}</TableCell>
+                      {LEAD_TABLE_COLUMNS.map((column) => (
+                        <TableCell key={column.key} className="align-top">
+                          {column.key === "submitted_at"
+                            ? formatLeadDateTime(row[column.key])
+                            : row[column.key] || ""}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
     </section>

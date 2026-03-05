@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { ReactNode, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -7,6 +7,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+  const location = useLocation();
   const [status, setStatus] = useState<"loading" | "allowed" | "denied">("loading");
 
   useEffect(() => {
@@ -53,7 +54,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (status === "denied") {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/admin/login" replace state={{ from: location }} />;
   }
 
   return <>{children}</>;

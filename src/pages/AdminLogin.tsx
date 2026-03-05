@@ -1,13 +1,19 @@
 import { FormEvent, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const redirectPath = (() => {
+    const fromPath = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname;
+    if (fromPath && fromPath !== "/admin/login") return fromPath;
+    return "/admin/dashboard";
+  })();
 
   useEffect(() => {
     const verifySession = async () => {
@@ -21,7 +27,7 @@ const AdminLoginPage = () => {
         const { data } = await supabase.from("profiles").select("role").eq("id", session.user.id).maybeSingle();
 
         if (data?.role === "admin") {
-          navigate("/admin/dashboard", { replace: true });
+          navigate(redirectPath, { replace: true });
         }
       } catch {
         setError("Unable to connect to Supabase. Check Vercel env vars and network access.");
@@ -29,7 +35,7 @@ const AdminLoginPage = () => {
     };
 
     void verifySession();
-  }, [navigate]);
+  }, [navigate, redirectPath]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,7 +82,7 @@ const AdminLoginPage = () => {
       }
 
       setSubmitting(false);
-      navigate("/admin/dashboard");
+      navigate(redirectPath, { replace: true });
     } catch {
       setError("Cannot reach Supabase. Verify Vercel env vars and network access.");
       setSubmitting(false);
