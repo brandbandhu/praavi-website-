@@ -102,6 +102,9 @@ const BlogPostPage = () => {
             src={post.imageUrl}
             alt={`${post.title} - website development company in Pune`}
             className="w-full h-64 sm:h-80 object-cover rounded-xl mb-6"
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.svg";
+            }}
           />
           <p className="text-xs text-muted-foreground mb-3">{post.category}</p>
           <h1 className="font-display text-3xl sm:text-4xl font-bold leading-tight mb-4">{post.title}</h1>

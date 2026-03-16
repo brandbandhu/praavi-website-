@@ -24,6 +24,37 @@ const formatDate = () =>
     year: "numeric",
   });
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const generateUuid = () => {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  const bytes = new Uint8Array(16);
+  if (typeof crypto !== "undefined" && "getRandomValues" in crypto) {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i += 1) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+};
+
+const normalizeIds = <T extends { id: string }>(items: T[]) => {
+  let changed = false;
+  const normalized = items.map((item) => {
+    if (UUID_RE.test(item.id)) return item;
+    changed = true;
+    return { ...item, id: generateUuid() };
+  });
+  return { normalized, changed };
+};
+
 const parseTags = (input: string) =>
   input
     .split(",")
@@ -36,6 +67,14 @@ const getErrorMessage = (error: unknown) => {
   }
   return "Unknown error";
 };
+
+const fileToDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onerror = () => reject(new Error("Failed to read file."));
+    reader.readAsDataURL(file);
+  });
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
@@ -72,6 +111,24 @@ const AdminDashboardPage = () => {
   const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
+    const normalizedPosts = normalizeIds(posts);
+    if (normalizedPosts.changed) {
+      setPosts(normalizedPosts.normalized);
+      saveBlogPosts(normalizedPosts.normalized);
+    }
+
+    const normalizedWorks = normalizeIds(works);
+    if (normalizedWorks.changed) {
+      setWorks(normalizedWorks.normalized);
+      savePortfolioItems(normalizedWorks.normalized);
+    }
+
+    const normalizedClients = normalizeIds(clients);
+    if (normalizedClients.changed) {
+      setClients(normalizedClients.normalized);
+      saveClientsItems(normalizedClients.normalized);
+    }
+
     let mounted = true;
 
     Promise.all([fetchPublishedBlogPosts(), fetchPublishedPortfolioItems(), fetchActiveClients()])
@@ -105,9 +162,26 @@ const AdminDashboardPage = () => {
     setSyncError("");
     setSyncMessage("");
     try {
-      await upsertBlogPostsToSupabase(posts);
-      await upsertPortfolioItemsToSupabase(works);
-      await upsertClientsToSupabase(clients);
+      const normalizedPosts = normalizeIds(posts);
+      const normalizedWorks = normalizeIds(works);
+      const normalizedClients = normalizeIds(clients);
+
+      if (normalizedPosts.changed) {
+        setPosts(normalizedPosts.normalized);
+        saveBlogPosts(normalizedPosts.normalized);
+      }
+      if (normalizedWorks.changed) {
+        setWorks(normalizedWorks.normalized);
+        savePortfolioItems(normalizedWorks.normalized);
+      }
+      if (normalizedClients.changed) {
+        setClients(normalizedClients.normalized);
+        saveClientsItems(normalizedClients.normalized);
+      }
+
+      await upsertBlogPostsToSupabase(normalizedPosts.normalized);
+      await upsertPortfolioItemsToSupabase(normalizedWorks.normalized);
+      await upsertClientsToSupabase(normalizedClients.normalized);
       setSyncMessage("Synced local Blog, Work, and Clients data to Supabase.");
     } catch (error) {
       setSyncError(`Supabase sync failed: ${getErrorMessage(error)}`);
@@ -154,6 +228,10 @@ const AdminDashboardPage = () => {
     }
 
     const normalizedImage = imageUrl.trim() || "/placeholder.svg";
+    if (normalizedImage.length > 1_500_000) {
+      setError("Image is too large. Upload a smaller/compressed image.");
+      return;
+    }
     const isEditMode = !!editingPostId;
 
     const updated = isEditMode
@@ -174,7 +252,7 @@ const AdminDashboardPage = () => {
         })
       : [
           {
-            id: String(Date.now()),
+            id: generateUuid(),
             slug: posts.some((p) => p.slug === slugBase) ? `${slugBase}-${Date.now()}` : slugBase,
             title: title.trim(),
             excerpt: excerpt.trim(),
@@ -188,9 +266,10 @@ const AdminDashboardPage = () => {
           ...posts,
         ];
 
-    setPosts(updated);
-    saveBlogPosts(updated);
-    void upsertBlogPostsToSupabase(updated).catch(() => {
+    const normalizedPosts = normalizeIds(updated);
+    setPosts(normalizedPosts.normalized);
+    saveBlogPosts(normalizedPosts.normalized);
+    void upsertBlogPostsToSupabase(normalizedPosts.normalized).catch(() => {
       setError("Saved locally, but failed to sync blog to Supabase.");
     });
     resetBlogForm();
@@ -234,7 +313,7 @@ const AdminDashboardPage = () => {
         )
       : [
           {
-            id: `work-${Date.now()}`,
+            id: generateUuid(),
             title: workTitle.trim(),
             client: workClient.trim(),
             desc: workDesc.trim(),
@@ -248,9 +327,10 @@ const AdminDashboardPage = () => {
         ];
 
     try {
-      savePortfolioItems(updated);
-      setWorks(updated);
-      void upsertPortfolioItemsToSupabase(updated).catch(() => {
+      const normalizedWorks = normalizeIds(updated);
+      savePortfolioItems(normalizedWorks.normalized);
+      setWorks(normalizedWorks.normalized);
+      void upsertPortfolioItemsToSupabase(normalizedWorks.normalized).catch(() => {
         setWorkError("Saved locally, but failed to sync work to Supabase.");
       });
       resetWorkForm();
@@ -301,7 +381,7 @@ const AdminDashboardPage = () => {
           }
           return [
             {
-              id: `client-${Date.now()}`,
+              id: generateUuid(),
               name: clientName.trim(),
               category: "Client",
               logoUrl: normalizedLogo,
@@ -312,9 +392,10 @@ const AdminDashboardPage = () => {
           ];
         })();
 
-    setClients(updated);
-    saveClientsItems(updated);
-    void upsertClientsToSupabase(updated).catch(() => {
+    const normalizedClients = normalizeIds(updated);
+    setClients(normalizedClients.normalized);
+    saveClientsItems(normalizedClients.normalized);
+    void upsertClientsToSupabase(normalizedClients.normalized).catch(() => {
       setClientError("Saved locally, but failed to sync client to Supabase.");
     });
     resetClientForm();
@@ -390,7 +471,17 @@ const AdminDashboardPage = () => {
       setImageUrl(uploadedUrl);
       setError("");
     } catch (error) {
-      setError(`Could not upload blog image: ${getErrorMessage(error)}`);
+      try {
+        const dataUrl = await fileToDataUrl(file);
+        if (dataUrl.length > 1_500_000) {
+          setError("Image is too large. Upload a smaller/compressed image.");
+          return;
+        }
+        setImageUrl(dataUrl);
+        setError("Upload API unavailable. Using an embedded image stored locally.");
+      } catch {
+        setError(`Could not upload blog image: ${getErrorMessage(error)}`);
+      }
     }
   };
 
@@ -401,7 +492,17 @@ const AdminDashboardPage = () => {
       setWorkImageUrl(uploadedUrl);
       setWorkError("");
     } catch (error) {
-      setWorkError(`Could not upload work image: ${getErrorMessage(error)}`);
+      try {
+        const dataUrl = await fileToDataUrl(file);
+        if (dataUrl.length > 1_500_000) {
+          setWorkError("Image is too large. Upload a smaller/compressed image.");
+          return;
+        }
+        setWorkImageUrl(dataUrl);
+        setWorkError("Upload API unavailable. Using an embedded image stored locally.");
+      } catch {
+        setWorkError(`Could not upload work image: ${getErrorMessage(error)}`);
+      }
     }
   };
 
@@ -412,7 +513,17 @@ const AdminDashboardPage = () => {
       setClientLogoUrl(uploadedUrl);
       setClientError("");
     } catch (error) {
-      setClientError(`Could not upload client logo: ${getErrorMessage(error)}`);
+      try {
+        const dataUrl = await fileToDataUrl(file);
+        if (dataUrl.length > 1_500_000) {
+          setClientError("Image is too large. Upload a smaller/compressed image.");
+          return;
+        }
+        setClientLogoUrl(dataUrl);
+        setClientError("Upload API unavailable. Using an embedded image stored locally.");
+      } catch {
+        setClientError(`Could not upload client logo: ${getErrorMessage(error)}`);
+      }
     }
   };
 

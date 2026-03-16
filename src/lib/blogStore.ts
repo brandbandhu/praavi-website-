@@ -14,6 +14,15 @@ export interface BlogPost {
 const BLOG_STORAGE_KEY = "praavi_blog_posts";
 const DEFAULT_IMAGE = "/placeholder.svg";
 
+const normalizeImageUrl = (value?: string | null) => {
+  const trimmed = (value ?? "").trim();
+  if (!trimmed) return DEFAULT_IMAGE;
+  const lowered = trimmed.toLowerCase();
+  if (lowered === "null" || lowered === "undefined") return DEFAULT_IMAGE;
+  if (trimmed.startsWith("/") || /^https?:\/\//i.test(trimmed) || /^data:/i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+
 const defaultPosts: BlogPost[] = [
   {
     id: "seed-1",
@@ -72,7 +81,7 @@ const normalizeSinglePost = (post: Partial<BlogPost>): BlogPost | null => {
     category: post.category?.trim() || "General",
     readTime: post.readTime?.trim() || "5 min read",
     date: post.date?.trim() || "Jan 1, 2026",
-    imageUrl: post.imageUrl?.trim() || DEFAULT_IMAGE,
+    imageUrl: normalizeImageUrl(post.imageUrl),
     createdAt: typeof post.createdAt === "number" ? post.createdAt : Date.now(),
   };
 };

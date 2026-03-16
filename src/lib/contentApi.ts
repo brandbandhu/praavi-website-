@@ -7,6 +7,15 @@ const DEFAULT_IMAGE = "/placeholder.svg";
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const normalizeImageUrl = (value?: string | null) => {
+  const trimmed = (value ?? "").trim();
+  if (!trimmed) return DEFAULT_IMAGE;
+  const lowered = trimmed.toLowerCase();
+  if (lowered === "null" || lowered === "undefined") return DEFAULT_IMAGE;
+  if (trimmed.startsWith("/") || /^https?:\/\//i.test(trimmed) || /^data:/i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+
 const formatDate = (value?: string | null) => {
   if (!value) return "Jan 1, 2026";
   const date = new Date(value);
@@ -54,7 +63,7 @@ export const fetchPublishedBlogPosts = async (): Promise<BlogPost[]> => {
     category: row.category ?? "General",
     readTime: row.read_time ?? "5 min read",
     date: formatDate(row.published_at ?? row.created_at),
-    imageUrl: row.image_url ?? DEFAULT_IMAGE,
+    imageUrl: normalizeImageUrl(row.image_url),
     createdAt: toTimestamp(row.published_at ?? row.created_at),
   }));
 };
@@ -79,7 +88,7 @@ export const fetchPublishedBlogPostBySlug = async (slug: string): Promise<BlogPo
     category: (data as any).category ?? "General",
     readTime: (data as any).read_time ?? "5 min read",
     date: formatDate((data as any).published_at ?? (data as any).created_at),
-    imageUrl: (data as any).image_url ?? DEFAULT_IMAGE,
+    imageUrl: normalizeImageUrl((data as any).image_url),
     createdAt: toTimestamp((data as any).published_at ?? (data as any).created_at),
   };
 };
@@ -140,7 +149,7 @@ export const upsertBlogPostsToSupabase = async (posts: BlogPost[]) => {
     slug: post.slug,
     excerpt: post.excerpt,
     content: post.content,
-    image_url: post.imageUrl || DEFAULT_IMAGE,
+    image_url: normalizeImageUrl(post.imageUrl),
     category: post.category || "General",
     read_time: post.readTime || "5 min read",
     status: "published",
@@ -157,7 +166,7 @@ export const upsertBlogPostsToSupabase = async (posts: BlogPost[]) => {
     slug: post.slug,
     excerpt: post.excerpt,
     content: post.content,
-    image_url: post.imageUrl || DEFAULT_IMAGE,
+    image_url: normalizeImageUrl(post.imageUrl),
     status: "published",
   }));
 
@@ -183,7 +192,7 @@ export const upsertPortfolioItemsToSupabase = async (items: PortfolioItem[]) => 
       .replace(/-+/g, "-"),
     summary: item.desc,
     details: item.desc,
-    image_url: item.imageUrl || DEFAULT_IMAGE,
+    image_url: normalizeImageUrl(item.imageUrl),
     client: item.client,
     tags: item.tags,
     stat: item.stat,
@@ -204,7 +213,7 @@ export const upsertPortfolioItemsToSupabase = async (items: PortfolioItem[]) => 
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-"),
-    image_url: item.imageUrl || DEFAULT_IMAGE,
+    image_url: normalizeImageUrl(item.imageUrl),
     status: "published",
   }));
 
@@ -228,7 +237,7 @@ export const upsertClientsToSupabase = async (clients: ClientItem[]) => {
     ...(asUuidOrUndefined(client.id) ? { id: asUuidOrUndefined(client.id) } : {}),
     name: client.name,
     category: client.category || "Client",
-    logo_url: client.logoUrl || DEFAULT_IMAGE,
+    logo_url: normalizeImageUrl(client.logoUrl),
     website_url: client.websiteUrl || "",
     status: "active",
   }));
@@ -240,7 +249,7 @@ export const upsertClientsToSupabase = async (clients: ClientItem[]) => {
   const minimalPayload = dedupedClients.map((client) => ({
     ...(asUuidOrUndefined(client.id) ? { id: asUuidOrUndefined(client.id) } : {}),
     name: client.name,
-    logo_url: client.logoUrl || DEFAULT_IMAGE,
+    logo_url: normalizeImageUrl(client.logoUrl),
     status: "active",
   }));
 

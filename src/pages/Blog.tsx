@@ -56,6 +56,9 @@ const BlogPage = () => {
                   alt={`${post.title} - digital marketing tips Pune`}
                   className="w-full h-44 object-cover rounded-xl mb-4"
                   loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.svg";
+                  }}
                 />
                 <span className="inline-flex w-fit text-xs px-2.5 py-1 rounded-full bg-secondary text-muted-foreground border border-border mb-4">
                   {post.category}
