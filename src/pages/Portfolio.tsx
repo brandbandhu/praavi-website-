@@ -6,11 +6,9 @@ import { getPortfolioItems, type PortfolioItem } from "@/lib/portfolioStore";
 import { fetchPublishedPortfolioItems } from "@/lib/contentApi";
 
 const PortfolioPage = () => {
-  const [activeFilter, setActiveFilter] = useState("All");
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
   const [projects, setProjects] = useState<PortfolioItem[]>(getPortfolioItems());
-  const categories = ["All", ...Array.from(new Set(projects.flatMap((p) => p.tags)))];
 
   useEffect(() => {
     let mounted = true;
@@ -27,9 +25,6 @@ const PortfolioPage = () => {
       mounted = false;
     };
   }, []);
-
-  const filtered =
-    activeFilter === "All" ? projects : projects.filter((p) => p.tags.includes(activeFilter));
 
   return (
     <>
@@ -50,24 +45,10 @@ const PortfolioPage = () => {
         </div>
       </div>
 
-      <div className="container-max px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              className={`filter-pill ${activeFilter === cat ? "active" : ""}`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <section className="section-padding pt-8" ref={ref}>
         <div className="container-max">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((project, i) => (
+            {projects.map((project, i) => (
               <motion.article
                 key={project.id}
                 initial={{ opacity: 0, y: 30 }}
