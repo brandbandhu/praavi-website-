@@ -1,15 +1,12 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+
+# Prevent indexing of private/admin and conversion-only pages.
 Disallow: /admin
+Disallow: /admin/
+Disallow: /landing
+Disallow: /landing/
+Disallow: /thank-you
+Disallow: /thank-you/
+
+Sitemap: https://www.praaviconsultants.in/sitemap.xml
