@@ -1,5 +1,7 @@
 {
   "routes": [
+    { "src": "/landing/?", "status": 308, "headers": { "Location": "/june-offer" } },
+    { "src": "/june-offer/?", "dest": "/june-offer/index.html" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/" }
   ]

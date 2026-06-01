@@ -29,6 +29,14 @@ export default defineConfig(({ mode }) => ({
               return;
             }
           }
+          if (url === "/june-offer" || url === "/june-offer/") {
+            const filePath = path.resolve(__dirname, "public/june-offer/index.html");
+            if (fs.existsSync(filePath)) {
+              res.setHeader("Content-Type", "text/html; charset=utf-8");
+              res.end(fs.readFileSync(filePath, "utf-8"));
+              return;
+            }
+          }
           if (url === "/thank-you" || url === "/thank-you/") {
             const filePath = path.resolve(__dirname, "public/thank-you/index.html");
             if (fs.existsSync(filePath)) {
@@ -45,6 +53,14 @@ export default defineConfig(({ mode }) => ({
           const url = req.url || "";
           if (url === "/landing" || url === "/landing/") {
             const filePath = path.resolve(__dirname, "public/landing/index.html");
+            if (fs.existsSync(filePath)) {
+              res.setHeader("Content-Type", "text/html; charset=utf-8");
+              res.end(fs.readFileSync(filePath, "utf-8"));
+              return;
+            }
+          }
+          if (url === "/june-offer" || url === "/june-offer/") {
+            const filePath = path.resolve(__dirname, "public/june-offer/index.html");
             if (fs.existsSync(filePath)) {
               res.setHeader("Content-Type", "text/html; charset=utf-8");
               res.end(fs.readFileSync(filePath, "utf-8"));

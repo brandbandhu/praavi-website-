@@ -15,6 +15,7 @@ const staticRoutes = [
   "/blog",
   "/clients",
   "/contact",
+  "/june-offer",
   "/portfolio",
   "/services",
   "/services/digital-marketing",
@@ -37,6 +38,7 @@ const routePriority = new Map([
   ["/", "1.0"],
   ["/services", "0.9"],
   ["/contact", "0.9"],
+  ["/june-offer", "0.9"],
   ["/blog", "0.8"],
 ]);
 
@@ -45,6 +47,7 @@ const routeChangeFreq = new Map([
   ["/services", "weekly"],
   ["/blog", "weekly"],
   ["/contact", "monthly"],
+  ["/june-offer", "monthly"],
 ]);
 
 const getSubServiceRoutes = async () => {
