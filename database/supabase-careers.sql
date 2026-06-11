@@ -31,8 +31,38 @@ create table if not exists public.job_applications (
   resume_file text not null,
   portfolio_link text,
   message text not null,
+  application_status text not null default 'new' check (application_status in ('new', 'selected', 'not_selected', 'on_hold', 'interview_scheduled')),
+  interview_date date,
+  admin_notes text,
   created_at timestamptz not null default now()
 );
+
+alter table public.job_applications
+  add column if not exists application_status text not null default 'new';
+
+alter table public.job_applications
+  add column if not exists interview_date date;
+
+alter table public.job_applications
+  alter column interview_date type date
+  using interview_date::date;
+
+alter table public.job_applications
+  add column if not exists admin_notes text;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'job_applications_application_status_check'
+  ) then
+    alter table public.job_applications
+      add constraint job_applications_application_status_check
+      check (application_status in ('new', 'selected', 'not_selected', 'on_hold', 'interview_scheduled'));
+  end if;
+end;
+$$;
 
 create or replace function public.set_updated_at()
 returns trigger as $$
@@ -74,6 +104,17 @@ with check (true);
 drop policy if exists "Authenticated admins can read applications" on public.job_applications;
 create policy "Authenticated admins can read applications"
 on public.job_applications for select
+using (auth.role() = 'authenticated');
+
+drop policy if exists "Authenticated admins can update applications" on public.job_applications;
+create policy "Authenticated admins can update applications"
+on public.job_applications for update
+using (auth.role() = 'authenticated')
+with check (auth.role() = 'authenticated');
+
+drop policy if exists "Authenticated admins can delete applications" on public.job_applications;
+create policy "Authenticated admins can delete applications"
+on public.job_applications for delete
 using (auth.role() = 'authenticated');
 
 drop policy if exists "Public can upload resumes" on storage.objects;

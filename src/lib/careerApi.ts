@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 
 export type JobStatus = "active" | "inactive";
+export type ApplicationStatus = "new" | "selected" | "not_selected" | "on_hold" | "interview_scheduled";
 
 export interface JobPost {
   id: number;
@@ -35,6 +36,9 @@ export interface JobApplication {
   resume_file: string;
   portfolio_link?: string | null;
   message: string;
+  application_status: ApplicationStatus;
+  interview_date?: string | null;
+  admin_notes?: string | null;
   created_at: string;
 }
 
@@ -75,6 +79,9 @@ const normalizeApplication = (row: any): JobApplication => ({
   resume_file: row.resume_file ?? "",
   portfolio_link: row.portfolio_link ?? "",
   message: row.message ?? "",
+  application_status: (row.application_status ?? "new") as ApplicationStatus,
+  interview_date: row.interview_date ?? "",
+  admin_notes: row.admin_notes ?? "",
   created_at: row.created_at ?? "",
 });
 
@@ -222,6 +229,35 @@ export const fetchJobApplications = async () => {
 
   if (error) throw error;
   return (data ?? []).map(normalizeApplication);
+};
+
+export const updateJobApplication = async (
+  id: number,
+  payload: {
+    application_status: ApplicationStatus;
+    interview_date?: string | null;
+    admin_notes?: string | null;
+  }
+) => {
+  const { data, error } = await supabase
+    .from("job_applications")
+    .update({
+      application_status: payload.application_status,
+      interview_date: payload.interview_date || null,
+      admin_notes: payload.admin_notes || null,
+    })
+    .eq("id", id)
+    .select("*, jobs(title)")
+    .single();
+
+  if (error) throw error;
+  return normalizeApplication(data);
+};
+
+export const deleteJobApplication = async (id: number) => {
+  const { error } = await supabase.from("job_applications").delete().eq("id", id);
+  if (error) throw error;
+  return { success: true };
 };
 
 export const getResumeUrl = (resumeFile: string) => {

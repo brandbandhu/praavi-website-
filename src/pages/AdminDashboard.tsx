@@ -6,11 +6,14 @@ import { getClientsItems, saveClientsItems, type ClientItem } from "@/lib/client
 import {
   createJob,
   deleteJob,
+  deleteJobApplication,
   fetchAdminJobs,
   fetchJobApplications,
   getResumeUrl,
+  updateJobApplication,
   updateJob,
   updateJobStatus,
+  type ApplicationStatus,
   type JobApplication,
   type JobPayload,
   type JobPost,
@@ -92,6 +95,40 @@ const emptyJobForm: JobPayload = {
   status: "active",
 };
 
+const applicationStatusOptions: { value: ApplicationStatus; label: string }[] = [
+  { value: "new", label: "New" },
+  { value: "selected", label: "Selected" },
+  { value: "not_selected", label: "Not Selected" },
+  { value: "on_hold", label: "On Hold" },
+  { value: "interview_scheduled", label: "Interview Scheduled" },
+];
+
+const applicationStatusLabel = (status: ApplicationStatus) =>
+  applicationStatusOptions.find((option) => option.value === status)?.label || "New";
+
+const formatApplicationDate = (value?: string | null) => {
+  if (!value) return "";
+  const [dateOnly] = value.split("T");
+  const [year, month, day] = dateOnly.split("-");
+  if (!year || !month || !day) return value;
+  return `${day}/${month}/${year}`;
+};
+
+const applicationStatusClass = (status: ApplicationStatus) => {
+  switch (status) {
+    case "selected":
+      return "border-emerald-500/40 bg-emerald-500/10 text-emerald-300";
+    case "not_selected":
+      return "border-red-500/40 bg-red-500/10 text-red-300";
+    case "on_hold":
+      return "border-amber-500/40 bg-amber-500/10 text-amber-300";
+    case "interview_scheduled":
+      return "border-sky-500/40 bg-sky-500/10 text-sky-300";
+    default:
+      return "border-border bg-secondary text-muted-foreground";
+  }
+};
+
 const getErrorMessage = (error: unknown) => {
   if (typeof error === "object" && error !== null && "message" in error) {
     return String((error as { message: unknown }).message);
@@ -147,6 +184,9 @@ const AdminDashboardPage = () => {
   const [careerError, setCareerError] = useState("");
   const [careerMessage, setCareerMessage] = useState("");
   const [careerLoading, setCareerLoading] = useState(false);
+  const [savingApplicationId, setSavingApplicationId] = useState<number | null>(null);
+  const [applicationError, setApplicationError] = useState("");
+  const [applicationMessage, setApplicationMessage] = useState("");
 
   useEffect(() => {
     const normalizedPosts = normalizeIds(posts);
@@ -613,6 +653,61 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const handleUpdateApplication = async (
+    application: JobApplication,
+    changes: Partial<Pick<JobApplication, "application_status" | "interview_date" | "admin_notes">>
+  ) => {
+    setCareerError("");
+    setApplicationError("");
+    setApplicationMessage("");
+    setSavingApplicationId(application.id);
+    const updatedApplication = {
+      ...application,
+      ...changes,
+    };
+
+    try {
+      const saved = await updateJobApplication(application.id, {
+        application_status: updatedApplication.application_status,
+        interview_date: updatedApplication.interview_date
+          ? updatedApplication.interview_date.slice(0, 10)
+          : null,
+        admin_notes: updatedApplication.admin_notes || null,
+      });
+      setApplications((current) => current.map((item) => (item.id === application.id ? saved : item)));
+      setApplicationMessage(`Saved ${application.full_name}'s application record.`);
+    } catch (error) {
+      setApplicationError(`Could not save application: ${getErrorMessage(error)}`);
+      await refreshCareerData().catch(() => undefined);
+    } finally {
+      setSavingApplicationId(null);
+    }
+  };
+
+  const updateApplicationDraft = (
+    id: number,
+    changes: Partial<Pick<JobApplication, "application_status" | "interview_date" | "admin_notes">>
+  ) => {
+    setApplications((current) =>
+      current.map((application) =>
+        application.id === id ? { ...application, ...changes } : application
+      )
+    );
+  };
+
+  const handleDeleteApplication = async (id: number) => {
+    setCareerError("");
+    setApplicationError("");
+    setApplicationMessage("");
+    try {
+      await deleteJobApplication(id);
+      setApplications((current) => current.filter((application) => application.id !== id));
+      setApplicationMessage("Application deleted.");
+    } catch (error) {
+      setApplicationError(`Could not delete application: ${getErrorMessage(error)}`);
+    }
+  };
+
   const handleBlogImageUpload = async (file?: File) => {
     if (!file) return;
     try {
@@ -925,20 +1020,101 @@ const AdminDashboardPage = () => {
 
             <div className="space-y-4">
               <h2 className="font-display text-2xl font-semibold">Submitted Applications</h2>
+              {applicationMessage ? <p className="text-sm text-emerald-400">{applicationMessage}</p> : null}
+              {applicationError ? <p className="text-sm text-destructive">{applicationError}</p> : null}
               {applications.length === 0 ? <div className="service-card text-sm text-muted-foreground">No applications submitted yet.</div> : applications.map((application) => (
                 <article key={application.id} className="service-card">
-                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-[1fr_420px] gap-5">
                     <div>
-                      <p className="text-xs text-primary mb-1">{application.job_title || `Job #${application.job_id}`}</p>
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <p className="text-xs text-primary">{application.job_title || `Job #${application.job_id}`}</p>
+                        <span className={`text-xs px-2.5 py-1 rounded-full border ${applicationStatusClass(application.application_status)}`}>
+                          {applicationStatusLabel(application.application_status)}
+                        </span>
+                      </div>
                       <h3 className="font-display text-lg font-semibold">{application.full_name}</h3>
                       <p className="text-sm text-muted-foreground mt-2">{application.email} | {application.phone}</p>
                       <p className="text-sm text-muted-foreground mt-1">Experience: {application.experience} | Location: {application.current_location}</p>
+                      {application.interview_date ? (
+                        <p className="text-sm text-primary mt-2">
+                          Interview: {formatApplicationDate(application.interview_date)}
+                        </p>
+                      ) : null}
                       {application.portfolio_link ? <a href={application.portfolio_link} target="_blank" rel="noreferrer" className="inline-block text-sm text-primary hover:underline mt-2">Portfolio Link</a> : null}
                       <p className="text-sm text-muted-foreground mt-2">{application.message}</p>
+                      {application.admin_notes ? (
+                        <p className="text-sm text-muted-foreground mt-3 rounded-lg border border-border bg-background p-3">
+                          <span className="text-foreground font-medium">Admin notes:</span> {application.admin_notes}
+                        </p>
+                      ) : null}
                     </div>
-                    <a href={getResumeUrl(application.resume_file)} target="_blank" rel="noreferrer" className="text-sm px-4 py-2 rounded-lg border border-border hover:bg-secondary transition-colors text-center">
-                      Download Resume
-                    </a>
+                    <div className="rounded-xl border border-border bg-background p-4 space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm mb-2">Applicant Status</label>
+                          <select
+                            value={application.application_status}
+                            onChange={(e) =>
+                              updateApplicationDraft(application.id, {
+                                application_status: e.target.value as ApplicationStatus,
+                              })
+                            }
+                            className={`w-full rounded-lg px-3 py-2 text-sm border ${applicationStatusClass(application.application_status)}`}
+                          >
+                            {applicationStatusOptions.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm mb-2">Interview Date</label>
+                          <input
+                            type="date"
+                            value={application.interview_date ? application.interview_date.slice(0, 10) : ""}
+                            onChange={(e) =>
+                              updateApplicationDraft(application.id, {
+                                interview_date: e.target.value,
+                                application_status: e.target.value
+                                  ? "interview_scheduled"
+                                  : application.application_status,
+                              })
+                            }
+                            className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-2">Admin Notes</label>
+                        <textarea
+                          rows={3}
+                          value={application.admin_notes || ""}
+                          onChange={(e) =>
+                            updateApplicationDraft(application.id, {
+                              admin_notes: e.target.value,
+                            })
+                          }
+                          placeholder="Follow-up notes, interview feedback, next steps..."
+                          className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm"
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <a href={getResumeUrl(application.resume_file)} target="_blank" rel="noreferrer" className="text-sm px-4 py-2 rounded-lg border border-border hover:bg-secondary transition-colors text-center">
+                          Download Resume
+                        </a>
+                        <button
+                          onClick={() => void handleUpdateApplication(application, {})}
+                          disabled={savingApplicationId === application.id}
+                          className="text-sm px-4 py-2 rounded-lg border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 transition-colors disabled:opacity-60"
+                        >
+                          {savingApplicationId === application.id ? "Saving..." : "Save"}
+                        </button>
+                        <button onClick={() => void handleDeleteApplication(application.id)} className="text-sm px-4 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 transition-colors">
+                          Delete
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </article>
               ))}
