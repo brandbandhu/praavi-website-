@@ -24,6 +24,7 @@ const Footer = () => {
                 { label: "Our Work", path: "/portfolio" },
                 { label: "Our Clients", path: "/clients" },
                 { label: "About", path: "/about" },
+                { label: "Career", path: "/career" },
                 { label: "Blog", path: "/blog" },
               ].map((l) => (
                 <Link

@@ -13,6 +13,7 @@ const staticRoutes = [
   "/",
   "/about",
   "/blog",
+  "/career",
   "/clients",
   "/contact",
   "/june-offer",
@@ -40,12 +41,14 @@ const routePriority = new Map([
   ["/contact", "0.9"],
   ["/june-offer", "0.9"],
   ["/blog", "0.8"],
+  ["/career", "0.8"],
 ]);
 
 const routeChangeFreq = new Map([
   ["/", "weekly"],
   ["/services", "weekly"],
   ["/blog", "weekly"],
+  ["/career", "weekly"],
   ["/contact", "monthly"],
   ["/june-offer", "monthly"],
 ]);

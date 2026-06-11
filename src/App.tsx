@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
+import AppErrorBoundary from "@/components/AppErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
@@ -27,6 +28,7 @@ import Portfolio from "./pages/Portfolio";
 import Clients from "./pages/Clients";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Career from "./pages/Career";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/AdminLogin";
@@ -51,7 +53,8 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <Layout>
-          <Routes>
+          <AppErrorBoundary>
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/website-development" element={<WebsiteDevelopment />} />
@@ -76,6 +79,7 @@ const App = () => (
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/about" element={<About />} />
+            <Route path="/career" element={<Career />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/contact" element={<Contact />} />
@@ -89,7 +93,8 @@ const App = () => (
               }
             />
             <Route path="*" element={<NotFound />} />
-          </Routes>
+            </Routes>
+          </AppErrorBoundary>
         </Layout>
       </BrowserRouter>
     </TooltipProvider>

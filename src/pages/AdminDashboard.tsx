@@ -3,6 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { createSlug, getBlogPosts, saveBlogPosts, type BlogPost } from "@/lib/blogStore";
 import { getPortfolioItems, savePortfolioItems, type PortfolioItem } from "@/lib/portfolioStore";
 import { getClientsItems, saveClientsItems, type ClientItem } from "@/lib/clientsStore";
+import {
+  createJob,
+  deleteJob,
+  fetchAdminJobs,
+  fetchJobApplications,
+  getResumeUrl,
+  updateJob,
+  updateJobStatus,
+  type JobApplication,
+  type JobPayload,
+  type JobPost,
+  type JobStatus,
+} from "@/lib/careerApi";
 import { supabase } from "@/lib/supabase";
 import { uploadImageToGodaddy } from "@/lib/uploadApi";
 import {
@@ -61,6 +74,24 @@ const parseTags = (input: string) =>
     .map((tag) => tag.trim())
     .filter(Boolean);
 
+const emptyJobForm: JobPayload = {
+  title: "",
+  department: "",
+  job_type: "Full-time",
+  work_mode: "Work from Office",
+  location: "",
+  experience: "",
+  salary_range: "",
+  short_description: "",
+  full_description: "",
+  responsibilities: "",
+  skills: "",
+  qualification: "",
+  open_positions: 1,
+  application_deadline: "",
+  status: "active",
+};
+
 const getErrorMessage = (error: unknown) => {
   if (typeof error === "object" && error !== null && "message" in error) {
     return String((error as { message: unknown }).message);
@@ -78,7 +109,7 @@ const fileToDataUrl = (file: File) =>
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState<"blog" | "work" | "clients">("blog");
+  const [activeSection, setActiveSection] = useState<"blog" | "work" | "clients" | "career">("blog");
 
   const [posts, setPosts] = useState<BlogPost[]>(getBlogPosts());
   const [title, setTitle] = useState("");
@@ -109,6 +140,13 @@ const AdminDashboardPage = () => {
   const [syncMessage, setSyncMessage] = useState("");
   const [syncError, setSyncError] = useState("");
   const [syncing, setSyncing] = useState(false);
+  const [jobs, setJobs] = useState<JobPost[]>([]);
+  const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [jobForm, setJobForm] = useState<JobPayload>(emptyJobForm);
+  const [editingJobId, setEditingJobId] = useState<number | null>(null);
+  const [careerError, setCareerError] = useState("");
+  const [careerMessage, setCareerMessage] = useState("");
+  const [careerLoading, setCareerLoading] = useState(false);
 
   useEffect(() => {
     const normalizedPosts = normalizeIds(posts);
@@ -150,6 +188,18 @@ const AdminDashboardPage = () => {
       })
       .catch(() => {
         // Keep local fallback when Supabase is unavailable or empty.
+      });
+
+    Promise.all([fetchAdminJobs(), fetchJobApplications()])
+      .then(([careerJobs, careerApplications]) => {
+        if (!mounted) return;
+        setJobs(careerJobs);
+        setApplications(careerApplications);
+        setCareerError("");
+      })
+      .catch((error) => {
+        if (!mounted) return;
+        setCareerError(`Career Supabase data unavailable: ${getErrorMessage(error)}`);
       });
 
     return () => {
@@ -464,6 +514,105 @@ const AdminDashboardPage = () => {
     if (editingClientId === id) resetClientForm();
   };
 
+  const refreshCareerData = async () => {
+    const [careerJobs, careerApplications] = await Promise.all([fetchAdminJobs(), fetchJobApplications()]);
+    setJobs(careerJobs);
+    setApplications(careerApplications);
+  };
+
+  const resetJobForm = () => {
+    setJobForm(emptyJobForm);
+    setEditingJobId(null);
+  };
+
+  const handleCreateOrUpdateJob = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setCareerError("");
+    setCareerMessage("");
+    setCareerLoading(true);
+
+    try {
+      const payload = {
+        ...jobForm,
+        title: jobForm.title.trim(),
+        department: jobForm.department.trim(),
+        location: jobForm.location.trim(),
+        experience: jobForm.experience.trim(),
+        salary_range: jobForm.salary_range?.trim() || "",
+        short_description: jobForm.short_description.trim(),
+        full_description: jobForm.full_description.trim(),
+        responsibilities: jobForm.responsibilities.trim(),
+        skills: jobForm.skills.trim(),
+        qualification: jobForm.qualification.trim(),
+        open_positions: Number(jobForm.open_positions || 1),
+        application_deadline: jobForm.application_deadline || "",
+      };
+
+      if (editingJobId) {
+        await updateJob(editingJobId, payload);
+        setCareerMessage("Job post updated successfully.");
+      } else {
+        await createJob(payload);
+        setCareerMessage("Job post created successfully.");
+      }
+      await refreshCareerData();
+      resetJobForm();
+    } catch (error) {
+      setCareerError(getErrorMessage(error));
+    } finally {
+      setCareerLoading(false);
+    }
+  };
+
+  const handleEditJob = (job: JobPost) => {
+    setEditingJobId(job.id);
+    setJobForm({
+      title: job.title,
+      department: job.department,
+      job_type: job.job_type,
+      work_mode: job.work_mode,
+      location: job.location,
+      experience: job.experience,
+      salary_range: job.salary_range || "",
+      short_description: job.short_description,
+      full_description: job.full_description,
+      responsibilities: job.responsibilities,
+      skills: job.skills,
+      qualification: job.qualification,
+      open_positions: job.open_positions,
+      application_deadline: job.application_deadline || "",
+      status: job.status,
+    });
+    setActiveSection("career");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDeleteJob = async (id: number) => {
+    setCareerError("");
+    setCareerMessage("");
+    try {
+      await deleteJob(id);
+      await refreshCareerData();
+      setCareerMessage("Job post deleted successfully.");
+      if (editingJobId === id) resetJobForm();
+    } catch (error) {
+      setCareerError(getErrorMessage(error));
+    }
+  };
+
+  const handleToggleJobStatus = async (job: JobPost) => {
+    setCareerError("");
+    setCareerMessage("");
+    const nextStatus: JobStatus = job.status === "active" ? "inactive" : "active";
+    try {
+      await updateJobStatus(job.id, nextStatus);
+      await refreshCareerData();
+      setCareerMessage(`Job marked ${nextStatus}.`);
+    } catch (error) {
+      setCareerError(getErrorMessage(error));
+    }
+  };
+
   const handleBlogImageUpload = async (file?: File) => {
     if (!file) return;
     try {
@@ -539,7 +688,7 @@ const AdminDashboardPage = () => {
           <div>
             <h1 className="font-display text-3xl sm:text-4xl font-bold">Admin Dashboard</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Blogs: {posts.length} | Works: {works.length} | Clients: {clients.length}
+              Blogs: {posts.length} | Works: {works.length} | Clients: {clients.length} | Jobs: {jobs.length}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -586,6 +735,14 @@ const AdminDashboardPage = () => {
             }`}
           >
             Clients Management
+          </button>
+          <button
+            onClick={() => setActiveSection("career")}
+            className={`px-5 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
+              activeSection === "career" ? "gradient-bg text-primary-foreground border-transparent" : "border-border hover:bg-secondary"
+            }`}
+          >
+            Career / Job Posts
           </button>
         </div>
 
@@ -660,7 +817,7 @@ const AdminDashboardPage = () => {
               ))}
             </div>
           </>
-        ) : (
+        ) : activeSection === "clients" ? (
           <>
             <div className="service-card">
               <h2 className="font-display text-xl font-semibold mb-4">{editingClientId ? "Edit Client" : "Add Client"}</h2>
@@ -695,6 +852,93 @@ const AdminDashboardPage = () => {
                       <button onClick={() => handleEditClient(client)} className="text-sm px-4 py-2 rounded-lg border border-border hover:bg-secondary transition-colors">Edit</button>
                       <button onClick={() => handleDeleteClient(client.id)} className="text-sm px-4 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 transition-colors">Delete</button>
                     </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="service-card">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="font-display text-xl font-semibold">{editingJobId ? "Edit Job Post" : "Add Job Post"}</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Manage active and inactive career openings shown on the Career page.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void refreshCareerData()}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary transition-colors"
+                >
+                  Refresh
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateOrUpdateJob} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label className="block text-sm mb-2">Job Title</label><input value={jobForm.title} onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Department</label><input value={jobForm.department} onChange={(e) => setJobForm({ ...jobForm, department: e.target.value })} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Job Type</label><select value={jobForm.job_type} onChange={(e) => setJobForm({ ...jobForm, job_type: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm">{["Full-time", "Part-time", "Internship", "Freelance"].map((type) => <option key={type}>{type}</option>)}</select></div>
+                <div><label className="block text-sm mb-2">Work Mode</label><select value={jobForm.work_mode} onChange={(e) => setJobForm({ ...jobForm, work_mode: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm">{["Work from Office", "Remote", "Hybrid"].map((mode) => <option key={mode}>{mode}</option>)}</select></div>
+                <div><label className="block text-sm mb-2">Location</label><input value={jobForm.location} onChange={(e) => setJobForm({ ...jobForm, location: e.target.value })} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Experience Required</label><input value={jobForm.experience} onChange={(e) => setJobForm({ ...jobForm, experience: e.target.value })} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Salary Range optional</label><input value={jobForm.salary_range || ""} onChange={(e) => setJobForm({ ...jobForm, salary_range: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Open Positions</label><input type="number" min="1" value={jobForm.open_positions} onChange={(e) => setJobForm({ ...jobForm, open_positions: Number(e.target.value) })} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Application Deadline optional</label><input type="date" value={jobForm.application_deadline || ""} onChange={(e) => setJobForm({ ...jobForm, application_deadline: e.target.value })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Status</label><select value={jobForm.status} onChange={(e) => setJobForm({ ...jobForm, status: e.target.value as JobStatus })} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                <div className="md:col-span-2"><label className="block text-sm mb-2">Short Description</label><textarea value={jobForm.short_description} onChange={(e) => setJobForm({ ...jobForm, short_description: e.target.value })} required rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div className="md:col-span-2"><label className="block text-sm mb-2">Full Job Description</label><textarea value={jobForm.full_description} onChange={(e) => setJobForm({ ...jobForm, full_description: e.target.value })} required rows={5} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div className="md:col-span-2"><label className="block text-sm mb-2">Responsibilities</label><textarea value={jobForm.responsibilities} onChange={(e) => setJobForm({ ...jobForm, responsibilities: e.target.value })} required rows={4} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div className="md:col-span-2"><label className="block text-sm mb-2">Required Skills</label><textarea value={jobForm.skills} onChange={(e) => setJobForm({ ...jobForm, skills: e.target.value })} required rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div className="md:col-span-2"><label className="block text-sm mb-2">Qualification</label><textarea value={jobForm.qualification} onChange={(e) => setJobForm({ ...jobForm, qualification: e.target.value })} required rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                {careerError && <p className="md:col-span-2 text-sm text-destructive">{careerError}</p>}
+                {careerMessage && <p className="md:col-span-2 text-sm text-emerald-400">{careerMessage}</p>}
+                <div className="md:col-span-2 flex flex-wrap gap-3">
+                  <button disabled={careerLoading} type="submit" className="gradient-bg px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-60">{careerLoading ? "Saving..." : editingJobId ? "Update Job" : "Add Job"}</button>
+                  {editingJobId && <button type="button" onClick={resetJobForm} className="px-6 py-3 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">Cancel Edit</button>}
+                </div>
+              </form>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="font-display text-2xl font-semibold">Career / Job Posts</h2>
+              {jobs.length === 0 ? <div className="service-card text-sm text-muted-foreground">No job posts found. Add a job to publish it on the Career page.</div> : jobs.map((job) => (
+                <article key={job.id} className="service-card">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className={`text-xs px-2.5 py-1 rounded-full border ${job.status === "active" ? "text-emerald-300 border-emerald-500/30 bg-emerald-500/10" : "text-muted-foreground border-border bg-secondary"}`}>{job.status}</span>
+                        <span className="text-xs text-muted-foreground">{job.department} | {job.job_type} | {job.work_mode}</span>
+                      </div>
+                      <h3 className="font-display text-lg font-semibold">{job.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-2">{job.short_description}</p>
+                      <p className="text-sm text-muted-foreground mt-2">{job.location} | {job.experience} | {job.open_positions} open</p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button onClick={() => handleEditJob(job)} className="text-sm px-4 py-2 rounded-lg border border-border hover:bg-secondary transition-colors">Edit</button>
+                      <button onClick={() => void handleToggleJobStatus(job)} className="text-sm px-4 py-2 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 transition-colors">{job.status === "active" ? "Deactivate" : "Activate"}</button>
+                      <button onClick={() => void handleDeleteJob(job.id)} className="text-sm px-4 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 transition-colors">Delete</button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="font-display text-2xl font-semibold">Submitted Applications</h2>
+              {applications.length === 0 ? <div className="service-card text-sm text-muted-foreground">No applications submitted yet.</div> : applications.map((application) => (
+                <article key={application.id} className="service-card">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                    <div>
+                      <p className="text-xs text-primary mb-1">{application.job_title || `Job #${application.job_id}`}</p>
+                      <h3 className="font-display text-lg font-semibold">{application.full_name}</h3>
+                      <p className="text-sm text-muted-foreground mt-2">{application.email} | {application.phone}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Experience: {application.experience} | Location: {application.current_location}</p>
+                      {application.portfolio_link ? <a href={application.portfolio_link} target="_blank" rel="noreferrer" className="inline-block text-sm text-primary hover:underline mt-2">Portfolio Link</a> : null}
+                      <p className="text-sm text-muted-foreground mt-2">{application.message}</p>
+                    </div>
+                    <a href={getResumeUrl(application.resume_file)} target="_blank" rel="noreferrer" className="text-sm px-4 py-2 rounded-lg border border-border hover:bg-secondary transition-colors text-center">
+                      Download Resume
+                    </a>
                   </div>
                 </article>
               ))}
