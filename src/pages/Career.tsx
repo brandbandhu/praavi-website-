@@ -41,6 +41,12 @@ const splitList = (value: string) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+const splitSkills = (value: string) =>
+  value
+    .split(/[,;\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
 const CareerPage = () => {
   const [jobs, setJobs] = useState<JobPost[]>([]);
   const [selectedJob, setSelectedJob] = useState<JobPost | null>(null);
@@ -220,14 +226,7 @@ const CareerPage = () => {
                     <span className="flex items-center gap-2"><MapPin size={15} className="text-primary" /> {job.location}</span>
                     <span className="flex items-center gap-2"><Laptop size={15} className="text-primary" /> {job.experience}</span>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">{job.short_description}</p>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {job.skills.split(",").slice(0, 5).map((skill) => (
-                      <span key={skill.trim()} className="text-xs px-2.5 py-1 rounded-full bg-secondary text-muted-foreground border border-border">
-                        {skill.trim()}
-                      </span>
-                    ))}
-                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-6">{job.short_description}</p>
                   <div className="mt-auto flex flex-wrap gap-3">
                     <button onClick={() => openJob(job)} className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary transition-colors">
                       View Details
@@ -333,13 +332,14 @@ const CareerPage = () => {
 
                     <section>
                       <h3 className="font-display text-xl font-semibold mb-3">Required skills</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedJob.skills.split(",").map((skill) => (
-                          <span key={skill.trim()} className="text-xs sm:text-sm px-3 py-1.5 rounded-full bg-secondary text-muted-foreground border border-border">
-                            {skill.trim()}
-                          </span>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm sm:text-base text-muted-foreground leading-7">
+                        {splitSkills(selectedJob.skills).map((skill) => (
+                          <li key={skill} className="flex gap-3">
+                            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                            <span>{skill}</span>
+                          </li>
                         ))}
-                      </div>
+                      </ul>
                     </section>
 
                     <section>
