@@ -34,6 +34,7 @@ import BlogPost from "./pages/BlogPost";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import { ADMIN_DASHBOARD_PATH, ADMIN_LOGIN_PATH } from "./lib/adminRoutes";
 
 const queryClient = new QueryClient();
 
@@ -83,9 +84,9 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path={ADMIN_LOGIN_PATH} element={<AdminLogin />} />
             <Route
-              path="/admin/dashboard"
+              path={ADMIN_DASHBOARD_PATH}
               element={
                 <ProtectedRoute>
                   <AdminDashboard />

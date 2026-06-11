@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { ReactNode, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { ADMIN_LOGIN_PATH } from "@/lib/adminRoutes";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -53,7 +54,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (status === "denied") {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to={ADMIN_LOGIN_PATH} replace />;
   }
 
   return <>{children}</>;

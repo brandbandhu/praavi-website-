@@ -20,6 +20,7 @@ import {
   type JobStatus,
 } from "@/lib/careerApi";
 import { supabase } from "@/lib/supabase";
+import { ADMIN_LOGIN_PATH } from "@/lib/adminRoutes";
 import { uploadImageToGodaddy } from "@/lib/uploadApi";
 import {
   deleteBlogPostFromSupabase,
@@ -773,7 +774,7 @@ const AdminDashboardPage = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/admin/login");
+    navigate(ADMIN_LOGIN_PATH);
   };
 
   return (

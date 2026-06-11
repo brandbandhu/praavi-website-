@@ -4,6 +4,8 @@ Allow: /
 # Prevent indexing of private/admin and conversion-only pages.
 Disallow: /admin
 Disallow: /admin/
+Disallow: /my_praavi_consultant_pc_admin_yes
+Disallow: /my_praavi_consultant_pc_admin_yes/
 Disallow: /landing
 Disallow: /landing/
 Disallow: /thank-you

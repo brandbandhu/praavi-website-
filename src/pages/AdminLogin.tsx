@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { ADMIN_DASHBOARD_PATH } from "@/lib/adminRoutes";
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const AdminLoginPage = () => {
         const { data } = await supabase.from("profiles").select("role").eq("id", session.user.id).maybeSingle();
 
         if (data?.role === "admin") {
-          navigate("/admin/dashboard", { replace: true });
+          navigate(ADMIN_DASHBOARD_PATH, { replace: true });
         }
       } catch {
         setError("Unable to connect to Supabase. Check Vercel env vars and network access.");
@@ -76,7 +77,7 @@ const AdminLoginPage = () => {
       }
 
       setSubmitting(false);
-      navigate("/admin/dashboard");
+      navigate(ADMIN_DASHBOARD_PATH);
     } catch {
       setError("Cannot reach Supabase. Verify Vercel env vars and network access.");
       setSubmitting(false);
