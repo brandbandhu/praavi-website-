@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import type { BlogPost } from "@/lib/blogStore";
 import type { PortfolioItem } from "@/lib/portfolioStore";
 import type { ClientItem } from "@/lib/clientsStore";
+import type { CaseStudyItem } from "@/lib/caseStudyStore";
 
 const DEFAULT_IMAGE = "/placeholder.svg";
 const UUID_RE =
@@ -43,6 +44,13 @@ const normalizeTags = (value: unknown): string[] => {
 const toIso = (value: number) => new Date(value).toISOString();
 const asUuidOrUndefined = (value: string) => (UUID_RE.test(value) ? value : undefined);
 const normalizeName = (value: string) => value.trim().toLowerCase();
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
 
 export const fetchPublishedBlogPosts = async (): Promise<BlogPost[]> => {
   const { data, error } = await supabase
@@ -140,6 +148,33 @@ export const fetchActiveClients = async (): Promise<ClientItem[]> => {
     seen.add(key);
     return true;
   });
+};
+
+export const fetchPublishedCaseStudies = async (): Promise<CaseStudyItem[]> => {
+  const { data, error } = await supabase
+    .from("case_studies")
+    .select("*")
+    .eq("status", "published")
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row: any) => ({
+    id: String(row.id),
+    client: row.client ?? "Client",
+    title: row.title ?? "Case Study",
+    problem: row.problem ?? "",
+    solution: row.solution ?? "",
+    technology: normalizeTags(row.technology),
+    before: row.before_state ?? "",
+    after: row.after_state ?? "",
+    trafficGrowth: row.traffic_growth ?? "",
+    leadsGenerated: row.leads_generated ?? "",
+    testimonial: row.testimonial ?? "",
+    screenshot: normalizeImageUrl(row.screenshot_url),
+    createdAt: toTimestamp(row.created_at),
+  }));
 };
 
 export const upsertBlogPostsToSupabase = async (posts: BlogPost[]) => {
@@ -262,5 +297,32 @@ export const upsertClientsToSupabase = async (clients: ClientItem[]) => {
 
 export const deleteClientFromSupabase = async (id: string) => {
   const { error } = await supabase.from("clients").delete().eq("id", id);
+  if (error) throw error;
+};
+
+export const upsertCaseStudiesToSupabase = async (items: CaseStudyItem[]) => {
+  const payload = items.map((item, index) => ({
+    slug: slugify(`${item.client}-${item.title}`) || slugify(item.title) || String(item.createdAt),
+    client: item.client,
+    title: item.title,
+    problem: item.problem,
+    solution: item.solution,
+    technology: item.technology,
+    before_state: item.before,
+    after_state: item.after,
+    traffic_growth: item.trafficGrowth,
+    leads_generated: item.leadsGenerated,
+    testimonial: item.testimonial,
+    screenshot_url: normalizeImageUrl(item.screenshot),
+    status: "published",
+    sort_order: index + 1,
+  }));
+
+  const { error } = await supabase.from("case_studies").upsert(payload, { onConflict: "slug" });
+  if (error) throw error;
+};
+
+export const deleteCaseStudyFromSupabase = async (id: string) => {
+  const { error } = await supabase.from("case_studies").delete().eq("id", id);
   if (error) throw error;
 };

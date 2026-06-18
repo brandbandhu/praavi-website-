@@ -12,12 +12,26 @@ const TODAY = new Date().toISOString().slice(0, 10);
 const staticRoutes = [
   "/",
   "/about",
+  "/ai-solutions",
   "/blog",
+  "/case-studies",
   "/career",
   "/clients",
   "/contact",
+  "/industries/hospitals",
+  "/industries/manufacturers",
+  "/industries/real-estate",
+  "/industries/schools",
+  "/industries/solar-companies",
+  "/industries/travel-agencies",
   "/june-offer",
   "/portfolio",
+  "/pune/ecommerce-development-pune",
+  "/pune/google-ads-agency-pune",
+  "/pune/seo-company-pune",
+  "/pune/shopify-development-pune",
+  "/pune/social-media-marketing-pune",
+  "/pune/website-development-company-pune",
   "/services",
   "/services/digital-marketing",
   "/services/google-ads",
@@ -32,16 +46,20 @@ const staticRoutes = [
   "/services/social-ads/facebook-ads",
   "/social-media-marketing",
   "/seo-services",
+  "/team",
   "/website-development",
 ];
 
 const routePriority = new Map([
   ["/", "1.0"],
   ["/services", "0.9"],
+  ["/ai-solutions", "0.9"],
   ["/contact", "0.9"],
   ["/june-offer", "0.9"],
   ["/blog", "0.8"],
+  ["/case-studies", "0.8"],
   ["/career", "0.8"],
+  ["/team", "0.8"],
 ]);
 
 const routeChangeFreq = new Map([

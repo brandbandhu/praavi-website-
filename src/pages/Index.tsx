@@ -1,7 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound } from "lucide-react";
+import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound, Bot, Database, Server, IndianRupee, Star, Quote } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 import LeadPopup from "@/components/LeadPopup";
 import SeoHead from "@/components/SeoHead";
@@ -29,7 +29,7 @@ const Hero = () => (
         className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-6"
       >
         <Sparkles size={14} className="text-primary" />
-        <span className="text-xs sm:text-sm text-muted-foreground">Welcome to Our Digital World</span>
+        <span className="text-xs sm:text-sm text-muted-foreground">Pune Growth Agency for Websites, Leads & Scale</span>
       </motion.div>
 
       <motion.h1
@@ -38,7 +38,7 @@ const Hero = () => (
         transition={{ duration: 0.7, delay: 0.15 }}
         className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight max-w-5xl mx-auto"
       >
-        Best Digital Marketing Agency in Pune
+        We Build Websites, Generate Leads & Scale Businesses
       </motion.h1>
 
       <motion.h2
@@ -47,7 +47,7 @@ const Hero = () => (
         transition={{ duration: 0.6, delay: 0.3 }}
         className="font-display text-lg sm:text-xl md:text-2xl font-semibold text-accent mt-4"
       >
-        Website Development, SEO Services, Google Ads, and Social Media Marketing
+        150+ Clients • 500+ Projects • 98% Retention
       </motion.h2>
 
       <motion.p
@@ -56,7 +56,7 @@ const Hero = () => (
         transition={{ duration: 0.6, delay: 0.4 }}
         className="text-muted-foreground mt-3 text-sm sm:text-base max-w-3xl mx-auto"
       >
-        Praavi Consultants helps local businesses in Loni Kalbhor, Hadapsar, Manjri, Uruli Kanchan, and Pune grow with data-driven online marketing services.
+        Praavi Consultants helps ambitious businesses in Pune turn online visibility into qualified enquiries with websites, SEO, Google Ads, social media, and automation.
       </motion.p>
 
       <motion.div
@@ -69,14 +69,26 @@ const Hero = () => (
           to="/contact"
           className="gradient-bg px-8 py-3.5 rounded-xl font-semibold text-primary-foreground flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
-          Talk to a digital marketing agency near me team <ArrowRight size={18} />
+          Get Free Strategy Call <ArrowRight size={18} />
         </Link>
-        <Link
-          to="/services"
-          className="glass-card glass-card-hover px-8 py-3.5 rounded-xl font-semibold text-foreground transition-all"
-        >
-          Explore professional website development services
-        </Link>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
+        className="mt-10 grid grid-cols-3 gap-3 max-w-2xl mx-auto"
+      >
+        {[
+          ["150+", "Clients"],
+          ["500+", "Projects"],
+          ["98%", "Retention"],
+        ].map(([value, label]) => (
+          <div key={label} className="glass-card rounded-xl px-4 py-4">
+            <div className="font-display text-2xl sm:text-3xl font-bold gradient-text-orange">{value}</div>
+            <div className="text-xs text-muted-foreground mt-1">{label}</div>
+          </div>
+        ))}
       </motion.div>
     </div>
   </section>
@@ -89,6 +101,7 @@ const serviceTabs = [
   { icon: Code, label: "Web Development", items: ["React Development", "E-Commerce", "Landing Pages", "CMS Development", "Shopify", "WordPress"] },
   { icon: TrendingUp, label: "SEO Services", items: ["Technical SEO", "On-Page SEO", "Off-Page SEO", "Local SEO", "E-Commerce SEO", "Content Strategy"] },
   { icon: Palette, label: "Graphic Design", items: ["Brand Identity", "Social Media Design", "UI/UX Design", "Print Design", "Motion Graphics", "Packaging"] },
+  { icon: Bot, label: "AI Solutions", items: ["AI Chatbot Development", "WhatsApp Automation", "CRM Automation", "Lead Automation", "AI Customer Support", "AI Marketing Solutions"] },
 ];
 
 const serviceItemLinks: Record<string, string> = {
@@ -122,6 +135,12 @@ const serviceItemLinks: Record<string, string> = {
   "Graphic Design::Print Design": "/services/graphic-design/print-design",
   "Graphic Design::Motion Graphics": "/services/graphic-design/motion-graphics",
   "Graphic Design::Packaging": "/services/graphic-design/packaging",
+  "AI Solutions::AI Chatbot Development": "/ai-solutions",
+  "AI Solutions::WhatsApp Automation": "/ai-solutions",
+  "AI Solutions::CRM Automation": "/ai-solutions",
+  "AI Solutions::Lead Automation": "/ai-solutions",
+  "AI Solutions::AI Customer Support": "/ai-solutions",
+  "AI Solutions::AI Marketing Solutions": "/ai-solutions",
 };
 
 const serviceItemIcons: Record<string, { icon: React.ComponentType<{ size?: number; className?: string }>; className: string }> = {
@@ -155,6 +174,12 @@ const serviceItemIcons: Record<string, { icon: React.ComponentType<{ size?: numb
   "Graphic Design::Print Design": { icon: FileText, className: "text-amber-400" },
   "Graphic Design::Motion Graphics": { icon: Play, className: "text-red-400" },
   "Graphic Design::Packaging": { icon: Package, className: "text-purple-400" },
+  "AI Solutions::AI Chatbot Development": { icon: Bot, className: "text-cyan-400" },
+  "AI Solutions::WhatsApp Automation": { icon: MessageCircle, className: "text-emerald-400" },
+  "AI Solutions::CRM Automation": { icon: Database, className: "text-blue-400" },
+  "AI Solutions::Lead Automation": { icon: Zap, className: "text-yellow-400" },
+  "AI Solutions::AI Customer Support": { icon: Smartphone, className: "text-pink-400" },
+  "AI Solutions::AI Marketing Solutions": { icon: Megaphone, className: "text-orange-400" },
 };
 
 const ServiceTabsSection = () => {
@@ -256,17 +281,17 @@ const ServiceTabsSection = () => {
 /* ---- Industries We Serve ---- */
 const industriesWeServe = [
   { label: "Retail", icon: Store },
-  { label: "Real Estate", icon: Building2 },
-  { label: "Travel & Tourism", icon: Plane },
-  { label: "Healthcare", icon: HeartPulse },
-  { label: "Education", icon: GraduationCap },
+  { label: "Real Estate", icon: Building2, path: "/industries/real-estate" },
+  { label: "Travel & Tourism", icon: Plane, path: "/industries/travel-agencies" },
+  { label: "Healthcare", icon: HeartPulse, path: "/industries/hospitals" },
+  { label: "Education", icon: GraduationCap, path: "/industries/schools" },
   { label: "E-Commerce", icon: ShoppingBag },
   { label: "Startups", icon: Rocket },
   { label: "Media", icon: Clapperboard },
   { label: "Government & Public", icon: Landmark },
   { label: "Nonprofits & NGOs", icon: HandHeart },
   { label: "Logistics", icon: Truck },
-  { label: "Manufacturing", icon: Factory },
+  { label: "Manufacturing", icon: Factory, path: "/industries/manufacturers" },
   { label: "Finance", icon: Wallet },
   { label: "On-Demand", icon: Clock3 },
   { label: "Automotive", icon: Car },
@@ -298,7 +323,17 @@ const IndustriesSection = () => {
         </motion.div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-          {industriesWeServe.map((industry, i) => (
+          {industriesWeServe.map((industry, i) => {
+            const content = (
+              <>
+                <span className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                  <industry.icon size={22} className="text-primary" />
+                </span>
+                <h3 className="text-sm font-medium leading-tight">{industry.label}</h3>
+              </>
+            );
+
+            return (
             <motion.div
               key={industry.label}
               initial={{ opacity: 0, y: 12 }}
@@ -306,12 +341,9 @@ const IndustriesSection = () => {
               transition={{ duration: 0.3, delay: i * 0.03 }}
               className="service-card flex flex-col items-center justify-center text-center gap-3 min-h-[120px]"
             >
-              <span className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                <industry.icon size={22} className="text-primary" />
-              </span>
-              <h3 className="text-sm font-medium leading-tight">{industry.label}</h3>
+              {industry.path ? <Link to={industry.path} className="flex flex-col items-center justify-center gap-3 h-full w-full">{content}</Link> : content}
             </motion.div>
-          ))}
+          )})}
         </div>
       </div>
     </section>
@@ -360,6 +392,175 @@ const WhyChooseUs = () => {
               <h3 className="font-display font-semibold mb-2">{item.title}</h3>
               <p className="text-sm text-muted-foreground">{item.desc}</p>
             </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const clientLogos = [
+  "aiems-R3CvcNqc.png",
+  "abk-CdGf5VGA.png",
+  "creo-DOaj1ts3.png",
+  "dadhchi-YDEcEBl5.png",
+  "impactinfra-BMopwPl3.png",
+  "insiderview-CjarhEse.png",
+  "jkscuk-BbX_ttjn.png",
+  "kalidas-hDkP2ZMv.png",
+  "krayons-BLCOAATw.png",
+  "mediport-BlzfapUd.png",
+  "RealTrips-C0YTP2sd.png",
+  "samratholidays-6rTTv7j-.png",
+  "skincity-DKkG2hQT.png",
+  "Transvolt-CkBpN8z8.png",
+  "watsoft-BF1YD8YW.png",
+  "Vishvanirmal Ayurveda-CtiqTuU5.png",
+];
+
+const ClientLogoWall = () => {
+  const logos = [...clientLogos, ...clientLogos];
+
+  return (
+    <section className="py-12 border-y border-border bg-card/70 overflow-hidden">
+      <div className="container-max px-4 sm:px-6 lg:px-8 mb-6">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="font-display text-2xl sm:text-3xl font-bold">Brands That Trust Praavi</h2>
+          <Link to="/clients" className="hidden sm:inline-flex items-center gap-1 text-sm text-primary hover:underline">
+            View clients <ChevronRight size={14} />
+          </Link>
+        </div>
+      </div>
+      <div className="logo-marquee">
+        <div className="logo-marquee-track">
+          {logos.map((logo, index) => (
+            <div key={`${logo}-${index}`} className="client-logo-card logo-marquee-item">
+              <img src={`/landing/assets/${logo}`} alt="Praavi client logo" className="max-h-20 max-w-48 object-contain" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const ProcessSection = () => {
+  const steps = ["Discovery Call", "Market Research", "Strategy Planning", "Website / Marketing Setup", "Campaign Launch", "Optimization", "Scale Growth"];
+
+  return (
+    <section className="section-padding">
+      <div className="container-max">
+        <div className="text-center mb-12">
+          <span className="text-sm text-primary font-medium uppercase tracking-wider">Why Praavi Process</span>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold mt-3">How We Grow Businesses</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
+          {steps.map((step, index) => (
+            <div key={step} className="service-card p-4">
+              <div className="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center text-sm font-bold text-primary-foreground mb-4">
+                {index + 1}
+              </div>
+              <h3 className="font-display text-sm font-semibold leading-tight">{step}</h3>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const TechStackSection = () => {
+  const tech = [
+    ["React", Code],
+    ["Next.js", FileCode2],
+    ["Node.js", Server],
+    ["MySQL", Database],
+    ["MongoDB", Database],
+    ["Shopify", Store],
+    ["WordPress", Globe],
+    ["AWS", Server],
+    ["Vercel", Rocket],
+  ];
+
+  return (
+    <section className="section-padding bg-card">
+      <div className="container-max">
+        <div className="text-center mb-10">
+          <h2 className="font-display text-3xl sm:text-4xl font-bold">Technologies We Use</h2>
+          <p className="text-sm text-muted-foreground mt-3">Modern, scalable tools for corporate websites, ecommerce, automation, and marketing systems.</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-4">
+          {tech.map(([label, Icon]) => (
+            <div key={label as string} className="service-card p-4 text-center">
+              <Icon size={22} className="text-primary mx-auto mb-3" />
+              <div className="text-sm font-medium">{label as string}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const PricingSection = () => {
+  const packages = [
+    ["Starter", "₹15,000+", "Website package for small businesses and landing pages."],
+    ["Business", "₹35,000+", "Growth website with SEO structure, analytics, and lead forms."],
+    ["Enterprise", "Custom", "Advanced web, ecommerce, CRM, automation, and marketing systems."],
+  ];
+  const marketing = ["SEO Packages", "Google Ads Packages", "Social Media Packages"];
+
+  return (
+    <section className="section-padding">
+      <div className="container-max">
+        <div className="text-center mb-12">
+          <span className="text-sm text-primary font-medium uppercase tracking-wider">Transparent Starting Points</span>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold mt-3">Pricing That Helps You Plan</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {packages.map(([name, price, desc]) => (
+            <article key={name} className="service-card">
+              <IndianRupee size={24} className="text-primary mb-4" />
+              <h3 className="font-display text-xl font-bold">{name}</h3>
+              <p className="font-display text-3xl font-bold gradient-text-orange mt-3">{price}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed mt-3">{desc}</p>
+            </article>
+          ))}
+        </div>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          {marketing.map((item) => (
+            <Link key={item} to="/contact" className="filter-pill">
+              {item}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const VideoTestimonialsSection = () => {
+  const stories = [
+    ["Client Video Review", "Short video testimonial placeholder for campaign experience and delivery confidence."],
+    ["Google Review Screenshot", "Google review proof can be uploaded here to add third-party trust."],
+    ["Before/After Story", "Showcase traffic, lead quality, and conversion gains from recent projects."],
+  ];
+
+  return (
+    <section className="section-padding">
+      <div className="container-max">
+        <div className="text-center mb-12">
+          <h2 className="font-display text-3xl sm:text-4xl font-bold">Client Proof & Success Stories</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {stories.map(([title, desc]) => (
+            <article key={title} className="service-card">
+              <div className="aspect-video rounded-xl border border-border bg-secondary/70 flex items-center justify-center mb-4">
+                {title.includes("Video") ? <Play size={30} className="text-primary" /> : title.includes("Google") ? <Star size={30} className="text-primary" /> : <Quote size={30} className="text-primary" />}
+              </div>
+              <h3 className="font-display text-lg font-semibold mb-2">{title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+            </article>
           ))}
         </div>
       </div>
@@ -484,9 +685,14 @@ const Index = () => {
         schema={localBusinessSchema}
       />
       <Hero />
+      <ClientLogoWall />
       <ServiceTabsSection />
       <LocalSeoContentSection />
       <IndustriesSection />
+      <ProcessSection />
+      <TechStackSection />
+      <PricingSection />
+      <VideoTestimonialsSection />
       <WhyChooseUs />
       <ContactForm />
       <LeadPopup />

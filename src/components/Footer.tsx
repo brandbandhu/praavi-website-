@@ -21,7 +21,10 @@ const Footer = () => {
               {[
                 { label: "Home", path: "/" },
                 { label: "Services", path: "/services" },
+                { label: "AI Solutions", path: "/ai-solutions" },
                 { label: "Our Work", path: "/portfolio" },
+                { label: "Case Studies", path: "/case-studies" },
+                { label: "Team", path: "/team" },
                 { label: "Our Clients", path: "/clients" },
                 { label: "About", path: "/about" },
                 { label: "Career", path: "/career" },
@@ -43,6 +46,7 @@ const Footer = () => {
             <div className="flex flex-col gap-2">
               {[
                 { label: "Web Development", path: "/services/website-development" },
+                { label: "AI Chatbots & Automation", path: "/ai-solutions" },
                 { label: "SEO Services", path: "/services/seo" },
                 { label: "Google Search Ads", path: "/services/google-ads/search-ads" },
                 { label: "Social Media Ads", path: "/services/social-media-management" },

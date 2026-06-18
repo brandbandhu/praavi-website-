@@ -25,8 +25,13 @@ import DigitalMarketingService from "./pages/DigitalMarketingService";
 import SocialMediaManagementService from "./pages/SocialMediaManagementService";
 import ShopifyDevelopmentService from "./pages/ShopifyDevelopmentService";
 import Portfolio from "./pages/Portfolio";
+import CaseStudies from "./pages/CaseStudies";
 import Clients from "./pages/Clients";
 import About from "./pages/About";
+import Team from "./pages/Team";
+import AISolutions from "./pages/AISolutions";
+import IndustryPage from "./pages/IndustryPage";
+import PuneLandingPage from "./pages/PuneLandingPage";
 import Contact from "./pages/Contact";
 import Career from "./pages/Career";
 import Blog from "./pages/Blog";
@@ -78,8 +83,13 @@ const App = () => (
             <Route path="/services/social-ads/facebook-ads" element={<FacebookAdsService />} />
             <Route path="/services/:categorySlug/:serviceSlug" element={<SubServicePage />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/case-studies" element={<CaseStudies />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/about" element={<About />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/ai-solutions" element={<AISolutions />} />
+            <Route path="/industries/:slug" element={<IndustryPage />} />
+            <Route path="/pune/:slug" element={<PuneLandingPage />} />
             <Route path="/career" element={<Career />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />

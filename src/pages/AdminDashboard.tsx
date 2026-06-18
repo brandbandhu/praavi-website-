@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createSlug, getBlogPosts, saveBlogPosts, type BlogPost } from "@/lib/blogStore";
 import { getPortfolioItems, savePortfolioItems, type PortfolioItem } from "@/lib/portfolioStore";
 import { getClientsItems, saveClientsItems, type ClientItem } from "@/lib/clientsStore";
+import { getCaseStudyItems, saveCaseStudyItems, type CaseStudyItem } from "@/lib/caseStudyStore";
 import {
   createJob,
   deleteJob,
@@ -21,15 +22,18 @@ import {
 } from "@/lib/careerApi";
 import { supabase } from "@/lib/supabase";
 import { ADMIN_LOGIN_PATH } from "@/lib/adminRoutes";
-import { uploadImageToGodaddy } from "@/lib/uploadApi";
+import { uploadImageToGodaddy, uploadImageToSupabaseStorage } from "@/lib/uploadApi";
 import {
   deleteBlogPostFromSupabase,
   deleteClientFromSupabase,
+  deleteCaseStudyFromSupabase,
   deletePortfolioItemFromSupabase,
   fetchActiveClients,
+  fetchPublishedCaseStudies,
   fetchPublishedBlogPosts,
   fetchPublishedPortfolioItems,
   upsertBlogPostsToSupabase,
+  upsertCaseStudiesToSupabase,
   upsertClientsToSupabase,
   upsertPortfolioItemsToSupabase,
 } from "@/lib/contentApi";
@@ -147,7 +151,7 @@ const fileToDataUrl = (file: File) =>
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState<"blog" | "work" | "clients" | "career">("blog");
+  const [activeSection, setActiveSection] = useState<"blog" | "work" | "case-studies" | "clients" | "career">("blog");
 
   const [posts, setPosts] = useState<BlogPost[]>(getBlogPosts());
   const [title, setTitle] = useState("");
@@ -169,6 +173,23 @@ const AdminDashboardPage = () => {
   const [workLiveUrl, setWorkLiveUrl] = useState("");
   const [workError, setWorkError] = useState("");
   const [editingWorkId, setEditingWorkId] = useState<string | null>(null);
+
+  const [caseStudies, setCaseStudies] = useState<CaseStudyItem[]>(getCaseStudyItems());
+  const [caseClient, setCaseClient] = useState("");
+  const [caseTitle, setCaseTitle] = useState("");
+  const [caseProblem, setCaseProblem] = useState("");
+  const [caseSolution, setCaseSolution] = useState("");
+  const [caseTechnologyInput, setCaseTechnologyInput] = useState("React, SEO, Google Ads");
+  const [caseBefore, setCaseBefore] = useState("");
+  const [caseAfter, setCaseAfter] = useState("");
+  const [caseTrafficGrowth, setCaseTrafficGrowth] = useState("");
+  const [caseLeadsGenerated, setCaseLeadsGenerated] = useState("");
+  const [caseTestimonial, setCaseTestimonial] = useState("");
+  const [caseScreenshot, setCaseScreenshot] = useState("/placeholder.svg");
+  const [caseScreenshotUploading, setCaseScreenshotUploading] = useState(false);
+  const [caseError, setCaseError] = useState("");
+  const [editingCaseStudyId, setEditingCaseStudyId] = useState<string | null>(null);
+  const caseScreenshotIsEmbedded = caseScreenshot.startsWith("data:");
 
   const [clients, setClients] = useState<ClientItem[]>(getClientsItems());
   const [clientName, setClientName] = useState("");
@@ -208,10 +229,16 @@ const AdminDashboardPage = () => {
       saveClientsItems(normalizedClients.normalized);
     }
 
+    const normalizedCaseStudies = normalizeIds(caseStudies);
+    if (normalizedCaseStudies.changed) {
+      setCaseStudies(normalizedCaseStudies.normalized);
+      saveCaseStudyItems(normalizedCaseStudies.normalized);
+    }
+
     let mounted = true;
 
-    Promise.all([fetchPublishedBlogPosts(), fetchPublishedPortfolioItems(), fetchActiveClients()])
-      .then(([livePosts, liveWorks, liveClients]) => {
+    Promise.all([fetchPublishedBlogPosts(), fetchPublishedPortfolioItems(), fetchActiveClients(), fetchPublishedCaseStudies()])
+      .then(([livePosts, liveWorks, liveClients, liveCaseStudies]) => {
         if (!mounted) return;
 
         if (livePosts.length > 0) {
@@ -225,6 +252,10 @@ const AdminDashboardPage = () => {
         if (liveClients.length > 0) {
           setClients(liveClients);
           saveClientsItems(liveClients);
+        }
+        if (liveCaseStudies.length > 0) {
+          setCaseStudies(liveCaseStudies);
+          saveCaseStudyItems(liveCaseStudies);
         }
       })
       .catch(() => {
@@ -256,6 +287,7 @@ const AdminDashboardPage = () => {
       const normalizedPosts = normalizeIds(posts);
       const normalizedWorks = normalizeIds(works);
       const normalizedClients = normalizeIds(clients);
+      const normalizedCaseStudies = normalizeIds(caseStudies);
 
       if (normalizedPosts.changed) {
         setPosts(normalizedPosts.normalized);
@@ -269,11 +301,16 @@ const AdminDashboardPage = () => {
         setClients(normalizedClients.normalized);
         saveClientsItems(normalizedClients.normalized);
       }
+      if (normalizedCaseStudies.changed) {
+        setCaseStudies(normalizedCaseStudies.normalized);
+        saveCaseStudyItems(normalizedCaseStudies.normalized);
+      }
 
       await upsertBlogPostsToSupabase(normalizedPosts.normalized);
       await upsertPortfolioItemsToSupabase(normalizedWorks.normalized);
       await upsertClientsToSupabase(normalizedClients.normalized);
-      setSyncMessage("Synced local Blog, Work, and Clients data to Supabase.");
+      await upsertCaseStudiesToSupabase(normalizedCaseStudies.normalized);
+      setSyncMessage("Synced local Blog, Work, Case Studies, and Clients data to Supabase.");
     } catch (error) {
       setSyncError(`Supabase sync failed: ${getErrorMessage(error)}`);
     } finally {
@@ -300,6 +337,21 @@ const AdminDashboardPage = () => {
     setWorkImageUrl("/placeholder.svg");
     setWorkLiveUrl("");
     setEditingWorkId(null);
+  };
+
+  const resetCaseStudyForm = () => {
+    setCaseClient("");
+    setCaseTitle("");
+    setCaseProblem("");
+    setCaseSolution("");
+    setCaseTechnologyInput("React, SEO, Google Ads");
+    setCaseBefore("");
+    setCaseAfter("");
+    setCaseTrafficGrowth("");
+    setCaseLeadsGenerated("");
+    setCaseTestimonial("");
+    setCaseScreenshot("/placeholder.svg");
+    setEditingCaseStudyId(null);
   };
 
   const resetClientForm = () => {
@@ -430,6 +482,82 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const handleCreateOrUpdateCaseStudy = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setCaseError("");
+
+    const technology = parseTags(caseTechnologyInput);
+    if (!caseClient.trim() || !caseTitle.trim() || !caseProblem.trim() || !caseSolution.trim()) {
+      setCaseError("Please fill client, title, problem, and solution.");
+      return;
+    }
+    if (technology.length === 0) {
+      setCaseError("Add at least one technology.");
+      return;
+    }
+
+    const normalizedScreenshot = caseScreenshot.trim() || "/placeholder.svg";
+    if (normalizedScreenshot.length > 1_500_000) {
+      setCaseError("Screenshot is too large. Upload a smaller/compressed image.");
+      return;
+    }
+    if (normalizedScreenshot.startsWith("data:")) {
+      setCaseError("This image is only stored locally because upload API is unavailable. Please upload to hosting or paste an image URL before saving to Supabase.");
+      return;
+    }
+
+    const isEditMode = !!editingCaseStudyId;
+    const updated = isEditMode
+      ? caseStudies.map((study) =>
+          study.id === editingCaseStudyId
+            ? {
+                ...study,
+                client: caseClient.trim(),
+                title: caseTitle.trim(),
+                problem: caseProblem.trim(),
+                solution: caseSolution.trim(),
+                technology,
+                before: caseBefore.trim(),
+                after: caseAfter.trim(),
+                trafficGrowth: caseTrafficGrowth.trim(),
+                leadsGenerated: caseLeadsGenerated.trim(),
+                testimonial: caseTestimonial.trim(),
+                screenshot: normalizedScreenshot,
+              }
+            : study
+        )
+      : [
+          {
+            id: generateUuid(),
+            client: caseClient.trim(),
+            title: caseTitle.trim(),
+            problem: caseProblem.trim(),
+            solution: caseSolution.trim(),
+            technology,
+            before: caseBefore.trim(),
+            after: caseAfter.trim(),
+            trafficGrowth: caseTrafficGrowth.trim(),
+            leadsGenerated: caseLeadsGenerated.trim(),
+            testimonial: caseTestimonial.trim(),
+            screenshot: normalizedScreenshot,
+            createdAt: Date.now(),
+          },
+          ...caseStudies,
+        ];
+
+    try {
+      const normalizedCaseStudies = normalizeIds(updated);
+      saveCaseStudyItems(normalizedCaseStudies.normalized);
+      setCaseStudies(normalizedCaseStudies.normalized);
+      void upsertCaseStudiesToSupabase(normalizedCaseStudies.normalized).catch(() => {
+        setCaseError("Saved locally, but failed to sync case studies to Supabase.");
+      });
+      resetCaseStudyForm();
+    } catch {
+      setCaseError("Could not save case study. Use a smaller screenshot or image URL.");
+    }
+  };
+
   const handleCreateOrUpdateClient = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setClientError("");
@@ -535,6 +663,33 @@ const AdminDashboardPage = () => {
       setWorkError("Deleted locally, but failed to delete from Supabase.");
     });
     if (editingWorkId === id) resetWorkForm();
+  };
+
+  const handleEditCaseStudy = (study: CaseStudyItem) => {
+    setEditingCaseStudyId(study.id);
+    setCaseClient(study.client);
+    setCaseTitle(study.title);
+    setCaseProblem(study.problem);
+    setCaseSolution(study.solution);
+    setCaseTechnologyInput(study.technology.join(", "));
+    setCaseBefore(study.before);
+    setCaseAfter(study.after);
+    setCaseTrafficGrowth(study.trafficGrowth);
+    setCaseLeadsGenerated(study.leadsGenerated);
+    setCaseTestimonial(study.testimonial);
+    setCaseScreenshot(study.screenshot);
+    setActiveSection("case-studies");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDeleteCaseStudy = (id: string) => {
+    const updated = caseStudies.filter((study) => study.id !== id);
+    setCaseStudies(updated);
+    saveCaseStudyItems(updated);
+    void deleteCaseStudyFromSupabase(id).catch(() => {
+      setCaseError("Deleted locally, but failed to delete from Supabase.");
+    });
+    if (editingCaseStudyId === id) resetCaseStudyForm();
   };
 
   const handleEditClient = (client: ClientItem) => {
@@ -751,6 +906,39 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const handleCaseStudyScreenshotUpload = async (file?: File) => {
+    if (!file) return;
+    setCaseScreenshotUploading(true);
+    setCaseError("");
+    try {
+      const uploadedUrl = await uploadImageToGodaddy(file, "case-studies");
+      setCaseScreenshot(uploadedUrl);
+      setCaseError("");
+    } catch (error) {
+      try {
+        const uploadedUrl = await uploadImageToSupabaseStorage(file, "case-studies");
+        setCaseScreenshot(uploadedUrl);
+        setCaseError("");
+      } catch (storageError) {
+        try {
+          const dataUrl = await fileToDataUrl(file);
+          if (dataUrl.length > 1_500_000) {
+            setCaseError("Screenshot is too large. Upload a smaller/compressed image.");
+            return;
+          }
+          setCaseScreenshot(dataUrl);
+          setCaseError(
+            `Upload failed. GoDaddy: ${getErrorMessage(error)} | Supabase Storage: ${getErrorMessage(storageError)}`
+          );
+        } catch {
+          setCaseError(`Could not upload case study screenshot: ${getErrorMessage(storageError)}`);
+        }
+      }
+    } finally {
+      setCaseScreenshotUploading(false);
+    }
+  };
+
   const handleClientLogoUpload = async (file?: File) => {
     if (!file) return;
     try {
@@ -784,7 +972,7 @@ const AdminDashboardPage = () => {
           <div>
             <h1 className="font-display text-3xl sm:text-4xl font-bold">Admin Dashboard</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Blogs: {posts.length} | Works: {works.length} | Clients: {clients.length} | Jobs: {jobs.length}
+              Blogs: {posts.length} | Works: {works.length} | Case Studies: {caseStudies.length} | Clients: {clients.length} | Jobs: {jobs.length}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -823,6 +1011,14 @@ const AdminDashboardPage = () => {
             }`}
           >
             Our Work Management
+          </button>
+          <button
+            onClick={() => setActiveSection("case-studies")}
+            className={`px-5 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
+              activeSection === "case-studies" ? "gradient-bg text-primary-foreground border-transparent" : "border-border hover:bg-secondary"
+            }`}
+          >
+            Case Studies
           </button>
           <button
             onClick={() => setActiveSection("clients")}
@@ -907,6 +1103,106 @@ const AdminDashboardPage = () => {
                     <div className="flex items-center gap-2">
                       <button onClick={() => handleEditWork(work)} className="text-sm px-4 py-2 rounded-lg border border-border hover:bg-secondary transition-colors">Edit</button>
                       <button onClick={() => handleDeleteWork(work.id)} className="text-sm px-4 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 transition-colors">Delete</button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
+        ) : activeSection === "case-studies" ? (
+          <>
+            <div className="service-card">
+              <h2 className="font-display text-xl font-semibold mb-4">{editingCaseStudyId ? "Edit Case Study" : "Add Case Study"}</h2>
+              <form onSubmit={handleCreateOrUpdateCaseStudy} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label className="block text-sm mb-2">Client Name</label><input value={caseClient} onChange={(e) => setCaseClient(e.target.value)} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Case Study Title</label><input value={caseTitle} onChange={(e) => setCaseTitle(e.target.value)} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div className="md:col-span-2"><label className="block text-sm mb-2">Client Problem</label><textarea value={caseProblem} onChange={(e) => setCaseProblem(e.target.value)} required rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div className="md:col-span-2"><label className="block text-sm mb-2">Solution Provided</label><textarea value={caseSolution} onChange={(e) => setCaseSolution(e.target.value)} required rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div className="md:col-span-2"><label className="block text-sm mb-2">Technology Used (comma separated)</label><input value={caseTechnologyInput} onChange={(e) => setCaseTechnologyInput(e.target.value)} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Before</label><textarea value={caseBefore} onChange={(e) => setCaseBefore(e.target.value)} rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">After</label><textarea value={caseAfter} onChange={(e) => setCaseAfter(e.target.value)} rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Traffic Growth</label><input value={caseTrafficGrowth} onChange={(e) => setCaseTrafficGrowth(e.target.value)} placeholder="200% engagement increase" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div><label className="block text-sm mb-2">Leads Generated</label><input value={caseLeadsGenerated} onChange={(e) => setCaseLeadsGenerated(e.target.value)} placeholder="45+ qualified monthly enquiries" className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div className="md:col-span-2"><label className="block text-sm mb-2">Client Testimonial</label><textarea value={caseTestimonial} onChange={(e) => setCaseTestimonial(e.target.value)} rows={3} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm mb-2">Case Study Image</label>
+                  <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 rounded-xl border border-border bg-background p-4">
+                    <div className="h-44 rounded-lg border border-border bg-secondary/60 p-4 flex items-center justify-center overflow-hidden">
+                      <img src={caseScreenshot} alt="Case study preview" className="max-w-full max-h-full object-contain" />
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs text-muted-foreground mb-2">Image URL</label>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            value={caseScreenshotIsEmbedded ? "Embedded local image selected" : caseScreenshot}
+                            onChange={(e) => setCaseScreenshot(e.target.value)}
+                            readOnly={caseScreenshotIsEmbedded}
+                            required
+                            className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm"
+                          />
+                          {caseScreenshot !== "/placeholder.svg" ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCaseScreenshot("/placeholder.svg");
+                                setCaseError("");
+                              }}
+                              className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary transition-colors"
+                            >
+                              Clear
+                            </button>
+                          ) : null}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Upload stores an image URL when the upload API is available. If it is unavailable, the image is kept locally for preview.
+                        </p>
+                      </div>
+                      <label className="flex min-h-[112px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-primary/40 bg-primary/5 px-4 py-5 text-center hover:bg-primary/10 transition-colors">
+                        <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={(e) => handleCaseStudyScreenshotUpload(e.target.files?.[0])} className="sr-only" disabled={caseScreenshotUploading} />
+                        <span className="text-sm font-semibold text-foreground">
+                          {caseScreenshotUploading ? "Uploading image..." : "Upload Case Study Image"}
+                        </span>
+                        <span className="mt-1 text-xs text-muted-foreground">
+                          PNG, JPG, WEBP, or SVG. Recommended Canva size: 1600 x 900 px.
+                        </span>
+                        <span className="mt-3 rounded-lg border border-border bg-card px-4 py-2 text-xs text-primary">
+                          Choose File
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                {caseError && <p className="md:col-span-2 text-sm text-destructive">{caseError}</p>}
+                <div className="md:col-span-2 flex flex-wrap gap-3">
+                  <button type="submit" className="gradient-bg px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity">{editingCaseStudyId ? "Update Case Study" : "Add Case Study"}</button>
+                  {editingCaseStudyId && <button type="button" onClick={resetCaseStudyForm} className="px-6 py-3 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">Cancel Edit</button>}
+                </div>
+              </form>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="font-display text-2xl font-semibold">Case Studies List</h2>
+              {caseStudies.length === 0 ? <div className="service-card text-sm text-muted-foreground">No case studies added yet.</div> : caseStudies.map((study) => (
+                <article key={study.id} className="service-card">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <span className="w-24 h-16 rounded-lg border border-border bg-secondary p-2 flex items-center justify-center flex-shrink-0">
+                        <img src={study.screenshot} alt={`${study.client} case study`} className="max-w-full max-h-full object-contain" />
+                      </span>
+                      <div>
+                        <p className="text-xs text-primary mb-1">{study.client}</p>
+                        <h3 className="font-display text-lg font-semibold">{study.title}</h3>
+                        <p className="text-sm text-muted-foreground mt-2">{study.problem}</p>
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {study.technology.map((tech) => <span key={tech} className="text-xs px-2 py-0.5 rounded-full border border-border text-muted-foreground">{tech}</span>)}
+                        </div>
+                        <p className="text-sm font-semibold mt-3">{study.trafficGrowth} {study.leadsGenerated ? `| ${study.leadsGenerated}` : ""}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => handleEditCaseStudy(study)} className="text-sm px-4 py-2 rounded-lg border border-border hover:bg-secondary transition-colors">Edit</button>
+                      <button onClick={() => handleDeleteCaseStudy(study.id)} className="text-sm px-4 py-2 rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 transition-colors">Delete</button>
                     </div>
                   </div>
                 </article>

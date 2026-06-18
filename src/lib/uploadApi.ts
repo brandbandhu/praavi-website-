@@ -1,4 +1,6 @@
-type UploadFolder = "blogs" | "works" | "clients";
+import { supabase } from "@/lib/supabase";
+
+type UploadFolder = "blogs" | "works" | "clients" | "case-studies";
 
 const UPLOAD_API_URL = import.meta.env.VITE_UPLOAD_API_URL as string | undefined;
 const UPLOAD_API_SECRET = import.meta.env.VITE_UPLOAD_API_SECRET as string | undefined;
@@ -69,4 +71,31 @@ export const uploadImageToGodaddy = async (file: File, folder: UploadFolder): Pr
   }
 
   throw new Error(errors.join(" | "));
+};
+
+export const uploadImageToSupabaseStorage = async (file: File, folder: UploadFolder): Promise<string> => {
+  if (!allowedMimeTypes.has(file.type)) {
+    throw new Error("Unsupported file type. Use JPG, PNG, WEBP, or SVG.");
+  }
+
+  const extension = file.name.split(".").pop()?.toLowerCase() || "png";
+  const safeName = file.name
+    .replace(/\.[^/.]+$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  const path = `${folder}/${Date.now()}-${safeName || "image"}.${extension}`;
+
+  const { error } = await supabase.storage.from("case-study-images").upload(path, file, {
+    cacheControl: "31536000",
+    upsert: false,
+    contentType: file.type,
+  });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage.from("case-study-images").getPublicUrl(path);
+  if (!data.publicUrl) throw new Error("Could not create public URL for uploaded image.");
+  return data.publicUrl;
 };

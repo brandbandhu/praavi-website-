@@ -1,6 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, TrendingUp, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
 import { getPortfolioItems, type PortfolioItem } from "@/lib/portfolioStore";
 import { fetchPublishedPortfolioItems } from "@/lib/contentApi";
@@ -43,6 +44,13 @@ const PortfolioPage = () => {
           <Users size={16} className="text-primary" />
           150+ Happy Clients
         </div>
+      </div>
+
+      <div className="container-max px-4 sm:px-6 lg:px-8 pb-6 text-center">
+        <Link to="/case-studies" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
+          View detailed case studies
+          <ArrowUpRight size={14} />
+        </Link>
       </div>
 
       <section className="section-padding pt-8" ref={ref}>

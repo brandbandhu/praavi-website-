@@ -3,13 +3,21 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   Code, Search, Megaphone, Palette, ShoppingCart,
-  Globe, BarChart3, PenTool, Layers, Target, TrendingUp, ArrowRight,
+  Globe, BarChart3, Target, ArrowRight, Bot,
 } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
 import SeoHead from "@/components/SeoHead";
 
 const services = [
+  {
+    icon: Bot,
+    title: "AI Solutions",
+    desc: "AI chatbots, WhatsApp automation, CRM workflows, lead automation, and customer support systems for faster response times.",
+    features: ["AI Chatbots", "WhatsApp Automation", "CRM Automation", "Lead Routing"],
+    detailPath: "/ai-solutions",
+    featuredStyle: true,
+  },
   {
     icon: Code,
     title: "Website Development",
@@ -24,7 +32,6 @@ const services = [
       { label: "Shopify", path: "/services/web-development/shopify" },
       { label: "WordPress", path: "/services/web-development/wordpress" },
     ],
-    featuredStyle: true,
   },
   {
     icon: Search,
