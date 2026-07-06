@@ -2,6 +2,7 @@
   "routes": [
     { "src": "/landing/?", "status": 308, "headers": { "Location": "/june-offer" } },
     { "src": "/june-offer/?", "dest": "/june-offer/index.html" },
+    { "src": "/internal/quote-tool/myadmin/?", "dest": "/internal/quote-tool/myadmin/index.html" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/" }
   ]

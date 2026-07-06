@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/internal/quote-tool/myadmin/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Praavi Quotation & Scope Generator</title>
+    <link rel="stylesheet" crossorigin href="/internal/quote-tool/myadmin/assets/index-Dt_R07JN.css">
+    <style>
+      .quote-login-shell {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #f5f7fb;
+        color: #111827;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .quote-login-card {
+        width: min(100%, 380px);
+        border: 1px solid #dde3ee;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+        padding: 28px;
+      }
+
+      .quote-login-card h1 {
+        margin: 0 0 6px;
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      .quote-login-card p {
+        margin: 0 0 22px;
+        color: #5b6473;
+        font-size: 14px;
+      }
+
+      .quote-login-card label {
+        display: block;
+        margin-bottom: 7px;
+        color: #2d3748;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .quote-login-card input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 11px 12px;
+        margin-bottom: 16px;
+        color: #111827;
+        font: inherit;
+      }
+
+      .quote-login-card button,
+      .quote-logout {
+        border: 0;
+        border-radius: 8px;
+        background: #143b73;
+        color: #ffffff;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 700;
+      }
+
+      .quote-login-card button {
+        width: 100%;
+        padding: 12px 14px;
+      }
+
+      .quote-login-error {
+        min-height: 18px;
+        margin: -4px 0 14px;
+        color: #b42318;
+        font-size: 13px;
+      }
+
+      .quote-logout {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 9999;
+        padding: 10px 14px;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      (() => {
+        const USERNAME = "quoteadmin";
+        const PASSWORD = "Praavi@2026";
+        const SESSION_KEY = "praavi_quote_tool_session";
+        const root = document.getElementById("root");
+
+        function loadTool() {
+          root.innerHTML = "";
+          const script = document.createElement("script");
+          script.type = "module";
+          script.crossOrigin = "";
+          script.src = "/internal/quote-tool/myadmin/assets/index-BG8lMJ-H.js";
+          document.body.appendChild(script);
+
+          const logout = document.createElement("button");
+          logout.type = "button";
+          logout.className = "quote-logout";
+          logout.textContent = "Logout";
+          logout.addEventListener("click", () => {
+            localStorage.removeItem(SESSION_KEY);
+            window.location.reload();
+          });
+          document.body.appendChild(logout);
+        }
+
+        function renderLogin() {
+          root.innerHTML = `
+            <main class="quote-login-shell">
+              <form class="quote-login-card" id="quote-login-form" autocomplete="off">
+                <h1>Quotation Tool</h1>
+                <p>Private access for Praavi team members.</p>
+                <label for="quote-username">Username</label>
+                <input id="quote-username" name="username" type="text" required autofocus />
+                <label for="quote-password">Password</label>
+                <input id="quote-password" name="password" type="password" required />
+                <div class="quote-login-error" id="quote-login-error" aria-live="polite"></div>
+                <button type="submit">Login</button>
+              </form>
+            </main>
+          `;
+
+          document.getElementById("quote-login-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const form = new FormData(event.currentTarget);
+            const username = String(form.get("username") || "").trim();
+            const password = String(form.get("password") || "");
+
+            if (username === USERNAME && password === PASSWORD) {
+              localStorage.setItem(SESSION_KEY, "true");
+              loadTool();
+              return;
+            }
+
+            document.getElementById("quote-login-error").textContent = "Invalid username or password.";
+          });
+        }
+
+        if (localStorage.getItem(SESSION_KEY) === "true") {
+          loadTool();
+        } else {
+          renderLogin();
+        }
+      })();
+    </script>
+  </body>
+</html>
