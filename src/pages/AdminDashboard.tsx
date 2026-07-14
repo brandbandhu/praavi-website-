@@ -872,15 +872,21 @@ const AdminDashboardPage = () => {
       setError("");
     } catch (error) {
       try {
-        const dataUrl = await fileToDataUrl(file);
-        if (dataUrl.length > 1_500_000) {
-          setError("Image is too large. Upload a smaller/compressed image.");
-          return;
+        const uploadedUrl = await uploadImageToSupabaseStorage(file, "blogs");
+        setImageUrl(uploadedUrl);
+        setError("");
+      } catch (storageError) {
+        try {
+          const dataUrl = await fileToDataUrl(file);
+          if (dataUrl.length > 1_500_000) {
+            setError("Image is too large. Upload a smaller/compressed image.");
+            return;
+          }
+          setImageUrl(dataUrl);
+          setError(`Upload failed. GoDaddy: ${getErrorMessage(error)} | Supabase Storage: ${getErrorMessage(storageError)}`);
+        } catch {
+          setError(`Could not upload blog image: ${getErrorMessage(storageError)}`);
         }
-        setImageUrl(dataUrl);
-        setError("Upload API unavailable. Using an embedded image stored locally.");
-      } catch {
-        setError(`Could not upload blog image: ${getErrorMessage(error)}`);
       }
     }
   };
@@ -893,15 +899,23 @@ const AdminDashboardPage = () => {
       setWorkError("");
     } catch (error) {
       try {
-        const dataUrl = await fileToDataUrl(file);
-        if (dataUrl.length > 1_500_000) {
-          setWorkError("Image is too large. Upload a smaller/compressed image.");
-          return;
+        const uploadedUrl = await uploadImageToSupabaseStorage(file, "works");
+        setWorkImageUrl(uploadedUrl);
+        setWorkError("");
+      } catch (storageError) {
+        try {
+          const dataUrl = await fileToDataUrl(file);
+          if (dataUrl.length > 1_500_000) {
+            setWorkError("Image is too large. Upload a smaller/compressed image.");
+            return;
+          }
+          setWorkImageUrl(dataUrl);
+          setWorkError(
+            `Upload failed. GoDaddy: ${getErrorMessage(error)} | Supabase Storage: ${getErrorMessage(storageError)}`
+          );
+        } catch {
+          setWorkError(`Could not upload work image: ${getErrorMessage(storageError)}`);
         }
-        setWorkImageUrl(dataUrl);
-        setWorkError("Upload API unavailable. Using an embedded image stored locally.");
-      } catch {
-        setWorkError(`Could not upload work image: ${getErrorMessage(error)}`);
       }
     }
   };
@@ -947,15 +961,23 @@ const AdminDashboardPage = () => {
       setClientError("");
     } catch (error) {
       try {
-        const dataUrl = await fileToDataUrl(file);
-        if (dataUrl.length > 1_500_000) {
-          setClientError("Image is too large. Upload a smaller/compressed image.");
-          return;
+        const uploadedUrl = await uploadImageToSupabaseStorage(file, "clients");
+        setClientLogoUrl(uploadedUrl);
+        setClientError("");
+      } catch (storageError) {
+        try {
+          const dataUrl = await fileToDataUrl(file);
+          if (dataUrl.length > 1_500_000) {
+            setClientError("Image is too large. Upload a smaller/compressed image.");
+            return;
+          }
+          setClientLogoUrl(dataUrl);
+          setClientError(
+            `Upload failed. GoDaddy: ${getErrorMessage(error)} | Supabase Storage: ${getErrorMessage(storageError)}`
+          );
+        } catch {
+          setClientError(`Could not upload client logo: ${getErrorMessage(storageError)}`);
         }
-        setClientLogoUrl(dataUrl);
-        setClientError("Upload API unavailable. Using an embedded image stored locally.");
-      } catch {
-        setClientError(`Could not upload client logo: ${getErrorMessage(error)}`);
       }
     }
   };

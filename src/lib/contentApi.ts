@@ -117,7 +117,7 @@ export const fetchPublishedPortfolioItems = async (): Promise<PortfolioItem[]> =
     desc: row.desc ?? row.summary ?? row.details ?? "",
     tags: normalizeTags(row.tags),
     stat: row.stat ?? "",
-    imageUrl: row.image_url ?? DEFAULT_IMAGE,
+    imageUrl: normalizeImageUrl(row.image_url),
     liveUrl: row.live_url ?? row.website_url ?? "",
     createdAt: toTimestamp(row.created_at),
   }));
@@ -136,7 +136,7 @@ export const fetchActiveClients = async (): Promise<ClientItem[]> => {
     id: String(row.id),
     name: row.name ?? "Client",
     category: row.category ?? "Client",
-    logoUrl: row.logo_url ?? DEFAULT_IMAGE,
+    logoUrl: normalizeImageUrl(row.logo_url),
     websiteUrl: row.website_url ?? "",
     createdAt: toTimestamp(row.created_at),
   }));
