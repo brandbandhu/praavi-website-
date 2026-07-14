@@ -55,11 +55,11 @@ const ClientsPage = () => {
                 transition={{ duration: 0.3, delay: i * 0.03 }}
                 className="client-logo-card flex-col gap-3 p-6"
               >
-                <div className="w-24 h-24 rounded-2xl bg-secondary flex items-center justify-center overflow-hidden border border-border">
+                <div className="w-36 h-24 rounded-2xl bg-secondary flex items-center justify-center overflow-hidden border border-border">
                   <img
                     src={client.logoUrl}
                     alt={`${client.name} - social media marketing agency Pune client`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain p-3"
                   />
                 </div>
                 <span className="font-medium text-base text-foreground text-center">{client.name}</span>
