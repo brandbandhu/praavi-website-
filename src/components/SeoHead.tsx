@@ -10,6 +10,7 @@ interface SeoHeadProps {
 }
 
 const SITE_URL = "https://www.praaviconsultants.in";
+const PREVIEW_IMAGE_URL = `${SITE_URL}/preview-img.png?v=20260714`;
 
 const upsertMetaByName = (name: string, content: string) => {
   let element = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
@@ -49,6 +50,8 @@ const SeoHead = ({ title, description, canonicalPath = "/", ogTitle, ogDescripti
     upsertMetaByProperty("og:title", ogTitle ?? title);
     upsertMetaByProperty("og:description", ogDescription ?? description);
     upsertMetaByProperty("og:url", canonical);
+    upsertMetaByProperty("og:image", PREVIEW_IMAGE_URL);
+    upsertMetaByName("twitter:image", PREVIEW_IMAGE_URL);
     upsertCanonical(canonical);
 
     const schemaId = "seo-json-ld";

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 const navLinks = [
   { label: "Home", path: "/" },
@@ -32,9 +33,12 @@ const Navbar = () => {
       }`}
     >
       <div className="container-max flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
-        <Link to="/" className="font-display text-xl sm:text-2xl font-bold tracking-tight">
-          <span className="gradient-text-orange">Praavi</span>
-          <span className="text-foreground"> Consultants</span>
+        <Link to="/" className="inline-flex items-center" aria-label="Praavi Consultants home">
+          <img
+            src={logo}
+            alt="Praavi Consultants"
+            className="h-10 w-auto sm:h-12"
+          />
         </Link>
 
         {/* Desktop */}

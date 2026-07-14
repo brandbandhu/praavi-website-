@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -7,8 +8,12 @@ const Footer = () => {
       <div className="container-max section-padding pb-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div>
-            <Link to="/" className="font-display text-xl font-bold mb-4 block">
-              <span className="gradient-text-orange">Praavi</span> Consultants
+            <Link to="/" className="mb-4 inline-flex items-center" aria-label="Praavi Consultants home">
+              <img
+                src={logo}
+                alt="Praavi Consultants"
+                className="h-12 w-auto"
+              />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Premium digital agency crafting high-converting experiences for ambitious brands across India and worldwide.
