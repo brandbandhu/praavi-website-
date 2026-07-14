@@ -45,6 +45,14 @@ export default defineConfig(({ mode }) => ({
               return;
             }
           }
+          if (url === "/dm_quotation_maker-myadmin" || url === "/dm_quotation_maker-myadmin/") {
+            const filePath = path.resolve(__dirname, "public/dm_quotation_maker-myadmin/index.html");
+            if (fs.existsSync(filePath)) {
+              res.setHeader("Content-Type", "text/html; charset=utf-8");
+              res.end(fs.readFileSync(filePath, "utf-8"));
+              return;
+            }
+          }
           next();
         });
       },
@@ -69,6 +77,14 @@ export default defineConfig(({ mode }) => ({
           }
           if (url === "/thank-you" || url === "/thank-you/") {
             const filePath = path.resolve(__dirname, "public/thank-you/index.html");
+            if (fs.existsSync(filePath)) {
+              res.setHeader("Content-Type", "text/html; charset=utf-8");
+              res.end(fs.readFileSync(filePath, "utf-8"));
+              return;
+            }
+          }
+          if (url === "/dm_quotation_maker-myadmin" || url === "/dm_quotation_maker-myadmin/") {
+            const filePath = path.resolve(__dirname, "public/dm_quotation_maker-myadmin/index.html");
             if (fs.existsSync(filePath)) {
               res.setHeader("Content-Type", "text/html; charset=utf-8");
               res.end(fs.readFileSync(filePath, "utf-8"));
