@@ -3,23 +3,23 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, TrendingUp, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
-import { getPortfolioItems, type PortfolioItem } from "@/lib/portfolioStore";
+import type { PortfolioItem } from "@/lib/portfolioStore";
 import { fetchPublishedPortfolioItems } from "@/lib/contentApi";
 
 const PortfolioPage = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
-  const [projects, setProjects] = useState<PortfolioItem[]>(getPortfolioItems());
+  const [projects, setProjects] = useState<PortfolioItem[]>([]);
 
   useEffect(() => {
     let mounted = true;
     fetchPublishedPortfolioItems()
       .then((liveProjects) => {
         if (!mounted) return;
-        if (liveProjects.length > 0) setProjects(liveProjects);
+        setProjects(liveProjects);
       })
       .catch(() => {
-        // Keep local fallback projects when Supabase is not configured or empty.
+        // Keep the public portfolio empty instead of showing placeholder demo work.
       });
 
     return () => {
