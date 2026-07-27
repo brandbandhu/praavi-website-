@@ -2,6 +2,34 @@
   const STORE_KEY = "praavi_invoice_records";
   const SETTINGS_KEY = "praavi_document_number_settings";
   const SUPPLIER_STATE = "Maharashtra";
+  const supplierProfiles = {
+    "Praavi Consultants": {
+      name: "Praavi Consultants",
+      prefix: "PRV",
+      address: "Maharashtra, India",
+      email: "info@praaviconsultants.in",
+      website: "www.praaviconsultants.in",
+      phone: "",
+      gstin: "",
+      pan: "",
+      state: "Maharashtra",
+      stateCode: "27",
+      bankAccountName: "Praavi Consultants"
+    },
+    Webakoof: {
+      name: "Webakoof",
+      prefix: "WEB",
+      address: "Maharashtra, India",
+      email: "hello@webakoof.com",
+      website: "www.webakoof.com",
+      phone: "",
+      gstin: "",
+      pan: "",
+      state: "Maharashtra",
+      stateCode: "27",
+      bankAccountName: "Webakoof"
+    }
+  };
   const rupee = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" });
   const stateCodes = {
     "jammu and kashmir": "01", "himachal pradesh": "02", punjab: "03", chandigarh: "04", uttarakhand: "05",
@@ -94,7 +122,7 @@
 
   function calculateTotals(invoice) {
     let subtotal = 0, itemDiscount = 0, taxableAmount = 0, cgst = 0, sgst = 0, igst = 0;
-    const taxMode = invoice.taxMode || "Intra-State";
+    const taxMode = invoice.gstBilling === "Without GST" ? "No GST" : (invoice.taxMode || "Intra-State");
     const items = invoice.items.map((item, index) => {
       const qty = Math.max(0, asNumber(item.quantity));
       const rate = asNumber(item.rate);
@@ -116,7 +144,7 @@
     const grandTotal = money(Math.max(0, taxableAmount + cgst + sgst + igst + additionalCharges - overallDiscount + roundOff));
     const amountPaid = Math.min(asNumber(invoice.amountPaid), grandTotal);
     const balanceDue = money(Math.max(0, grandTotal - amountPaid));
-    return { ...invoice, items, subtotal: money(subtotal), itemDiscount: money(itemDiscount), taxableAmount: money(taxableAmount), cgst: money(cgst), sgst: money(sgst), igst: money(igst), additionalCharges: money(additionalCharges), overallDiscount: money(overallDiscount), grandTotal, amountPaid, balanceDue, amountInWords: amountToIndianWords(balanceDue || grandTotal) };
+    return { ...invoice, taxMode, items, subtotal: money(subtotal), itemDiscount: money(itemDiscount), taxableAmount: money(taxableAmount), cgst: money(cgst), sgst: money(sgst), igst: money(igst), additionalCharges: money(additionalCharges), overallDiscount: money(overallDiscount), grandTotal, amountPaid, balanceDue, amountInWords: amountToIndianWords(balanceDue || grandTotal) };
   }
 
   function readQuoteData() {
@@ -156,20 +184,35 @@
     return { ...fields, items: [item] };
   }
 
+  function detectSupplierCompany() {
+    const selected = [...document.querySelectorAll("select")].map((select) => select.options[select.selectedIndex]?.text || select.value).find((value) => /webakoof|praavi/i.test(value || ""));
+    if (/webakoof/i.test(selected || "")) return "Webakoof";
+    return "Praavi Consultants";
+  }
+
+  function getSupplier(name) {
+    return supplierProfiles[name] || supplierProfiles["Praavi Consultants"];
+  }
+
   function createDraft() {
     const fy = getFinancialYear();
     const sequenceNumber = nextSequence("INV", fy);
     const quote = readQuoteData();
+    const supplierCompany = detectSupplierCompany();
+    const supplier = getSupplier(supplierCompany);
     const clientState = quote.state || SUPPLIER_STATE;
-    const taxMode = clientState.toLowerCase() === SUPPLIER_STATE.toLowerCase() ? "Intra-State" : "Inter-State";
+    const taxMode = clientState.toLowerCase() === supplier.state.toLowerCase() ? "Intra-State" : "Inter-State";
     return calculateTotals({
       id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
       documentType: "INV",
-      prefix: settings().invoicePrefix,
+      supplierCompany,
+      supplier,
+      prefix: supplier.prefix || settings().invoicePrefix,
       invoiceType: "Tax Invoice",
+      gstBilling: "With GST",
       financialYear: fy,
       sequenceNumber,
-      invoiceNumber: buildNumber({ prefix: settings().invoicePrefix, type: "INV", financialYear: fy, sequenceNumber }),
+      invoiceNumber: buildNumber({ prefix: supplier.prefix || settings().invoicePrefix, type: "INV", financialYear: fy, sequenceNumber }),
       invoiceDate: todayISO(),
       dueDate: calculateDueDate(todayISO(), "15 Days"),
       quotationNumber: quote.quotationNumber || "",
@@ -203,7 +246,7 @@
       paymentMethod: "Bank Transfer",
       bankDetails: {
         bankName: "",
-        accountName: "Praavi Consultants",
+        accountName: supplier.bankAccountName,
         accountNumber: "",
         ifsc: "",
         branch: "",
@@ -274,6 +317,17 @@
     while (parts.length > 1) ref = ref[parts.shift()];
     ref[parts[0]] = value;
     if (path === "paymentTerms") clone.dueDate = calculateDueDate(clone.invoiceDate, value) || clone.dueDate;
+    if (path === "gstBilling" && value === "Without GST") clone.taxMode = "No GST";
+    if (path === "gstBilling" && value === "With GST" && clone.taxMode === "No GST") {
+      clone.taxMode = clone.client.state.toLowerCase() === getSupplier(clone.supplierCompany).state.toLowerCase() ? "Intra-State" : "Inter-State";
+    }
+    if (path === "supplierCompany") {
+      const supplier = getSupplier(value);
+      clone.supplier = supplier;
+      clone.prefix = supplier.prefix;
+      clone.bankDetails.accountName = supplier.bankAccountName;
+      if (clone.gstBilling === "With GST") clone.taxMode = clone.client.state.toLowerCase() === supplier.state.toLowerCase() ? "Intra-State" : "Inter-State";
+    }
     if (["prefix", "financialYear", "sequenceNumber"].includes(path)) {
       clone.invoiceNumber = buildNumber({ prefix: clone.prefix, type: "INV", financialYear: clone.financialYear, sequenceNumber: clone.sequenceNumber });
     }
@@ -458,9 +512,9 @@
       <article class="praavi-a4">
         <div class="praavi-pdf-head">
           <div>
-            <strong style="font-size:20px;color:#143b73">Praavi Consultants</strong>
+            <strong style="font-size:20px;color:#143b73">${inv.supplier?.name || "Praavi Consultants"}</strong>
             <p>Digital marketing, website development and business consulting services.</p>
-            <p>Email: info@praaviconsultants.in<br>Website: www.praaviconsultants.in<br>GSTIN: ${inv.companyGstin || ""}<br>PAN: ${inv.companyPan || ""}</p>
+            <p>${inv.supplier?.address || "Maharashtra, India"}<br>Email: ${inv.supplier?.email || "info@praaviconsultants.in"}<br>Website: ${inv.supplier?.website || "www.praaviconsultants.in"}<br>GSTIN: ${inv.supplier?.gstin || ""}<br>PAN: ${inv.supplier?.pan || ""}</p>
           </div>
           <div>
             <h1>${inv.invoiceType === "Tax Invoice" ? "TAX INVOICE" : inv.invoiceType.toUpperCase()}</h1>
@@ -475,7 +529,7 @@
           </div>
         </div>
         <div class="praavi-bill-grid" style="margin-top:18px">
-          <div class="praavi-pdf-box"><strong>Bill From</strong><p>Praavi Consultants<br>${SUPPLIER_STATE}, India<br>Email: info@praaviconsultants.in</p></div>
+          <div class="praavi-pdf-box"><strong>Bill From</strong><p>${inv.supplier?.name || "Praavi Consultants"}<br>${inv.supplier?.address || "Maharashtra, India"}<br>Email: ${inv.supplier?.email || "info@praaviconsultants.in"}</p></div>
           <div class="praavi-pdf-box"><strong>Bill To</strong><p>${inv.client.companyName || inv.client.name}<br>${inv.client.name}<br>${inv.client.billingAddress}<br>GSTIN: ${inv.client.gstin || "-"}<br>State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})<br>${inv.client.phone || ""} ${inv.client.email || ""}</p></div>
         </div>
         <table class="praavi-pdf-table">
@@ -493,8 +547,8 @@
           </div>
         </div>
         <div style="margin-top:18px"><strong>Terms and Notes</strong><p>${inv.notes || ""}</p><p>${inv.terms || ""}</p></div>
-        <div style="display:flex;justify-content:flex-end;margin-top:34px;text-align:center"><div>For Praavi Consultants<br><br><br><strong>Authorized Signatory</strong></div></div>
-        <footer style="margin-top:30px;border-top:1px solid #dde3ee;padding-top:10px;text-align:center;color:#667085">Thank you for your business. www.praaviconsultants.in | info@praaviconsultants.in | Page 1</footer>
+        <div style="display:flex;justify-content:flex-end;margin-top:34px;text-align:center"><div>For ${inv.supplier?.name || "Praavi Consultants"}<br><br><br><strong>Authorized Signatory</strong></div></div>
+        <footer style="margin-top:30px;border-top:1px solid #dde3ee;padding-top:10px;text-align:center;color:#667085">Thank you for your business. ${inv.supplier?.website || "www.praaviconsultants.in"} | ${inv.supplier?.email || "info@praaviconsultants.in"} | Page 1</footer>
       </article>`;
   }
 
@@ -551,9 +605,10 @@
       return lines.length;
     };
 
-    draw("Praavi Consultants", margin, 15, true);
+    const supplier = inv.supplier || getSupplier(inv.supplierCompany);
+    draw(supplier.name, margin, 15, true);
     y -= 16; draw("Digital marketing, website development and business consulting services.", margin, 8);
-    y -= 12; draw("Email: info@praaviconsultants.in | Website: www.praaviconsultants.in", margin, 8);
+    y -= 12; draw(`Email: ${supplier.email} | Website: ${supplier.website}`, margin, 8);
     y = pageHeight - margin; draw(inv.invoiceType === "Tax Invoice" ? "TAX INVOICE" : inv.invoiceType.toUpperCase(), 420, 20, true);
     y -= 24; draw(`Invoice No: ${inv.invoiceNumber}`, 392, 9, true);
     y -= 12; draw(`Invoice Date: ${inv.invoiceDate}`, 392, 9);
@@ -565,11 +620,11 @@
     rect(margin, y - 72, 250, 82); rect(309, y - 72, 250, 82);
     draw("Bill From", margin + 10, 10, true); draw("Bill To", 319, 10, true);
     y -= 16;
-    draw("Praavi Consultants", margin + 10, 8); draw(inv.client.companyName || inv.client.name || "-", 319, 8);
+    draw(supplier.name, margin + 10, 8); draw(inv.client.companyName || inv.client.name || "-", 319, 8);
     y -= 11;
-    draw("Maharashtra, India", margin + 10, 8); draw(inv.client.name || "-", 319, 8);
+    draw(supplier.address, margin + 10, 8); draw(inv.client.name || "-", 319, 8);
     y -= 11;
-    draw("Email: info@praaviconsultants.in", margin + 10, 8); draw(inv.client.billingAddress || "-", 319, 8);
+    draw(`Email: ${supplier.email}`, margin + 10, 8); draw(inv.client.billingAddress || "-", 319, 8);
     y -= 11;
     draw("", margin + 10, 8); draw(`GSTIN: ${inv.client.gstin || "-"}`, 319, 8);
     y -= 11;
@@ -615,9 +670,9 @@
     y -= 13; draw(`Terms: ${inv.paymentTerms} | Method: ${inv.paymentMethod}`, margin, 8);
     y -= 11; draw(`Bank: ${inv.bankDetails.bankName || "-"} | Account: ${inv.bankDetails.accountName || "-"}`, margin, 8);
     y -= 11; draw(`A/C No: ${inv.bankDetails.accountNumber || "-"} | IFSC: ${inv.bankDetails.ifsc || "-"} | UPI: ${inv.bankDetails.upiId || "-"}`, margin, 8);
-    y -= 24; draw("For Praavi Consultants", 420, 9, true);
+    y -= 24; draw(`For ${supplier.name}`, 420, 9, true);
     y -= 44; draw("Authorized Signatory", 420, 9, true);
-    y = 28; draw("Thank you for your business. www.praaviconsultants.in | info@praaviconsultants.in", margin, 8);
+    y = 28; draw(`Thank you for your business. ${supplier.website} | ${supplier.email}`, margin, 8);
     content.push(page.join("\n"));
 
     const objects = [
@@ -673,7 +728,9 @@
               ${field("Financial Year", "financialYear")}
               ${field("Sequence Number", "sequenceNumber", "number")}
               ${field("Generated Invoice Number", "invoiceNumber")}
+              ${field("Supplier Company", "supplierCompany", "text", ["Praavi Consultants", "Webakoof"])}
               ${field("Invoice Type", "invoiceType", "text", ["Standard Invoice", "Tax Invoice", "Proforma Invoice", "Advance Invoice", "Milestone Invoice", "Final Invoice"])}
+              ${field("GST Option", "gstBilling", "text", ["With GST", "Without GST"])}
               ${field("Invoice Date", "invoiceDate", "date")}
               ${field("Due Date", "dueDate", "date")}
               ${field("Quotation Reference Number", "quotationNumber")}
@@ -699,7 +756,7 @@
             </div></section>
             <section class="praavi-panel"><h3>Line Items</h3><div class="praavi-items-wrap"><table class="praavi-items"><thead><tr><th>Sr</th><th>Service / Item</th><th>Description</th><th>HSN / SAC</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Discount</th><th>Taxable</th><th>GST %</th><th>Total</th><th>Actions</th></tr></thead><tbody>${renderItems()}</tbody></table></div><button type="button" data-add-item>Add Item</button><div class="praavi-error">${errors.items || ""}</div></section>
             <section class="praavi-panel"><h3>Charges, GST and Payment</h3><div class="praavi-form-grid">
-              ${field("Tax Mode", "taxMode", "text", ["Intra-State", "Inter-State", "No GST", "Custom Tax"])}
+              ${field("Tax Mode", "taxMode", "text", invoice.gstBilling === "Without GST" ? ["No GST"] : ["Intra-State", "Inter-State", "No GST", "Custom Tax"])}
               ${field("Overall Discount", "overallDiscount", "number")}
               ${field("Additional Charges", "additionalCharges", "number")}
               ${field("Delivery / Travel Charges", "travelCharges", "number")}
@@ -750,6 +807,19 @@
           const dueDateInput = modal.querySelector('[data-path="dueDate"]');
           if (dueDateInput) dueDateInput.value = invoice.dueDate;
         }
+        if (event.target.dataset.path === "gstBilling") {
+          const taxModeInput = modal.querySelector('[data-path="taxMode"]');
+          if (taxModeInput) taxModeInput.value = invoice.taxMode;
+        }
+        if (event.target.dataset.path === "supplierCompany") {
+          const prefixInput = modal.querySelector('[data-path="prefix"]');
+          const numberInput = modal.querySelector('[data-path="invoiceNumber"]');
+          const accountNameInput = modal.querySelector('[data-path="bankDetails.accountName"]');
+          if (prefixInput) prefixInput.value = invoice.prefix;
+          if (numberInput) numberInput.value = invoice.invoiceNumber;
+          if (accountNameInput) accountNameInput.value = invoice.bankDetails.accountName;
+          renderModal();
+        }
       });
     });
     modal.querySelectorAll("[data-item]").forEach((el) => el.addEventListener("input", (event) => {
@@ -793,7 +863,7 @@
     });
     modal.querySelector("[data-print]")?.addEventListener("click", () => { if (saveInvoice(invoice.status || "Draft")) window.print(); });
     modal.querySelector("[data-download]")?.addEventListener("click", () => downloadInvoicePDF());
-    modal.querySelector("[data-whatsapp]")?.addEventListener("click", () => window.open(`https://wa.me/?text=${encodeURIComponent(`Invoice ${invoice.invoiceNumber} from Praavi Consultants. Balance due: ${fmt(invoice.balanceDue)}`)}`, "_blank", "noopener"));
+    modal.querySelector("[data-whatsapp]")?.addEventListener("click", () => window.open(`https://wa.me/?text=${encodeURIComponent(`Invoice ${invoice.invoiceNumber} from ${invoice.supplier?.name || invoice.supplierCompany || "Praavi Consultants"}. Balance due: ${fmt(invoice.balanceDue)}`)}`, "_blank", "noopener"));
     modal.querySelector("[data-email]")?.addEventListener("click", () => window.location.href = `mailto:${invoice.client.email || ""}?subject=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}&body=${encodeURIComponent(`Please find invoice ${invoice.invoiceNumber}. Balance due: ${fmt(invoice.balanceDue)}.`)}`);
     modal.querySelector("[data-zoom-in]")?.addEventListener("click", () => { zoom = Math.min(1.2, zoom + 0.1); renderModal(); });
     modal.querySelector("[data-zoom-out]")?.addEventListener("click", () => { zoom = Math.max(0.45, zoom - 0.1); renderModal(); });
