@@ -1,6 +1,8 @@
 (() => {
   const STORE_KEY = "praavi_invoice_records";
   const SETTINGS_KEY = "praavi_document_number_settings";
+  const INVOICE_EDIT_PIN_KEY = "praavi_invoice_edit_pin";
+  const DEFAULT_INVOICE_EDIT_PIN = "2026";
   const SUPPLIER_STATE = "Maharashtra";
   const supplierProfiles = {
     "Praavi Consultants": {
@@ -269,6 +271,7 @@
   let zoom = 0.42;
   let modal;
   let paymentModal;
+  let invoiceUnlocked = sessionStorage.getItem("praavi_invoice_edit_unlocked") === "true";
 
   function duplicateMessage(number) {
     return `Invoice number ${number} already exists. Please use a different number.`;
@@ -309,6 +312,10 @@
       }
       const footerTotal = modal?.querySelector("[data-footer-total]");
       if (footerTotal) footerTotal.textContent = `Grand Total: ${fmt(invoice.grandTotal)} | Balance Due: ${fmt(invoice.balanceDue)}`;
+      modal?.querySelectorAll("[data-live-money]").forEach((input) => {
+        const key = input.dataset.liveMoney;
+        input.value = fmt(invoice[key] || 0);
+      });
     }, 120);
   }
 
@@ -474,9 +481,10 @@
 
   function field(label, path, type = "text", options) {
     const value = path.split(".").reduce((obj, part) => obj?.[part], invoice) ?? "";
+    const disabled = invoiceUnlocked ? "" : "disabled";
     const input = options
-      ? `<select data-path="${path}">${options.map((opt) => `<option ${String(value) === opt ? "selected" : ""}>${opt}</option>`).join("")}</select>`
-      : `<input data-path="${path}" type="${type}" value="${String(value).replace(/"/g, "&quot;")}">`;
+      ? `<select data-path="${path}" ${disabled}>${options.map((opt) => `<option ${String(value) === opt ? "selected" : ""}>${opt}</option>`).join("")}</select>`
+      : `<input data-path="${path}" type="${type}" value="${String(value).replace(/"/g, "&quot;")}" ${disabled}>`;
     return `<div class="praavi-field"><label>${label}</label>${input}<div class="praavi-error" data-error="${path}"></div></div>`;
   }
 
@@ -486,31 +494,39 @@
 
   function textField(label, path) {
     const value = path.split(".").reduce((obj, part) => obj?.[part], invoice) ?? "";
-    return `<div class="praavi-field praavi-field-full"><label>${label}</label><textarea data-path="${path}">${String(value)}</textarea></div>`;
+    return `<div class="praavi-field praavi-field-full"><label>${label}</label><textarea data-path="${path}" ${invoiceUnlocked ? "" : "disabled"}>${String(value)}</textarea></div>`;
   }
 
   function renderItems() {
+    const disabled = invoiceUnlocked ? "" : "disabled";
     return invoice.items.map((item, i) => `
       <tr>
         <td>${i + 1}</td>
-        <td><input data-item="${i}" data-key="serviceName" value="${item.serviceName || ""}"></td>
-        <td><input data-item="${i}" data-key="description" value="${item.description || ""}"></td>
-        <td><input data-item="${i}" data-key="hsnSac" value="${item.hsnSac || ""}"></td>
-        <td><input data-item="${i}" data-key="quantity" type="number" min="0" step="0.01" value="${item.quantity}"></td>
-        <td><select data-item="${i}" data-key="unit">${["Service", "Month", "Project", "Package", "Hour", "Day", "Quantity", "License"].map((unit) => `<option ${item.unit === unit ? "selected" : ""}>${unit}</option>`).join("")}</select></td>
-        <td><input data-item="${i}" data-key="rate" type="number" min="0" step="0.01" value="${item.rate}"></td>
-        <td><input data-item="${i}" data-key="discount" type="number" min="0" step="0.01" value="${item.discount}"></td>
+        <td><input data-item="${i}" data-key="serviceName" value="${item.serviceName || ""}" ${disabled}></td>
+        <td><input data-item="${i}" data-key="description" value="${item.description || ""}" ${disabled}></td>
+        <td><input data-item="${i}" data-key="hsnSac" value="${item.hsnSac || ""}" ${disabled}></td>
+        <td><input data-item="${i}" data-key="quantity" type="number" min="0" step="0.01" value="${item.quantity}" ${disabled}></td>
+        <td><select data-item="${i}" data-key="unit" ${disabled}>${["Service", "Month", "Project", "Package", "Hour", "Day", "Quantity", "License"].map((unit) => `<option ${item.unit === unit ? "selected" : ""}>${unit}</option>`).join("")}</select></td>
+        <td><input data-item="${i}" data-key="rate" type="number" min="0" step="0.01" value="${item.rate}" ${disabled}></td>
+        <td><input data-item="${i}" data-key="discount" type="number" min="0" step="0.01" value="${item.discount}" ${disabled}></td>
         <td>${fmt(item.taxableAmount)}</td>
-        <td><input data-item="${i}" data-key="gstRate" type="number" min="0" step="0.01" value="${item.gstRate || 18}"></td>
+        <td><input data-item="${i}" data-key="gstRate" type="number" min="0" step="0.01" value="${item.gstRate || 18}" ${disabled}></td>
         <td>${fmt(item.lineTotal)}</td>
         <td>
-          <button data-duplicate="${i}" class="praavi-table-action" type="button">Duplicate</button>
-          <button data-remove="${i}" class="praavi-table-action" type="button">Remove</button>
-          <button data-up="${i}" class="praavi-table-action" type="button">Up</button>
-          <button data-down="${i}" class="praavi-table-action" type="button">Down</button>
+          <button data-duplicate="${i}" class="praavi-table-action" type="button" ${disabled}>Duplicate</button>
+          <button data-remove="${i}" class="praavi-table-action" type="button" ${disabled}>Remove</button>
+          <button data-up="${i}" class="praavi-table-action" type="button" ${disabled}>Up</button>
+          <button data-down="${i}" class="praavi-table-action" type="button" ${disabled}>Down</button>
         </td>
       </tr>
     `).join("");
+  }
+
+  function lockHTML(error = "") {
+    if (invoiceUnlocked) {
+      return `<div class="praavi-invoice-lock is-unlocked"><span class="praavi-lock-text">Invoice editing unlocked</span><button type="button" data-lock-invoice>Lock Invoice</button></div>`;
+    }
+    return `<div class="praavi-invoice-lock"><span class="praavi-lock-text">Invoice locked. Enter numeric password to edit invoice details.</span><div class="praavi-invoice-lock-form"><input data-invoice-pin type="password" inputmode="numeric" pattern="[0-9]*" placeholder="PIN"><button type="button" data-unlock-invoice>Unlock</button></div>${error ? `<div class="praavi-error">${error}</div>` : ""}</div>`;
   }
 
   function previewHTML(inv = invoice) {
@@ -825,6 +841,7 @@
           <div><h2>Generate Invoice</h2><p>Review quotation details, adjust invoice fields, then preview, save, print or share.</p></div>
           <button type="button" data-close>Close</button>
         </div>
+        ${lockHTML(errors.lock)}
         <div class="praavi-modal-body">
           <div>
             <section class="praavi-panel"><h3>Invoice Details</h3><div class="praavi-form-grid">
@@ -858,13 +875,14 @@
               ${textField("Billing Address", "client.billingAddress")}
               ${textField("Shipping Address", "client.shippingAddress")}
             </div></section>
-            <section class="praavi-panel"><h3>Line Items</h3><div class="praavi-items-wrap"><table class="praavi-items"><thead><tr><th>Sr</th><th>Service / Item</th><th>Description</th><th>HSN / SAC</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Discount</th><th>Taxable</th><th>GST %</th><th>Total</th><th>Actions</th></tr></thead><tbody>${renderItems()}</tbody></table></div><button type="button" data-add-item>Add Item</button><div class="praavi-error">${errors.items || ""}</div></section>
+            <section class="praavi-panel"><h3>Line Items</h3><div class="praavi-items-wrap"><table class="praavi-items"><thead><tr><th>Sr</th><th>Service / Item</th><th>Description</th><th>HSN / SAC</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Discount</th><th>Taxable</th><th>GST %</th><th>Total</th><th>Actions</th></tr></thead><tbody>${renderItems()}</tbody></table></div><button type="button" data-add-item ${invoiceUnlocked ? "" : "disabled"}>Add Item</button><div class="praavi-error">${errors.items || ""}</div></section>
             <section class="praavi-panel"><h3>Charges, GST and Payment</h3><div class="praavi-form-grid">
               ${field("Tax Mode", "taxMode", "text", invoice.gstBilling === "Without GST" ? ["No GST"] : ["Intra-State", "Inter-State", "No GST", "Custom Tax"])}
               ${field("Overall Discount", "overallDiscount", "number")}
               ${field("Additional Charges", "additionalCharges", "number")}
               ${field("Delivery / Travel Charges", "travelCharges", "number")}
               ${field("Round Off", "roundOff", "number")}
+              ${readonlyMoneyField("Grand Total", invoice.grandTotal, "grandTotal")}
               ${field("Amount Already Paid", "amountPaid", "number")}
               ${readonlyMoneyField("Balance Due", invoice.balanceDue, "balanceDue")}
               ${field("Payment Terms", "paymentTerms", "text", ["Due on Receipt", "Advance Payment", "7 Days", "15 Days", "30 Days", "45 Days", "60 Days", "Custom"])}
@@ -891,9 +909,29 @@
         </div>
         <div class="praavi-modal-footer">
           <strong data-footer-total>Grand Total: ${fmt(invoice.grandTotal)} | Balance Due: ${fmt(invoice.balanceDue)}</strong>
-          <div class="praavi-modal-actions"><button type="button" data-save-draft>Save Draft</button><button type="button" data-save-issued>Mark Issued</button><button type="button" data-mark-paid>Mark Paid</button><button type="button" data-record-payment>Record Payment</button><button type="button" data-download>Download PDF</button><button type="button" data-print>Print</button><button type="button" data-whatsapp>WhatsApp</button><button type="button" data-email>Email</button></div>
+          <div class="praavi-modal-actions"><button type="button" data-save-draft ${invoiceUnlocked ? "" : "disabled"}>Save Draft</button><button type="button" data-save-issued ${invoiceUnlocked ? "" : "disabled"}>Mark Issued</button><button type="button" data-mark-paid ${invoiceUnlocked ? "" : "disabled"}>Mark Paid</button><button type="button" data-record-payment ${invoiceUnlocked ? "" : "disabled"}>Record Payment</button><button type="button" data-download>Download PDF</button><button type="button" data-print>Print</button><button type="button" data-whatsapp>WhatsApp</button><button type="button" data-email>Email</button></div>
         </div>
       </div>`;
+
+    modal.querySelector("[data-unlock-invoice]")?.addEventListener("click", () => {
+      const pin = norm(modal.querySelector("[data-invoice-pin]")?.value);
+      const expectedPin = localStorage.getItem(INVOICE_EDIT_PIN_KEY) || DEFAULT_INVOICE_EDIT_PIN;
+      if (pin !== expectedPin) {
+        renderModal({ lock: "Incorrect numeric password." });
+        return;
+      }
+      invoiceUnlocked = true;
+      sessionStorage.setItem("praavi_invoice_edit_unlocked", "true");
+      renderModal();
+    });
+    modal.querySelector("[data-invoice-pin]")?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") modal.querySelector("[data-unlock-invoice]")?.click();
+    });
+    modal.querySelector("[data-lock-invoice]")?.addEventListener("click", () => {
+      invoiceUnlocked = false;
+      sessionStorage.removeItem("praavi_invoice_edit_unlocked");
+      renderModal();
+    });
 
     Object.entries(errors).forEach(([key, message]) => {
       const slot = modal.querySelector(`[data-error="${CSS.escape(key)}"], [data-error="${CSS.escape(key.replace("clientName", "client.name").replace("billingAddress", "client.billingAddress"))}"]`);
@@ -912,8 +950,10 @@
           const dueDateInput = modal.querySelector('[data-path="dueDate"]');
           if (dueDateInput) dueDateInput.value = invoice.dueDate;
         }
-        const balanceInput = modal.querySelector('[data-live-money="balanceDue"]');
-        if (balanceInput) balanceInput.value = fmt(invoice.balanceDue);
+        modal.querySelectorAll("[data-live-money]").forEach((input) => {
+          const key = input.dataset.liveMoney;
+          input.value = fmt(invoice[key] || 0);
+        });
         if (event.target.dataset.path === "gstBilling") {
           const taxModeInput = modal.querySelector('[data-path="taxMode"]');
           if (taxModeInput) taxModeInput.value = invoice.taxMode;

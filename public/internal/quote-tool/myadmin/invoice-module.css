@@ -275,13 +275,47 @@
   width: min(100%, 1180px);
   height: min(100vh - 24px, 820px);
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   overflow: hidden;
   border-radius: 8px;
   background: #f5f7fb;
   color: #172033;
   box-shadow: -20px 0 60px rgba(15, 23, 42, 0.25);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.praavi-invoice-lock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #dde3ee;
+  background: #ffffff;
+}
+
+.praavi-invoice-lock.is-unlocked {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.praavi-invoice-lock-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.praavi-invoice-lock input {
+  width: 130px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.praavi-lock-text {
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .praavi-modal-header,
@@ -373,6 +407,12 @@
   font: inherit;
   min-height: 38px;
   padding: 8px 10px;
+}
+
+.praavi-field input[readonly] {
+  background: #f8fafc;
+  color: #143b73;
+  font-weight: 900;
 }
 
 .praavi-field textarea {
