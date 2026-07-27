@@ -148,7 +148,8 @@
     const grandTotal = money(Math.max(0, taxableAmount + cgst + sgst + igst + additionalCharges - overallDiscount + roundOff));
     const amountPaid = invoice.status === "Paid" ? grandTotal : Math.min(asNumber(invoice.amountPaid), grandTotal);
     const balanceDue = money(Math.max(0, grandTotal - amountPaid));
-    return { ...invoice, taxMode, items, subtotal: money(subtotal), itemDiscount: money(itemDiscount), taxableAmount: money(taxableAmount), cgst: money(cgst), sgst: money(sgst), igst: money(igst), additionalCharges: money(additionalCharges), overallDiscount: money(overallDiscount), grandTotal, amountPaid, balanceDue, amountInWords: amountToIndianWords(balanceDue || grandTotal) };
+    const paymentDoneDate = invoice.status === "Paid" ? (invoice.paymentDoneDate || todayISO()) : invoice.paymentDoneDate || "";
+    return { ...invoice, taxMode, items, subtotal: money(subtotal), itemDiscount: money(itemDiscount), taxableAmount: money(taxableAmount), cgst: money(cgst), sgst: money(sgst), igst: money(igst), additionalCharges: money(additionalCharges), overallDiscount: money(overallDiscount), grandTotal, amountPaid, balanceDue, paymentDoneDate, amountInWords: amountToIndianWords(balanceDue || grandTotal) };
   }
 
   function readQuoteData() {
@@ -246,6 +247,7 @@
       travelCharges: 0,
       roundOff: 0,
       amountPaid: 0,
+      paymentDoneDate: "",
       paymentTerms: quote.paymentTerms || "15 Days",
       paymentMethod: "Bank Transfer",
       bankDetails: {
@@ -468,6 +470,7 @@
       ...records[index],
       amountPaid: paid,
       status: paid >= records[index].grandTotal ? "Paid" : "Partially Paid",
+      paymentDoneDate: paid >= records[index].grandTotal ? payment.date : records[index].paymentDoneDate || "",
       paymentHistory: [...(records[index].paymentHistory || []), payment],
       updatedAt: new Date().toISOString()
     });
@@ -559,7 +562,7 @@
           <tbody>${inv.items.map((item, i) => `<tr><td>${i + 1}</td><td><strong>${item.serviceName || ""}</strong><br>${item.description || ""}</td><td>${item.hsnSac || ""}</td><td>${item.quantity} ${item.unit || ""}</td><td>${fmt(item.rate)}</td><td>${fmt(item.discount)}</td><td>${fmt(item.taxableAmount)}</td><td>${inv.taxMode === "Intra-State" ? `CGST ${fmt(item.cgst)}<br>SGST ${fmt(item.sgst)}` : inv.taxMode === "Inter-State" ? `IGST ${fmt(item.igst)}` : "No GST"}</td><td>${fmt(item.lineTotal)}</td></tr>`).join("")}</tbody>
         </table>
         <div class="praavi-total-grid">
-          <div><strong>Amount in Words:</strong><p>${inv.amountInWords}</p><div class="praavi-pdf-box"><strong>Payment Information</strong><p>Terms: ${inv.paymentTerms}<br>Method: ${inv.paymentMethod}<br>Bank: ${inv.bankDetails.bankName || "-"}<br>Account: ${inv.bankDetails.accountName || "-"}<br>A/C No: ${inv.bankDetails.accountNumber || "-"}<br>IFSC: ${inv.bankDetails.ifsc || "-"}<br>UPI: ${inv.bankDetails.upiId || "-"}</p></div>${paymentHistoryHTML(inv)}</div>
+          <div><strong>Amount in Words:</strong><p>${inv.amountInWords}</p><div class="praavi-pdf-box"><strong>Payment Information</strong><p>Terms: ${inv.paymentTerms}<br>Method: ${inv.paymentMethod}<br>Payment Done Date: ${inv.paymentDoneDate || "-"}<br>Bank: ${inv.bankDetails.bankName || "-"}<br>Account: ${inv.bankDetails.accountName || "-"}<br>A/C No: ${inv.bankDetails.accountNumber || "-"}<br>IFSC: ${inv.bankDetails.ifsc || "-"}<br>UPI: ${inv.bankDetails.upiId || "-"}</p></div>${paymentHistoryHTML(inv)}</div>
           <div class="praavi-total-box">
             ${[
               ["Subtotal", inv.subtotal], ["Item Discount", inv.itemDiscount], ["Overall Discount", inv.overallDiscount], ["Taxable Amount", inv.taxableAmount],
@@ -743,6 +746,7 @@
     draw("Payment Information", margin + 9, 7.2, true);
     y -= 11; draw(`Terms: ${inv.paymentTerms}`, margin + 9, 6.3);
     y -= 9; draw(`Method: ${inv.paymentMethod}`, margin + 9, 6.3);
+    y -= 9; draw(`Payment Done Date: ${inv.paymentDoneDate || "-"}`, margin + 9, 6.3);
     y -= 9; draw(`Bank: ${inv.bankDetails.bankName || "-"}`, margin + 9, 6.3);
     y -= 9; draw(`Account: ${inv.bankDetails.accountName || "-"}`, margin + 9, 6.3);
     y -= 9; draw(`A/C No: ${inv.bankDetails.accountNumber || "-"}`, margin + 9, 6.3);
@@ -885,6 +889,7 @@
               ${readonlyMoneyField("Grand Total", invoice.grandTotal, "grandTotal")}
               ${field("Amount Already Paid", "amountPaid", "number")}
               ${readonlyMoneyField("Balance Due", invoice.balanceDue, "balanceDue")}
+              ${field("Payment Done Date", "paymentDoneDate", "date")}
               ${field("Payment Terms", "paymentTerms", "text", ["Due on Receipt", "Advance Payment", "7 Days", "15 Days", "30 Days", "45 Days", "60 Days", "Custom"])}
               ${field("Payment Method", "paymentMethod", "text", ["Bank Transfer", "UPI", "Cash", "Cheque", "Card", "Online Payment", "Other"])}
               ${field("Bank Name", "bankDetails.bankName")}
@@ -1006,7 +1011,7 @@
     modal.querySelector("[data-save-draft]")?.addEventListener("click", () => saveInvoice("Draft"));
     modal.querySelector("[data-save-issued]")?.addEventListener("click", () => saveInvoice("Issued"));
     modal.querySelector("[data-mark-paid]")?.addEventListener("click", () => {
-      invoice = calculateTotals({ ...invoice, status: "Paid", amountPaid: invoice.grandTotal });
+      invoice = calculateTotals({ ...invoice, status: "Paid", amountPaid: invoice.grandTotal, paymentDoneDate: invoice.paymentDoneDate || todayISO() });
       saveInvoice("Paid");
     });
     modal.querySelector("[data-record-payment]")?.addEventListener("click", () => {
@@ -1122,7 +1127,7 @@
     } else if (key === "pay") openPaymentModal(records[index]);
     else if (key === "archive" && confirm("Archive this invoice?")) records[index].archived = true;
     else if (key === "sent") records[index].status = "Sent";
-    else if (key === "paid") records[index] = calculateTotals({ ...records[index], amountPaid: records[index].grandTotal, status: "Paid" });
+    else if (key === "paid") records[index] = calculateTotals({ ...records[index], amountPaid: records[index].grandTotal, status: "Paid", paymentDoneDate: records[index].paymentDoneDate || todayISO() });
     else if (key === "cancel" && confirm("Cancel this invoice?")) records[index].status = "Cancelled";
     saveJSON(STORE_KEY, records);
     renderDashboard();
