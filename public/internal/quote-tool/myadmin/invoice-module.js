@@ -31,6 +31,7 @@
     }
   };
   const rupee = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" });
+  const inr = new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const stateCodes = {
     "jammu and kashmir": "01", "himachal pradesh": "02", punjab: "03", chandigarh: "04", uttarakhand: "05",
     haryana: "06", delhi: "07", rajasthan: "08", "uttar pradesh": "09", bihar: "10", sikkim: "11",
@@ -55,6 +56,7 @@
   const asNumber = (value) => Math.max(0, Number(String(value ?? "").replace(/[^0-9.-]/g, "")) || 0);
   const money = (value) => Math.round((asNumber(value) + Number.EPSILON) * 100) / 100;
   const fmt = (value) => rupee.format(money(value));
+  const pdfMoney = (value) => `INR ${inr.format(money(value))}`;
   const norm = (value) => String(value || "").trim().replace(/\s+/g, " ");
 
   function loadJSON(key, fallback) {
@@ -142,7 +144,7 @@
     const additionalCharges = asNumber(invoice.additionalCharges) + asNumber(invoice.travelCharges);
     const roundOff = Number(invoice.roundOff) || 0;
     const grandTotal = money(Math.max(0, taxableAmount + cgst + sgst + igst + additionalCharges - overallDiscount + roundOff));
-    const amountPaid = Math.min(asNumber(invoice.amountPaid), grandTotal);
+    const amountPaid = invoice.status === "Paid" ? grandTotal : Math.min(asNumber(invoice.amountPaid), grandTotal);
     const balanceDue = money(Math.max(0, grandTotal - amountPaid));
     return { ...invoice, taxMode, items, subtotal: money(subtotal), itemDiscount: money(itemDiscount), taxableAmount: money(taxableAmount), cgst: money(cgst), sgst: money(sgst), igst: money(igst), additionalCharges: money(additionalCharges), overallDiscount: money(overallDiscount), grandTotal, amountPaid, balanceDue, amountInWords: amountToIndianWords(balanceDue || grandTotal) };
   }
@@ -560,6 +562,11 @@
       .replace(/\)/g, "\\)");
   }
 
+  function fitPdfText(text, maxChars) {
+    const clean = pdfText(text);
+    return clean.length > maxChars ? `${clean.slice(0, Math.max(0, maxChars - 3))}...` : clean;
+  }
+
   function wrapPdfText(text, maxChars) {
     const words = String(text || "-").split(/\s+/);
     const lines = [];
@@ -586,6 +593,10 @@
 
     const draw = (text, x, size = 9, bold = false) => {
       page.push(`BT /${bold ? "F2" : "F1"} ${size} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td (${pdfText(text)}) Tj ET`);
+    };
+    const drawRight = (text, rightX, size = 9, bold = false) => {
+      const approxWidth = pdfText(text).length * size * 0.48;
+      draw(text, rightX - approxWidth, size, bold);
     };
     const line = (x1, y1, x2, y2) => page.push(`${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`);
     const rect = (x, yy, w, h) => page.push(`${x.toFixed(2)} ${yy.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S`);
@@ -641,10 +652,10 @@
       const lines = rowText(`${item.serviceName || ""} ${item.description || ""}`, 68, 36, 8);
       draw(item.hsnSac || "-", 265, 8);
       draw(`${item.quantity} ${item.unit || ""}`, 312, 8);
-      draw(fmt(item.rate), 354, 8);
-      draw(fmt(item.discount), 408, 8);
-      draw(fmt(item.taxableAmount), 456, 8);
-      draw(fmt(item.lineTotal), 520, 8);
+      drawRight(pdfMoney(item.rate), 398, 8);
+      drawRight(pdfMoney(item.discount), 450, 8);
+      drawRight(pdfMoney(item.taxableAmount), 510, 8);
+      drawRight(pdfMoney(item.lineTotal), 558, 8);
       y = rowStart - Math.max(24, lines * 10 + 12);
       line(margin, y, pageWidth - margin, y);
       y -= 12;
@@ -660,7 +671,7 @@
       ["Amount Paid", inv.amountPaid], ["Balance Due", inv.balanceDue]
     ].forEach(([label, value]) => {
       draw(label, totalX, 9, label === "Grand Total" || label === "Balance Due");
-      draw(fmt(value), 505, 9, label === "Grand Total" || label === "Balance Due");
+      drawRight(pdfMoney(value), 558, 9, label === "Grand Total" || label === "Balance Due");
       y -= 13;
     });
     y -= 8;
@@ -675,6 +686,11 @@
     y = 28; draw(`Thank you for your business. ${supplier.website} | ${supplier.email}`, margin, 8);
     content.push(page.join("\n"));
 
+    content.forEach((stream, index) => {
+      const footer = `BT /F1 8 Tf ${(pageWidth - 92).toFixed(2)} 28.00 Td (Page ${index + 1} of ${content.length}) Tj ET`;
+      content[index] = `${stream}\n${footer}`;
+    });
+
     const objects = [
       "<< /Type /Catalog /Pages 2 0 R >>",
       `<< /Type /Pages /Kids [${content.map((_, i) => `${3 + i * 2} 0 R`).join(" ")}] /Count ${content.length} >>`
@@ -682,7 +698,7 @@
     content.forEach((stream, i) => {
       const contentObject = 4 + i * 2;
       objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 ${3 + content.length * 2} 0 R /F2 ${4 + content.length * 2} 0 R >> >> /Contents ${contentObject} 0 R >>`);
-      objects.push(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+      objects.push(`<< /Length ${new Blob([stream]).size} >>\nstream\n${stream}\nendstream`);
     });
     objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
     objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
@@ -786,7 +802,7 @@
         </div>
         <div class="praavi-modal-footer">
           <strong data-footer-total>Grand Total: ${fmt(invoice.grandTotal)} | Balance Due: ${fmt(invoice.balanceDue)}</strong>
-          <div class="praavi-modal-actions"><button type="button" data-save-draft>Save Draft</button><button type="button" data-save-issued>Mark Issued</button><button type="button" data-record-payment>Record Payment</button><button type="button" data-download>Download PDF</button><button type="button" data-print>Print</button><button type="button" data-whatsapp>WhatsApp</button><button type="button" data-email>Email</button></div>
+          <div class="praavi-modal-actions"><button type="button" data-save-draft>Save Draft</button><button type="button" data-save-issued>Mark Issued</button><button type="button" data-mark-paid>Mark Paid</button><button type="button" data-record-payment>Record Payment</button><button type="button" data-download>Download PDF</button><button type="button" data-print>Print</button><button type="button" data-whatsapp>WhatsApp</button><button type="button" data-email>Email</button></div>
         </div>
       </div>`;
 
@@ -858,6 +874,10 @@
     modal.querySelector("[data-close]")?.addEventListener("click", () => modal.classList.remove("is-open"));
     modal.querySelector("[data-save-draft]")?.addEventListener("click", () => saveInvoice("Draft"));
     modal.querySelector("[data-save-issued]")?.addEventListener("click", () => saveInvoice("Issued"));
+    modal.querySelector("[data-mark-paid]")?.addEventListener("click", () => {
+      invoice = calculateTotals({ ...invoice, status: "Paid", amountPaid: invoice.grandTotal });
+      saveInvoice("Paid");
+    });
     modal.querySelector("[data-record-payment]")?.addEventListener("click", () => {
       if (saveInvoice(invoice.status || "Draft")) openPaymentModal(invoice);
     });
