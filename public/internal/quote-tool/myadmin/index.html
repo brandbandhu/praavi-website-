@@ -7,6 +7,7 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>Praavi Quotation & Scope Generator</title>
     <link rel="stylesheet" crossorigin href="/internal/quote-tool/myadmin/assets/index-Dt_R07JN.css">
+    <link rel="stylesheet" href="/internal/quote-tool/myadmin/invoice-module.css">
     <style>
       .quote-login-shell {
         min-height: 100vh;
@@ -107,6 +108,11 @@
           script.crossOrigin = "";
           script.src = "/internal/quote-tool/myadmin/assets/index-BG8lMJ-H.js";
           document.body.appendChild(script);
+
+          const invoiceScript = document.createElement("script");
+          invoiceScript.src = "/internal/quote-tool/myadmin/invoice-module.js";
+          invoiceScript.defer = true;
+          document.body.appendChild(invoiceScript);
 
           const logout = document.createElement("button");
           logout.type = "button";

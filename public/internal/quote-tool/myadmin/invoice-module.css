@@ -1,0 +1,642 @@
+.praavi-doc-actions,
+.praavi-invoice-dashboard,
+.praavi-invoice-history {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid #dde3ee;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+  color: #172033;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.praavi-invoice-workspace {
+  width: min(100% - 32px, 1320px);
+  margin: 18px auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+  grid-column: 1 / -1;
+  clear: both;
+}
+
+.praavi-invoice-workspace .praavi-doc-actions,
+.praavi-invoice-workspace .praavi-invoice-dashboard,
+.praavi-invoice-workspace .praavi-invoice-history {
+  min-width: 0;
+}
+
+.praavi-doc-tabs {
+  width: min(100% - 32px, 1320px);
+  margin: 14px auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid #d9e1ee;
+  clear: both;
+}
+
+.praavi-existing-invoice-tab {
+  min-height: 42px;
+  border: 1px solid #d9e1ee;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: #ffffff;
+  color: #40516c;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 10px 18px;
+}
+
+.praavi-existing-invoice-tab:hover,
+.praavi-existing-invoice-tab:focus {
+  color: #245cff;
+  outline: none;
+  box-shadow: inset 0 -2px 0 #245cff;
+}
+
+.praavi-doc-tab {
+  min-height: 42px;
+  border: 1px solid #d9e1ee;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: #ffffff;
+  color: #40516c;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 10px 18px;
+}
+
+.praavi-doc-tab.is-active {
+  color: #245cff;
+  box-shadow: inset 0 -2px 0 #245cff;
+}
+
+.praavi-doc-actions h2,
+.praavi-invoice-dashboard h2,
+.praavi-invoice-history h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.praavi-doc-actions p,
+.praavi-invoice-history p {
+  margin: 0;
+  color: #5b6473;
+  font-size: 14px;
+}
+
+.praavi-workflow {
+  margin-top: 10px;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.praavi-action-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.praavi-doc-btn,
+.praavi-modal button,
+.praavi-table-action {
+  min-height: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #172033;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 10px 14px;
+  transition: box-shadow 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+.praavi-doc-btn:hover,
+.praavi-modal button:hover,
+.praavi-table-action:hover {
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.13);
+  transform: translateY(-1px);
+}
+
+.praavi-invoice-btn {
+  border: 0;
+  background: linear-gradient(135deg, #143b73, #071a3a);
+  color: #ffffff;
+  font-size: 15px;
+  padding: 12px 18px;
+}
+
+.praavi-invoice-btn:disabled,
+.praavi-modal button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+.praavi-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.praavi-metric {
+  border: 1px solid #dde3ee;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.praavi-metric span {
+  display: block;
+  color: #667085;
+  font-size: 12px;
+}
+
+.praavi-metric strong {
+  display: block;
+  margin-top: 5px;
+  color: #143b73;
+  font-size: 18px;
+}
+
+.praavi-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.52);
+}
+
+.praavi-payment-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.56);
+}
+
+.praavi-payment-backdrop.is-open {
+  display: flex;
+}
+
+.praavi-payment-modal {
+  width: min(100%, 560px);
+  max-height: calc(100vh - 36px);
+  overflow: auto;
+  border: 1px solid #d9e1ee;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #172033;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.praavi-payment-head,
+.praavi-payment-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid #e5eaf2;
+}
+
+.praavi-payment-foot {
+  border-top: 1px solid #e5eaf2;
+  border-bottom: 0;
+}
+
+.praavi-payment-body {
+  padding: 16px;
+}
+
+.praavi-payment-body .praavi-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.praavi-payment-note {
+  border: 1px solid #fedf89;
+  border-radius: 8px;
+  background: #fffaeb;
+  color: #93370d;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.praavi-payment-history {
+  margin-top: 12px;
+  border: 1px solid #e5eaf2;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.praavi-payment-history table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.praavi-payment-history th,
+.praavi-payment-history td {
+  border-bottom: 1px solid #e5eaf2;
+  padding: 8px;
+  text-align: left;
+}
+
+.praavi-payment-history th {
+  background: #f8fafc;
+}
+
+.praavi-modal-backdrop.is-open {
+  display: flex;
+}
+
+.praavi-modal {
+  width: min(100%, 1180px);
+  height: min(100vh - 24px, 820px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f5f7fb;
+  color: #172033;
+  box-shadow: -20px 0 60px rgba(15, 23, 42, 0.25);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.praavi-modal-header,
+.praavi-modal-footer {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #dde3ee;
+  background: #ffffff;
+}
+
+.praavi-modal-footer {
+  flex-wrap: wrap;
+  border-top: 1px solid #dde3ee;
+  border-bottom: 0;
+}
+
+.praavi-modal-actions {
+  display: grid;
+  grid-template-columns: repeat(5, max-content);
+  gap: 6px;
+  align-items: center;
+}
+
+.praavi-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.praavi-modal-header p {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
+.praavi-modal-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+  gap: 12px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px;
+}
+
+.praavi-modal-body > div,
+.praavi-modal-body > aside {
+  min-height: 0;
+  overflow: auto;
+}
+
+.praavi-panel {
+  border: 1px solid #dde3ee;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.praavi-panel h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.praavi-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+.praavi-field label {
+  display: block;
+  margin-bottom: 5px;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.praavi-field input,
+.praavi-field select,
+.praavi-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+.praavi-field textarea {
+  min-height: 58px;
+  resize: vertical;
+}
+
+.praavi-field-full {
+  grid-column: 1 / -1;
+}
+
+.praavi-error {
+  margin-top: 6px;
+  color: #b42318;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.praavi-items-wrap,
+.praavi-history-wrap {
+  overflow-x: auto;
+}
+
+.praavi-items,
+.praavi-history-table {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.praavi-items th,
+.praavi-items td,
+.praavi-history-table th,
+.praavi-history-table td {
+  border-bottom: 1px solid #e5eaf2;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.praavi-items th,
+.praavi-history-table th {
+  background: #f8fafc;
+  color: #344054;
+  font-size: 12px;
+}
+
+.praavi-items input,
+.praavi-items select {
+  width: 100%;
+  min-width: 74px;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 7px;
+}
+
+.praavi-preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.praavi-preview-toolbar button,
+.praavi-modal-footer button {
+  min-height: 36px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.praavi-preview-shell {
+  overflow: auto;
+  height: calc(min(100vh - 24px, 820px) - 190px);
+  border: 1px solid #dde3ee;
+  border-radius: 8px;
+  background: #e8edf5;
+  padding: 10px;
+}
+
+.praavi-print-root {
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.praavi-print-scale {
+  width: 794px;
+  transform-origin: top left;
+}
+
+.praavi-a4 {
+  width: 794px;
+  min-height: 1123px;
+  margin: 0 auto;
+  padding: 28px;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.18);
+}
+
+.praavi-a4 h1 {
+  margin: 0;
+  color: #143b73;
+  font-size: 26px;
+  text-align: right;
+}
+
+.praavi-pdf-head,
+.praavi-bill-grid,
+.praavi-total-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.praavi-pdf-meta,
+.praavi-pdf-box {
+  border: 1px solid #dde3ee;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.praavi-pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 11px;
+}
+
+.praavi-pdf-table th,
+.praavi-pdf-table td {
+  border: 1px solid #d0d7e2;
+  padding: 7px;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.praavi-pdf-table th {
+  background: #143b73;
+  color: #ffffff;
+}
+
+.praavi-total-box {
+  grid-column: 2;
+}
+
+.praavi-total-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 5px 0;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.praavi-total-line.is-strong {
+  color: #143b73;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.praavi-status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #143b73;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 8px;
+}
+
+@media (max-width: 900px) {
+  .praavi-invoice-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .praavi-modal-body,
+  .praavi-pdf-head,
+  .praavi-bill-grid,
+  .praavi-total-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .praavi-modal {
+    width: 100%;
+    height: calc(100vh - 16px);
+  }
+
+  .praavi-modal-body {
+    overflow: auto;
+  }
+
+  .praavi-modal-body > div,
+  .praavi-modal-body > aside {
+    overflow: visible;
+  }
+
+  .praavi-preview-shell {
+    height: 420px;
+  }
+
+  .praavi-dashboard-grid,
+  .praavi-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .praavi-action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .praavi-total-box {
+    grid-column: auto;
+  }
+
+  .praavi-modal-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .praavi-modal-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .praavi-modal-actions button {
+    width: 100%;
+    white-space: normal;
+  }
+
+  .praavi-payment-body .praavi-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .praavi-a4 {
+    width: 100%;
+    min-width: 720px;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .praavi-print-root,
+  .praavi-print-root * {
+    visibility: visible;
+  }
+
+  .praavi-print-root {
+    position: absolute;
+    inset: 0;
+  }
+
+  .praavi-a4 {
+    width: auto;
+    min-height: auto;
+    margin: 0;
+    box-shadow: none;
+    page-break-after: always;
+  }
+
+  .praavi-pdf-table tr {
+    break-inside: avoid;
+  }
+}
