@@ -480,6 +480,10 @@
     return `<div class="praavi-field"><label>${label}</label>${input}<div class="praavi-error" data-error="${path}"></div></div>`;
   }
 
+  function readonlyMoneyField(label, value, key) {
+    return `<div class="praavi-field"><label>${label}</label><input data-live-money="${key}" value="${fmt(value)}" readonly></div>`;
+  }
+
   function textField(label, path) {
     const value = path.split(".").reduce((obj, part) => obj?.[part], invoice) ?? "";
     return `<div class="praavi-field praavi-field-full"><label>${label}</label><textarea data-path="${path}">${String(value)}</textarea></div>`;
@@ -868,6 +872,7 @@
               ${field("Delivery / Travel Charges", "travelCharges", "number")}
               ${field("Round Off", "roundOff", "number")}
               ${field("Amount Already Paid", "amountPaid", "number")}
+              ${readonlyMoneyField("Balance Due", invoice.balanceDue, "balanceDue")}
               ${field("Payment Terms", "paymentTerms", "text", ["Due on Receipt", "Advance Payment", "7 Days", "15 Days", "30 Days", "45 Days", "60 Days", "Custom"])}
               ${field("Payment Method", "paymentMethod", "text", ["Bank Transfer", "UPI", "Cash", "Cheque", "Card", "Online Payment", "Other"])}
               ${field("Bank Name", "bankDetails.bankName")}
@@ -913,6 +918,8 @@
           const dueDateInput = modal.querySelector('[data-path="dueDate"]');
           if (dueDateInput) dueDateInput.value = invoice.dueDate;
         }
+        const balanceInput = modal.querySelector('[data-live-money="balanceDue"]');
+        if (balanceInput) balanceInput.value = fmt(invoice.balanceDue);
         if (event.target.dataset.path === "gstBilling") {
           const taxModeInput = modal.querySelector('[data-path="taxMode"]');
           if (taxModeInput) taxModeInput.value = invoice.taxMode;
