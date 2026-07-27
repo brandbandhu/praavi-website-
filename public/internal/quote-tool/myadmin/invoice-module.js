@@ -590,99 +590,152 @@
     const content = [];
     let y = pageHeight - margin;
     let page = [];
+    const blue = [0.078, 0.231, 0.451];
+    const light = [0.953, 0.969, 0.992];
+    const border = [0.82, 0.86, 0.91];
+    const dark = [0.067, 0.094, 0.153];
 
+    const color = (rgb) => page.push(`${rgb.join(" ")} rg ${rgb.join(" ")} RG`);
     const draw = (text, x, size = 9, bold = false) => {
       page.push(`BT /${bold ? "F2" : "F1"} ${size} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td (${pdfText(text)}) Tj ET`);
+    };
+    const drawAt = (text, x, yy, size = 9, bold = false) => {
+      page.push(`BT /${bold ? "F2" : "F1"} ${size} Tf ${x.toFixed(2)} ${yy.toFixed(2)} Td (${pdfText(text)}) Tj ET`);
     };
     const drawRight = (text, rightX, size = 9, bold = false) => {
       const approxWidth = pdfText(text).length * size * 0.48;
       draw(text, rightX - approxWidth, size, bold);
     };
-    const line = (x1, y1, x2, y2) => page.push(`${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`);
-    const rect = (x, yy, w, h) => page.push(`${x.toFixed(2)} ${yy.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S`);
+    const drawRightAt = (text, rightX, yy, size = 9, bold = false) => {
+      const approxWidth = pdfText(text).length * size * 0.48;
+      drawAt(text, rightX - approxWidth, yy, size, bold);
+    };
+    const line = (x1, y1, x2, y2) => {
+      color(border);
+      page.push(`${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`);
+      color(dark);
+    };
+    const rect = (x, yy, w, h, fillRgb = null) => {
+      if (fillRgb) {
+        color(fillRgb);
+        page.push(`${x.toFixed(2)} ${yy.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f`);
+      }
+      color(border);
+      page.push(`${x.toFixed(2)} ${yy.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S`);
+      color(dark);
+    };
     const newPage = () => {
       content.push(page.join("\n"));
       page = [];
+      color(dark);
       y = pageHeight - margin;
+      drawTableHeader();
     };
     const ensure = (height) => {
       if (y - height < margin + 60) newPage();
     };
-    const rowText = (text, x, widthChars, size = 8) => {
+    const rowText = (text, x, yy, widthChars, size = 8) => {
       const lines = wrapPdfText(text, widthChars).slice(0, 4);
       lines.forEach((item, index) => {
-        page.push(`BT /F1 ${size} Tf ${x.toFixed(2)} ${(y - index * 10).toFixed(2)} Td (${pdfText(item)}) Tj ET`);
+        drawAt(item, x, yy - index * 10, size);
       });
       return lines.length;
     };
+    const drawTableHeader = () => {
+      y -= 20;
+      rect(margin, y - 18, pageWidth - margin * 2, 22, blue);
+      color([1, 1, 1]);
+      [["Sr", 42], ["Description", 66], ["SAC", 250], ["Qty", 294], ["Rate", 338], ["Disc", 394], ["Taxable", 440], ["GST", 492], ["Amount", 538]].forEach(([label, x]) => drawAt(label, x, y - 9, 7, true));
+      color(dark);
+      y -= 28;
+    };
 
     const supplier = inv.supplier || getSupplier(inv.supplierCompany);
-    draw(supplier.name, margin, 15, true);
-    y -= 16; draw("Digital marketing, website development and business consulting services.", margin, 8);
-    y -= 12; draw(`Email: ${supplier.email} | Website: ${supplier.website}`, margin, 8);
-    y = pageHeight - margin; draw(inv.invoiceType === "Tax Invoice" ? "TAX INVOICE" : inv.invoiceType.toUpperCase(), 420, 20, true);
-    y -= 24; draw(`Invoice No: ${inv.invoiceNumber}`, 392, 9, true);
-    y -= 12; draw(`Invoice Date: ${inv.invoiceDate}`, 392, 9);
-    y -= 12; draw(`Due Date: ${inv.dueDate}`, 392, 9);
-    y -= 12; draw(`Quotation Ref: ${inv.quotationNumber || "-"}`, 392, 9);
-    y -= 20; line(margin, y, pageWidth - margin, y);
+    color(blue);
+    page.push(`0 ${(pageHeight - 10).toFixed(2)} ${pageWidth.toFixed(2)} 10 re f`);
+    color(dark);
+    drawAt(supplier.name, margin, 786, 16, true);
+    drawAt("Digital marketing, website development and business consulting services.", margin, 770, 8);
+    drawAt(`${supplier.address} | ${supplier.email} | ${supplier.website}`, margin, 758, 8);
+    drawAt(`GSTIN: ${supplier.gstin || "-"} | PAN: ${supplier.pan || "-"}`, margin, 746, 8);
+    color(blue);
+    drawAt(inv.invoiceType === "Tax Invoice" ? "TAX INVOICE" : inv.invoiceType.toUpperCase(), 410, 786, 20, true);
+    color(dark);
+    rect(390, 705, 169, 62, light);
+    [
+      [`Invoice No: ${fitPdfText(inv.invoiceNumber, 27)}`, 754],
+      [`Invoice Date: ${inv.invoiceDate}`, 742],
+      [`Due Date: ${inv.dueDate}`, 730],
+      [`Quotation Ref: ${fitPdfText(inv.quotationNumber || "-", 20)}`, 718],
+      [`Status: ${inv.status}`, 706]
+    ].forEach(([text, yy]) => drawAt(text, 400, yy, 8, /Invoice No|Status/.test(text)));
+    y = 692;
+    line(margin, y, pageWidth - margin, y);
 
-    y -= 24;
-    rect(margin, y - 72, 250, 82); rect(309, y - 72, 250, 82);
-    draw("Bill From", margin + 10, 10, true); draw("Bill To", 319, 10, true);
-    y -= 16;
-    draw(supplier.name, margin + 10, 8); draw(inv.client.companyName || inv.client.name || "-", 319, 8);
-    y -= 11;
-    draw(supplier.address, margin + 10, 8); draw(inv.client.name || "-", 319, 8);
-    y -= 11;
-    draw(`Email: ${supplier.email}`, margin + 10, 8); draw(inv.client.billingAddress || "-", 319, 8);
-    y -= 11;
-    draw("", margin + 10, 8); draw(`GSTIN: ${inv.client.gstin || "-"}`, 319, 8);
-    y -= 11;
-    draw("", margin + 10, 8); draw(`State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})`, 319, 8);
+    y -= 22;
+    rect(margin, y - 82, 250, 94, light);
+    rect(309, y - 82, 250, 94, light);
+    drawAt("Bill From", margin + 10, y - 8, 10, true);
+    drawAt("Bill To", 319, y - 8, 10, true);
+    rowText(`${supplier.name} ${supplier.address} Email: ${supplier.email}`, margin + 10, y - 24, 38, 8);
+    rowText(`${inv.client.companyName || inv.client.name || "-"} ${inv.client.name || ""} ${inv.client.billingAddress || "-"} GSTIN: ${inv.client.gstin || "-"} State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})`, 319, y - 24, 37, 8);
 
-    y -= 42;
-    const headers = [["Sr", 38], ["Description", 68], ["SAC", 265], ["Qty", 312], ["Rate", 354], ["Disc", 408], ["Taxable", 456], ["Amount", 520]];
-    headers.forEach(([label, x]) => draw(label, x, 8, true));
-    y -= 8; line(margin, y, pageWidth - margin, y); y -= 14;
+    y -= 106;
+    drawTableHeader();
     inv.items.forEach((item, index) => {
-      ensure(48);
-      const rowStart = y + 8;
-      draw(String(index + 1), 38, 8);
-      const lines = rowText(`${item.serviceName || ""} ${item.description || ""}`, 68, 36, 8);
-      draw(item.hsnSac || "-", 265, 8);
-      draw(`${item.quantity} ${item.unit || ""}`, 312, 8);
-      drawRight(pdfMoney(item.rate), 398, 8);
-      drawRight(pdfMoney(item.discount), 450, 8);
-      drawRight(pdfMoney(item.taxableAmount), 510, 8);
-      drawRight(pdfMoney(item.lineTotal), 558, 8);
-      y = rowStart - Math.max(24, lines * 10 + 12);
+      const descriptionLines = wrapPdfText(`${item.serviceName || ""} ${item.description || ""}`, 34).slice(0, 5);
+      const rowHeight = Math.max(34, descriptionLines.length * 10 + 14);
+      ensure(rowHeight + 4);
+      const rowTop = y;
+      rect(margin, y - rowHeight + 8, pageWidth - margin * 2, rowHeight, index % 2 ? [0.985, 0.988, 0.992] : null);
+      drawAt(String(index + 1), 42, rowTop - 10, 8);
+      descriptionLines.forEach((text, lineIndex) => drawAt(text, 66, rowTop - 10 - lineIndex * 10, 8));
+      drawAt(item.hsnSac || "-", 250, rowTop - 10, 8);
+      drawAt(`${item.quantity} ${item.unit || ""}`, 294, rowTop - 10, 8);
+      drawRightAt(pdfMoney(item.rate), 386, rowTop - 10, 8);
+      drawRightAt(pdfMoney(item.discount), 432, rowTop - 10, 8);
+      drawRightAt(pdfMoney(item.taxableAmount), 486, rowTop - 10, 8);
+      const gstText = inv.taxMode === "Intra-State" ? `CGST ${pdfMoney(item.cgst)} SGST ${pdfMoney(item.sgst)}` : inv.taxMode === "Inter-State" ? `IGST ${pdfMoney(item.igst)}` : "No GST";
+      rowText(gstText, 492, rowTop - 10, 12, 7);
+      drawRightAt(pdfMoney(item.lineTotal), 558, rowTop - 10, 8, true);
+      y -= rowHeight + 4;
       line(margin, y, pageWidth - margin, y);
-      y -= 12;
     });
 
     ensure(190);
-    y -= 6;
-    const totalX = 370;
+    y -= 12;
+    const totalTop = y;
+    rect(350, totalTop - 164, 209, 176, light);
+    const totalX = 365;
     [
       ["Subtotal", inv.subtotal], ["Item Discount", inv.itemDiscount], ["Overall Discount", inv.overallDiscount],
       ["Taxable Amount", inv.taxableAmount], ["CGST", inv.cgst], ["SGST", inv.sgst], ["IGST", inv.igst],
       ["Additional Charges", inv.additionalCharges], ["Round Off", inv.roundOff], ["Grand Total", inv.grandTotal],
       ["Amount Paid", inv.amountPaid], ["Balance Due", inv.balanceDue]
     ].forEach(([label, value]) => {
+      if (label === "Grand Total" || label === "Balance Due") {
+        rect(358, y - 4, 193, 15, blue);
+        color([1, 1, 1]);
+      }
       draw(label, totalX, 9, label === "Grand Total" || label === "Balance Due");
       drawRight(pdfMoney(value), 558, 9, label === "Grand Total" || label === "Balance Due");
+      color(dark);
       y -= 13;
     });
-    y -= 8;
+
+    y = totalTop;
     draw("Amount in Words:", margin, 9, true);
-    y -= 13; wrapPdfText(inv.amountInWords, 76).forEach((text) => { draw(text, margin, 8); y -= 11; });
-    y -= 8; draw("Payment Information", margin, 10, true);
-    y -= 13; draw(`Terms: ${inv.paymentTerms} | Method: ${inv.paymentMethod}`, margin, 8);
-    y -= 11; draw(`Bank: ${inv.bankDetails.bankName || "-"} | Account: ${inv.bankDetails.accountName || "-"}`, margin, 8);
-    y -= 11; draw(`A/C No: ${inv.bankDetails.accountNumber || "-"} | IFSC: ${inv.bankDetails.ifsc || "-"} | UPI: ${inv.bankDetails.upiId || "-"}`, margin, 8);
-    y -= 24; draw(`For ${supplier.name}`, 420, 9, true);
-    y -= 44; draw("Authorized Signatory", 420, 9, true);
+    y -= 13; wrapPdfText(inv.amountInWords, 48).slice(0, 4).forEach((text) => { draw(text, margin, 8); y -= 11; });
+    y -= 8;
+    rect(margin, y - 64, 286, 76, light);
+    draw("Payment Information", margin + 10, 10, true);
+    y -= 14; draw(`Terms: ${inv.paymentTerms} | Method: ${inv.paymentMethod}`, margin + 10, 8);
+    y -= 11; draw(`Bank: ${inv.bankDetails.bankName || "-"}`, margin + 10, 8);
+    y -= 11; draw(`Account: ${inv.bankDetails.accountName || "-"} | A/C: ${inv.bankDetails.accountNumber || "-"}`, margin + 10, 8);
+    y -= 11; draw(`IFSC: ${inv.bankDetails.ifsc || "-"} | UPI: ${inv.bankDetails.upiId || "-"}`, margin + 10, 8);
+    y -= 42;
+    drawAt(`For ${supplier.name}`, 420, y, 9, true);
+    drawAt("Authorized Signatory", 420, y - 48, 9, true);
     y = 28; draw(`Thank you for your business. ${supplier.website} | ${supplier.email}`, margin, 8);
     content.push(page.join("\n"));
 
@@ -713,20 +766,57 @@
     pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
     offsets.slice(1).forEach((offset) => { pdf += `${String(offset).padStart(10, "0")} 00000 n \n`; });
     pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
-    return new Blob([pdf], { type: "application/pdf" });
+    return new Blob([new TextEncoder().encode(pdf)], { type: "application/pdf" });
+  }
+
+  function invoiceForDownload(inv) {
+    const fallbackNumber = buildNumber({
+      prefix: inv.prefix || getSupplier(inv.supplierCompany).prefix,
+      type: "INV",
+      financialYear: inv.financialYear || getFinancialYear(),
+      sequenceNumber: inv.sequenceNumber || 1
+    });
+    return calculateTotals({
+      ...inv,
+      supplier: inv.supplier || getSupplier(inv.supplierCompany),
+      invoiceNumber: norm(inv.invoiceNumber) || fallbackNumber,
+      invoiceDate: inv.invoiceDate || todayISO(),
+      dueDate: inv.dueDate || inv.invoiceDate || todayISO(),
+      client: {
+        ...inv.client,
+        name: norm(inv.client?.name) || "Client",
+        companyName: norm(inv.client?.companyName),
+        billingAddress: norm(inv.client?.billingAddress) || "-",
+        state: norm(inv.client?.state) || SUPPLIER_STATE,
+        stateCode: norm(inv.client?.stateCode) || "27"
+      },
+      items: inv.items?.length ? inv.items : [{
+        serviceName: "Professional Services",
+        description: "Services as per quotation",
+        hsnSac: "9983",
+        quantity: 1,
+        unit: "Service",
+        rate: 0,
+        discount: 0,
+        gstRate: 18
+      }]
+    });
   }
 
   function downloadInvoicePDF(inv = invoice) {
-    if (!saveInvoice(inv.status || "Draft")) return;
-    const blob = makeInvoicePDF(invoice);
+    const downloadableInvoice = invoiceForDownload(inv);
+    invoice = downloadableInvoice;
+    refreshLivePreview();
+    const blob = makeInvoicePDF(downloadableInvoice);
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${norm(invoice.invoiceNumber).replace(/[^A-Za-z0-9-]+/g, "-") || "praavi-invoice"}.pdf`;
+    link.download = `${norm(downloadableInvoice.invoiceNumber).replace(/[^A-Za-z0-9-]+/g, "-") || "praavi-invoice"}.pdf`;
+    link.rel = "noopener";
     document.body.appendChild(link);
-    link.click();
+    link.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window }));
     link.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
   }
 
   function renderModal(errors = {}) {
