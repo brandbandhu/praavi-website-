@@ -13,7 +13,6 @@
       website: "praaviconsultants.in",
       phone: "",
       gstin: "",
-      pan: "",
       state: "Maharashtra",
       stateCode: "27",
       bankAccountName: "Praavi Consultants"
@@ -26,7 +25,6 @@
       website: "webakoof.com",
       phone: "",
       gstin: "",
-      pan: "",
       state: "Maharashtra",
       stateCode: "27",
       bankAccountName: "Webakoof"
@@ -166,7 +164,7 @@
       if (/business|company|organization/.test(label) && !fields.companyName) fields.companyName = value;
       if (/email/.test(label) && !fields.email) fields.email = value;
       if (/mobile|phone|contact/.test(label) && !fields.phone) fields.phone = value;
-      if (/address/.test(label) && !fields.billingAddress) fields.billingAddress = value;
+      if (/address/.test(label) && !fields.address) fields.address = value;
       if (/gst/.test(label) && !fields.gstin) fields.gstin = value;
       if (/project/.test(label) && !fields.projectName) fields.projectName = value;
       if (/payment/.test(label) && !fields.paymentTerms) fields.paymentTerms = value;
@@ -231,12 +229,12 @@
       client: {
         name: quote.clientName || "",
         companyName: quote.companyName || "",
-        billingAddress: quote.billingAddress || "",
-        shippingAddress: quote.billingAddress || "",
+        address: quote.address || "",
+        billingAddress: quote.address || "",
+        shippingAddress: quote.address || "",
         email: quote.email || "",
         phone: quote.phone || "",
         gstin: quote.gstin || "",
-        pan: "",
         state: clientState,
         stateCode: stateCodes[clientState.toLowerCase()] || "27"
       },
@@ -291,7 +289,7 @@
     if (!inv.dueDate) errors.dueDate = "Due date is required.";
     if (inv.invoiceDate && inv.dueDate && inv.dueDate < inv.invoiceDate) errors.dueDate = "Due date cannot normally be earlier than invoice date.";
     if (!norm(inv.client.name || inv.client.companyName)) errors.clientName = "Client name or company name is required.";
-    if (!norm(inv.client.billingAddress)) errors.billingAddress = "Billing address is required.";
+    if (!norm(inv.client.address || inv.client.billingAddress)) errors.billingAddress = "Address is required.";
     if (!inv.items.length) errors.items = "Add at least one invoice item.";
     inv.items.forEach((item, index) => {
       if (asNumber(item.quantity) <= 0) errors[`qty${index}`] = "Quantity must be greater than zero.";
@@ -327,6 +325,8 @@
     let ref = clone;
     while (parts.length > 1) ref = ref[parts.shift()];
     ref[parts[0]] = value;
+    if (path === "client.address" && !norm(clone.client.billingAddress)) clone.client.billingAddress = value;
+    if (path === "client.address" && !norm(clone.client.shippingAddress)) clone.client.shippingAddress = value;
     if (path === "paymentTerms") clone.dueDate = calculateDueDate(clone.invoiceDate, value) || clone.dueDate;
     if (path === "gstBilling" && value === "Without GST") clone.taxMode = "No GST";
     if (path === "gstBilling" && value === "With GST" && clone.taxMode === "No GST") {
@@ -533,13 +533,14 @@
   }
 
   function previewHTML(inv = invoice) {
+    const clientAddress = inv.client.address || inv.client.billingAddress || "-";
     return `
       <article class="praavi-a4">
         <div class="praavi-pdf-head">
           <div>
             <strong style="font-size:20px;color:#143b73">${inv.supplier?.name || "Praavi Consultants"}</strong>
             <p>Digital marketing, website development and business consulting services.</p>
-            <p>${inv.supplier?.address || "Maharashtra, India"}<br>Email: ${inv.supplier?.email || "info@praaviconsultants.in"}<br>Website: ${inv.supplier?.website || "www.praaviconsultants.in"}<br>GSTIN: ${inv.supplier?.gstin || ""}<br>PAN: ${inv.supplier?.pan || ""}</p>
+            <p>${inv.supplier?.address || "Maharashtra, India"}<br>Email: ${inv.supplier?.email || "info@praaviconsultants.in"}<br>Website: ${inv.supplier?.website || "www.praaviconsultants.in"}<br>GST Number: ${inv.supplier?.gstin || "-"}</p>
           </div>
           <div>
             <h1>${inv.invoiceType === "Tax Invoice" ? "TAX INVOICE" : inv.invoiceType.toUpperCase()}</h1>
@@ -555,7 +556,7 @@
         </div>
         <div class="praavi-bill-grid" style="margin-top:18px">
           <div class="praavi-pdf-box"><strong>Bill From</strong><p>${inv.supplier?.name || "Praavi Consultants"}<br>${inv.supplier?.address || "Maharashtra, India"}<br>Email: ${inv.supplier?.email || "info@praaviconsultants.in"}</p></div>
-          <div class="praavi-pdf-box"><strong>Bill To</strong><p>${inv.client.companyName || inv.client.name}<br>${inv.client.name}<br>${inv.client.billingAddress}<br>GSTIN: ${inv.client.gstin || "-"}<br>State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})<br>${inv.client.phone || ""} ${inv.client.email || ""}</p></div>
+          <div class="praavi-pdf-box"><strong>Bill To</strong><p>${inv.client.companyName || inv.client.name}<br>${inv.client.name}<br>${clientAddress}<br>GST Number: ${inv.client.gstin || "-"}<br>State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})<br>${inv.client.phone || ""} ${inv.client.email || ""}</p></div>
         </div>
         <table class="praavi-pdf-table">
           <thead><tr><th>Sr. No.</th><th>Description</th><th>SAC</th><th>Qty</th><th>Rate</th><th>Discount</th><th>Taxable Value</th><th>GST</th><th>Amount</th></tr></thead>
@@ -618,6 +619,7 @@
     const border = [0.86, 0.89, 0.94];
     const dark = [0.067, 0.094, 0.153];
     const supplier = inv.supplier || getSupplier(inv.supplierCompany);
+    const clientAddress = inv.client.address || inv.client.billingAddress || "-";
 
     const color = (rgb) => page.push(`${rgb.join(" ")} rg ${rgb.join(" ")} RG`);
     const draw = (text, x, size = 7, bold = false) => page.push(`BT /${bold ? "F2" : "F1"} ${size} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td (${pdfText(text)}) Tj ET`);
@@ -671,8 +673,7 @@
     drawAt(supplier.address, margin, 767, 6.5);
     drawAt(`Email: ${supplier.email}`, margin, 757, 6.5);
     drawAt(`Website: ${supplier.website}`, margin, 747, 6.5);
-    drawAt(`GSTIN: ${supplier.gstin || "-"}`, margin, 737, 6.5);
-    drawAt(`PAN: ${supplier.pan || "-"}`, margin, 727, 6.5);
+    drawAt(`GST Number: ${supplier.gstin || "-"}`, margin, 737, 6.5);
     color(blue);
     drawAt(inv.invoiceType === "Tax Invoice" ? "TAX INVOICE" : inv.invoiceType.toUpperCase(), 447, 790, 14, true);
     color(dark);
@@ -692,7 +693,7 @@
     drawAt("Bill From", margin + 9, 663, 7.5, true);
     drawAt("Bill To", 326, 663, 7.5, true);
     rowText(`${supplier.name} ${supplier.address} Email: ${supplier.email}`, margin + 9, 648, 40, 6.5);
-    rowText(`${inv.client.companyName || inv.client.name || "-"} ${inv.client.name || ""} ${inv.client.billingAddress || "-"} GSTIN: ${inv.client.gstin || "-"} State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})`, 326, 648, 40, 6.5);
+    rowText(`${inv.client.companyName || inv.client.name || "-"} ${inv.client.name || ""} ${clientAddress} GST Number: ${inv.client.gstin || "-"} State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})`, 326, 648, 40, 6.5);
 
     y = 568;
     drawTableHeader();
@@ -804,7 +805,8 @@
         ...inv.client,
         name: norm(inv.client?.name) || "Client",
         companyName: norm(inv.client?.companyName),
-        billingAddress: norm(inv.client?.billingAddress) || "-",
+        address: norm(inv.client?.address || inv.client?.billingAddress) || "-",
+        billingAddress: norm(inv.client?.billingAddress || inv.client?.address) || "-",
         state: norm(inv.client?.state) || SUPPLIER_STATE,
         stateCode: norm(inv.client?.stateCode) || "27"
       },
@@ -872,10 +874,10 @@
               ${field("Company Name", "client.companyName")}
               ${field("Email", "client.email", "email")}
               ${field("Phone", "client.phone")}
-              ${field("GSTIN", "client.gstin")}
-              ${field("PAN", "client.pan")}
+              ${field("GST Number", "client.gstin")}
               ${field("State", "client.state")}
               ${field("State Code", "client.stateCode")}
+              ${textField("Address", "client.address")}
               ${textField("Billing Address", "client.billingAddress")}
               ${textField("Shipping Address", "client.shippingAddress")}
             </div></section>
