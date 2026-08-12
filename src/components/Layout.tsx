@@ -13,6 +13,11 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const { pathname } = useLocation();
   const isInnerPage = pathname !== "/";
+  const isFinanceManagementSystem = pathname.startsWith("/finance-management-system/fms");
+
+  if (isFinanceManagementSystem) {
+    return <>{children}</>;
+  }
 
   return (
     <div className={`min-h-screen bg-background text-foreground ${isInnerPage ? "internal-page" : ""}`}>
