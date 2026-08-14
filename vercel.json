@@ -9,6 +9,7 @@
       "src": "/finance-management-system/fms/praavi-internal/app/(.*)",
       "dest": "/finance-management-system/fms/praavi-internal/app/index.html"
     },
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
     { "src": "/(.*)", "dest": "/" }
   ]
 }

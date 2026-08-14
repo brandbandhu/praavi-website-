@@ -79,6 +79,11 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 });
 
 const port = Number(process.env.PORT) || 4000;
-app.listen(port, () => {
-  console.log(`Praavi finance API listening on http://localhost:${port}`);
-});
+
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Praavi finance API listening on http://localhost:${port}`);
+  });
+}
+
+export default app;
