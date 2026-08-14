@@ -52,7 +52,7 @@ bucketConfigRouter.get("/history", async (_req, res) => {
       versionId: v.id,
       effectiveFrom: v.effectiveFrom,
       createdAt: v.createdAt,
-      entries: v.entries.map((e) => ({
+      entries: v.entries.map((e: any) => ({
         bucketName: e.bucketName,
         percentageBps: e.percentageBps,
         percent: e.percentageBps / 100,

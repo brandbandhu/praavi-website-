@@ -1,9 +1,42 @@
 import { createClient } from "@supabase/supabase-js";
-import type { PrismaClient } from "@prisma/client";
 import { randomUUID } from "node:crypto";
 
 type AnyRow = Record<string, any>;
 type Where = Record<string, any> | undefined;
+type Delegate = {
+  findMany(args?: any): Promise<any[]>;
+  findFirst(args?: any): Promise<any | null>;
+  findUnique(args: any): Promise<any | null>;
+  count(args?: any): Promise<number>;
+  create(args: any): Promise<any>;
+  createMany(args: any): Promise<{ count: number }>;
+  update(args: any): Promise<any>;
+  delete(args: any): Promise<any>;
+  deleteMany(args?: any): Promise<{ count: number }>;
+  upsert(args: any): Promise<any>;
+};
+type FinanceDb = {
+  user: Delegate;
+  loginLog: Delegate;
+  activityLog: Delegate;
+  bucketConfigVersion: Delegate;
+  bucketConfigEntry: Delegate;
+  payment: Delegate;
+  bucketTransfer: Delegate;
+  employee: Delegate;
+  salaryDisbursement: Delegate;
+  salaryPaymentLog: Delegate;
+  subscriptionMisc: Delegate;
+  receivable: Delegate;
+  followUp: Delegate;
+  quotation: Delegate;
+  quotationLineItem: Delegate;
+  deliverableType: Delegate;
+  quotationPackage: Delegate;
+  quotationPackageItem: Delegate;
+  quotationDeliverable: Delegate;
+  $transaction<T>(callback: (tx: FinanceDb) => Promise<T>): Promise<T>;
+};
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey =
@@ -193,7 +226,7 @@ function stripNested(data: AnyRow): AnyRow {
   return copy;
 }
 
-function delegate(model: string) {
+function delegate(model: string): Delegate {
   const table = tableByModel[model];
   if (!table) throw new Error(`Unknown model ${model}`);
 
@@ -290,7 +323,7 @@ function delegate(model: string) {
   };
 }
 
-const supabasePrisma = {
+export const prisma: FinanceDb = {
   user: delegate("user"),
   loginLog: delegate("loginLog"),
   activityLog: delegate("activityLog"),
@@ -312,5 +345,3 @@ const supabasePrisma = {
   quotationDeliverable: delegate("quotationDeliverable"),
   $transaction: async (callback: any) => callback(prisma),
 };
-
-export const prisma = supabasePrisma as unknown as PrismaClient;

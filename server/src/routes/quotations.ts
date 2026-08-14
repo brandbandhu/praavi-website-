@@ -301,8 +301,8 @@ quotationsRouter.get("/:id/pdf", async (req, res) => {
       y,
       (quotation as any).package?.name ?? null,
       quotation.deliverables
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((d) => ({ name: d.name, unit: d.unit, included: d.included, quantity: d.quantity }))
+        .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+        .map((d: any) => ({ name: d.name, unit: d.unit, included: d.included, quantity: d.quantity }))
     );
     y = drawTotalOnly(doc, y, `Total${quotation.gstType !== "None" ? ` (${quotation.gstType} of GST)` : ""}`, quotation.totalAmountPaise);
   } else {
@@ -310,8 +310,8 @@ quotationsRouter.get("/:id/pdf", async (req, res) => {
       doc,
       y,
       quotation.lineItems
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((li) => ({ description: li.description, amountPaise: li.amountPaise })),
+        .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+        .map((li: any) => ({ description: li.description, amountPaise: li.amountPaise })),
       `Total${quotation.gstType !== "None" ? ` (${quotation.gstType} of GST)` : ""}`,
       quotation.totalAmountPaise
     );
