@@ -1,0 +1,274 @@
+// Praavi Consultants Finance Dashboard — Prisma schema
+// NOTE: SQLite has no native Decimal or Enum support, so:
+//   - All money fields are stored as INTEGER PAISE (1 INR = 100 paise) to avoid
+//     floating point rounding errors entirely (see server/src/lib/money.ts).
+//   - All percentage fields are stored as INTEGER BASIS POINTS (1% = 100 bps),
+//     giving 2 decimal places of precision on bucket percentages.
+//   - Enum-like fields are plain Strings, validated against TS union types
+//     with zod at the API boundary (see server/src/lib/types.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String // "founder" | "cofounder" | "accountant"
+  createdAt    DateTime @default(now())
+}
+
+// One row per successful login — feeds the founder-only performance report
+// (what time did she start working today).
+model LoginLog {
+  id        String   @id @default(uuid())
+  userId    String
+  loginAt   DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+}
+
+// A running audit trail of the actions that matter for the performance
+// report — payments logged, transfers marked paid, receivables collected,
+// follow-ups logged, etc. Deliberately not every CRUD in the app, just the
+// operationally meaningful ones.
+model ActivityLog {
+  id         String   @id @default(uuid())
+  userId     String
+  action     String // e.g. "payment.created", "transfer.marked_paid", "receivable.collected"
+  entityType String?
+  entityId   String?
+  summary    String // human-readable, e.g. "Marked Kotak paid for Sunrise Bakery Co. (₹12,400)"
+  createdAt  DateTime @default(now())
+}
+
+// ---- Bucket config, effective-dated so historical payments never retroactively change ----
+model BucketConfigVersion {
+  id            String               @id @default(uuid())
+  effectiveFrom DateTime
+  createdAt     DateTime             @default(now())
+  createdById   String?
+  entries       BucketConfigEntry[]
+}
+
+model BucketConfigEntry {
+  id                          String              @id @default(uuid())
+  versionId                   String
+  version                     BucketConfigVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  bucketName                  String // salary_pool | kotak | fuel | axis | marketing | profit
+  percentageBps               Int // 5600 = 56.00%
+  fixedMonthlyTargetPaise     Int? // e.g. kotak = 8000000 (₹80,000). null = derived or variable
+  fixedMonthlyTargetMinPaise  Int? // fuel range low
+  fixedMonthlyTargetMaxPaise  Int? // fuel range high
+  dueDay                      Int? // day of month this bucket's obligation is due, e.g. rent(kotak)=10, salaries=1
+
+  @@unique([versionId, bucketName])
+}
+
+// ---- Client payments ----
+model Payment {
+  id                String           @id @default(uuid())
+  dateReceived      DateTime
+  clientName        String
+  department        String // "Digital Marketing" | "Web Dev"
+  invoiceNumber     String?
+  paymentAmountPaise Int
+  gstType           String // "Inclusive" | "Exclusive" | "None"
+  gstPercentBps     Int              @default(1800)
+  landedInAccount   String
+  notes             String?
+  createdById       String?
+  createdAt         DateTime         @default(now())
+  transfers         BucketTransfer[]
+  receiptNumber     String?
+  receiptGeneratedAt DateTime?
+}
+
+model BucketTransfer {
+  id              String    @id @default(uuid())
+  paymentId       String
+  payment         Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  bucketName      String // salary_pool | kotak | fuel | axis | marketing | profit
+  status          String    @default("Pending") // "Pending" | "Transferred"
+  transferredDate DateTime?
+  transferredById String?
+
+  @@unique([paymentId, bucketName])
+}
+
+// ---- Employees / salary pool ----
+model Employee {
+  id                String               @id @default(uuid())
+  name              String
+  active            Boolean              @default(true)
+  monthlySalaryPaise Int
+  joinDate          DateTime
+  createdAt         DateTime             @default(now())
+  disbursements     SalaryDisbursement[]
+}
+
+model SalaryDisbursement {
+  id              String             @id @default(uuid())
+  employeeId      String
+  employee        Employee           @relation(fields: [employeeId], references: [id])
+  month           String // "2026-08"
+  amountDuePaise  Int
+  amountPaidPaise Int                @default(0)
+  datePaid        DateTime?
+  accountUsed     String?
+  createdAt       DateTime           @default(now())
+  payments        SalaryPaymentLog[]
+
+  @@unique([employeeId, month])
+}
+
+model SalaryPaymentLog {
+  id             String             @id @default(uuid())
+  disbursementId String
+  disbursement   SalaryDisbursement @relation(fields: [disbursementId], references: [id], onDelete: Cascade)
+  amountPaise    Int
+  datePaid       DateTime
+  accountUsed    String?
+  createdById    String?
+  createdAt      DateTime           @default(now())
+}
+
+// ---- Subscriptions / misc (feeds Axis Savings target) ----
+model SubscriptionMisc {
+  id          String   @id @default(uuid())
+  name        String
+  amountPaise Int
+  active      Boolean  @default(true)
+  frequency   String // "Monthly" | "Yearly"
+  createdAt   DateTime @default(now())
+}
+
+// ---- Receivables (client-side pending) ----
+model Receivable {
+  id                   String     @id @default(uuid())
+  clientName           String
+  invoiceNumber        String?
+  invoiceDate          DateTime
+  amountPendingPaise   Int
+  department           String
+  createdAt            DateTime   @default(now())
+  followUps            FollowUp[]
+  status               String     @default("Pending") // "Pending" | "Collected"
+  collectedDate        DateTime?
+  collectedAmountPaise Int?
+  collectedById        String?
+  quotation            Quotation?
+}
+
+// One row per follow-up attempt on a receivable, numbered in order
+// (Follow-up 1, 2, 3...) so the accountant can log every chase attempt.
+model FollowUp {
+  id             String     @id @default(uuid())
+  receivableId   String
+  receivable     Receivable @relation(fields: [receivableId], references: [id], onDelete: Cascade)
+  sequenceNumber Int
+  date           DateTime
+  method         String? // "Call" | "Email" | "WhatsApp" | "In Person" | "Other"
+  notes          String?
+  createdById    String?
+  createdAt      DateTime   @default(now())
+
+  @@unique([receivableId, sequenceNumber])
+}
+
+// ---- Quotations (pre-sale) ----
+// Accepting a quotation does NOT auto-create a Receivable — the accountant
+// clicks "Transfer to Receivables" once accepted, which pre-fills it from
+// the quotation. Deliberate action, no re-typing.
+model Quotation {
+  id                String              @id @default(uuid())
+  quotationNumber   String              @unique
+  clientName        String
+  department        String // "Digital Marketing" | "Web Dev"
+  status            String              @default("Draft") // "Draft" | "Sent" | "Accepted" | "Rejected" | "Expired"
+  validUntil        DateTime?
+  notes             String? // freeform scope/terms until a structured SOW is defined
+  gstType           String              @default("Exclusive") // "Inclusive" | "Exclusive" | "None"
+  gstPercentBps     Int                 @default(1800)
+  totalAmountPaise  Int // sum of line items, snapshotted for convenience
+  receivableId      String?             @unique
+  receivable        Receivable?         @relation(fields: [receivableId], references: [id])
+  createdById       String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  lineItems         QuotationLineItem[]
+  packageId         String? // set when built from a preset package; null = custom or a plain (e.g. Web Dev) quotation
+  package           QuotationPackage?   @relation(fields: [packageId], references: [id])
+  deliverables      QuotationDeliverable[]
+}
+
+model QuotationLineItem {
+  id           String    @id @default(uuid())
+  quotationId  String
+  quotation    Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  description  String
+  amountPaise  Int
+  sortOrder    Int       @default(0)
+}
+
+// ---- Deliverable catalog + packages (per department) ----
+// The checklist of "things we can offer" for a quotation — founder/accountant
+// editable, so the list and packages can evolve without a code change.
+// Scoped by department so Digital Marketing and Web Dev don't mix in the picker.
+model DeliverableType {
+  id           String                  @id @default(uuid())
+  name         String // e.g. "Reels", "Number of Pages"
+  unit         String // e.g. "per month", "included", "pages" — display label only
+  department   String                  @default("Digital Marketing") // "Digital Marketing" | "Web Dev"
+  active       Boolean                 @default(true)
+  sortOrder    Int                     @default(0)
+  packageItems QuotationPackageItem[]
+  quotationItems QuotationDeliverable[]
+}
+
+model QuotationPackage {
+  id               String                 @id @default(uuid())
+  name             String // e.g. "Starter", "Static" — editable
+  description      String?
+  department       String                 @default("Digital Marketing") // "Digital Marketing" | "Web Dev"
+  defaultPricePaise Int?
+  active           Boolean                @default(true)
+  sortOrder        Int                    @default(0)
+  items            QuotationPackageItem[]
+  quotations       Quotation[]
+}
+
+model QuotationPackageItem {
+  id                String          @id @default(uuid())
+  packageId         String
+  package           QuotationPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  deliverableTypeId String
+  deliverableType   DeliverableType @relation(fields: [deliverableTypeId], references: [id], onDelete: Cascade)
+  included          Boolean         @default(true)
+  quantity          Int             @default(0)
+
+  @@unique([packageId, deliverableTypeId])
+}
+
+// Snapshot of what was actually checked/quantified on a specific quotation —
+// deliberately NOT just a live reference to the package, so editing the
+// catalog/package later never rewrites a quotation that already went out.
+model QuotationDeliverable {
+  id                  String          @id @default(uuid())
+  quotationId         String
+  quotation           Quotation       @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  deliverableTypeId   String?
+  deliverableType     DeliverableType? @relation(fields: [deliverableTypeId], references: [id])
+  name                String // snapshotted label
+  unit                String // snapshotted unit label
+  included            Boolean         @default(false)
+  quantity            Int             @default(0)
+  sortOrder           Int             @default(0)
+}

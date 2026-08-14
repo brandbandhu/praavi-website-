@@ -5,6 +5,10 @@
     { "src": "/internal/quote-tool/myadmin/?", "dest": "/internal/quote-tool/myadmin/index.html" },
     { "src": "/dm_quotation_maker-myadmin/?", "dest": "/dm_quotation_maker-myadmin/index.html" },
     { "handle": "filesystem" },
+    {
+      "src": "/finance-management-system/fms/praavi-internal/app/(.*)",
+      "dest": "/finance-management-system/fms/praavi-internal/app/index.html"
+    },
     { "src": "/(.*)", "dest": "/" }
   ]
 }
