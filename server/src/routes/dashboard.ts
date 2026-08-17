@@ -46,10 +46,17 @@ dashboardRouter.get("/summary", async (req, res) => {
   const month = (req.query.month as string) || currentMonthStr();
   const { start, end } = monthRange(month);
 
-  const payments = await prisma.payment.findMany({
-    where: { dateReceived: { gte: start, lt: end } },
-    orderBy: { dateReceived: "desc" },
-  });
+  const [payments, config, axisTargetPaise, salaryRequiredPaise, disbursements, receivables] = await Promise.all([
+    prisma.payment.findMany({
+      where: { dateReceived: { gte: start, lt: end } },
+      orderBy: { dateReceived: "desc" },
+    }),
+    getCurrentBucketConfig(),
+    getAxisTargetPaise(),
+    getSalaryPoolRequiredPaise(),
+    prisma.salaryDisbursement.findMany({ where: { month } }),
+    prisma.receivable.findMany(),
+  ]);
   const transfers = await prisma.bucketTransfer.findMany({
     where: { paymentId: { in: payments.map((p) => p.id) } },
   });
@@ -71,8 +78,12 @@ dashboardRouter.get("/summary", async (req, res) => {
     amountPaise: number;
   }[] = [];
 
-  for (const p of payments) {
-    const computed = await computePaymentAmounts(p);
+  const computedPayments = await Promise.all(payments.map(async (payment) => ({
+    payment,
+    computed: await computePaymentAmounts(payment),
+  })));
+
+  for (const { payment: p, computed } of computedPayments) {
     revenuePaise += computed.baseAmountPaise;
     const tList = transfersByPayment.get(p.id) ?? [];
     for (const bucketName of BUCKET_NAMES) {
@@ -93,17 +104,10 @@ dashboardRouter.get("/summary", async (req, res) => {
     }
   }
 
-  const config = await getCurrentBucketConfig();
   const kotakEntry = config.entries.find((e) => e.bucketName === "kotak")!;
   const fuelEntry = config.entries.find((e) => e.bucketName === "fuel")!;
   const salaryEntry = config.entries.find((e) => e.bucketName === "salary_pool")!;
 
-  const [axisTargetPaise, salaryRequiredPaise] = await Promise.all([
-    getAxisTargetPaise(),
-    getSalaryPoolRequiredPaise(),
-  ]);
-
-  const disbursements = await prisma.salaryDisbursement.findMany({ where: { month } });
   const salaryPaidPaise = disbursements.reduce((s, d) => s + d.amountPaidPaise, 0);
 
   const kotakTargetPaise = kotakEntry.fixedMonthlyTargetPaise ?? 8000000;
@@ -111,7 +115,6 @@ dashboardRouter.get("/summary", async (req, res) => {
     ((fuelEntry.fixedMonthlyTargetMinPaise ?? 600000) + (fuelEntry.fixedMonthlyTargetMaxPaise ?? 800000)) / 2
   );
 
-  const receivables = await prisma.receivable.findMany();
   const totalReceivablesPendingPaise = receivables.reduce((s, r) => s + r.amountPendingPaise, 0);
 
   const salaryPercent = salaryRequiredPaise > 0 ? (salaryPaidPaise / salaryRequiredPaise) * 100 : 100;
@@ -169,27 +172,28 @@ dashboardRouter.get("/summary", async (req, res) => {
 dashboardRouter.get("/trend", async (req, res) => {
   const months = Math.min(Number(req.query.months) || 12, 36);
   const now = new Date();
-  const series: { month: string; revenuePaise: number; salaryRequiredPaise: number }[] = [];
 
   const currentRequiredPaise = await getSalaryPoolRequiredPaise();
 
-  for (let i = months - 1; i >= 0; i--) {
+  const series = await Promise.all(Array.from({ length: months }, async (_, index) => {
+    const i = months - 1 - index;
     const d = new Date(Date.UTC(now.getFullYear(), now.getMonth() - i, 1));
     const monthStr = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
     const { start, end } = monthRange(monthStr);
 
-    const payments = await prisma.payment.findMany({ where: { dateReceived: { gte: start, lt: end } } });
-    let revenuePaise = 0;
-    for (const p of payments) revenuePaise += (await computePaymentAmounts(p)).baseAmountPaise;
-
-    const disbursements = await prisma.salaryDisbursement.findMany({ where: { month: monthStr } });
+    const [payments, disbursements] = await Promise.all([
+      prisma.payment.findMany({ where: { dateReceived: { gte: start, lt: end } } }),
+      prisma.salaryDisbursement.findMany({ where: { month: monthStr } }),
+    ]);
+    const computedPayments = await Promise.all(payments.map((payment) => computePaymentAmounts(payment)));
+    const revenuePaise = computedPayments.reduce((sum, computed) => sum + computed.baseAmountPaise, 0);
     const salaryRequiredPaise =
       disbursements.length > 0
         ? disbursements.reduce((s, d) => s + d.amountDuePaise, 0)
         : currentRequiredPaise;
 
-    series.push({ month: monthStr, revenuePaise, salaryRequiredPaise });
-  }
+    return { month: monthStr, revenuePaise, salaryRequiredPaise };
+  }));
 
   res.json(series);
 });
