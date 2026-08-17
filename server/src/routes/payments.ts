@@ -14,9 +14,9 @@ function rupees(paise: number): string {
   return `₹${(paise / 100).toLocaleString("en-IN")}`;
 }
 
-async function serializePayment(payment: PaymentLike & { [k: string]: any }) {
+async function serializePayment(payment: PaymentLike & { [k: string]: any }, preloadedTransfers?: any[]) {
   const computed = await computePaymentAmounts(payment);
-  const transfers = await prisma.bucketTransfer.findMany({ where: { paymentId: payment.id } });
+  const transfers = preloadedTransfers ?? (await prisma.bucketTransfer.findMany({ where: { paymentId: payment.id } }));
   const transferByBucket = Object.fromEntries(transfers.map((t) => [t.bucketName, t]));
 
   return {
@@ -53,7 +53,14 @@ paymentsRouter.get("/", async (req, res) => {
     orderBy: { dateReceived: "desc" },
     take: parsed.data.limit ?? 500,
   });
-  res.json(await Promise.all(payments.map(serializePayment)));
+  const transfers = await prisma.bucketTransfer.findMany({ where: { paymentId: { in: payments.map((payment) => payment.id) } } });
+  const transfersByPaymentId = new Map<string, any[]>();
+  for (const transfer of transfers) {
+    const list = transfersByPaymentId.get(transfer.paymentId) ?? [];
+    list.push(transfer);
+    transfersByPaymentId.set(transfer.paymentId, list);
+  }
+  res.json(await Promise.all(payments.map((payment) => serializePayment(payment, transfersByPaymentId.get(payment.id) ?? []))));
 });
 
 paymentsRouter.get("/:id", async (req, res) => {

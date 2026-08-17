@@ -29,28 +29,35 @@ const DEFAULT_BUCKET_CONFIG: ResolvedBucketConfig = {
   ],
 };
 
+let configCache: { expiresAt: number; versions: ResolvedBucketConfig[] } | null = null;
+const CONFIG_CACHE_MS = 30_000;
+
+async function getCachedBucketConfigVersions(): Promise<ResolvedBucketConfig[]> {
+  const now = Date.now();
+  if (configCache && configCache.expiresAt > now) return configCache.versions;
+
+  const versions = await prisma.bucketConfigVersion.findMany({
+    orderBy: { effectiveFrom: "asc" },
+    include: { entries: true },
+  });
+  const resolved = versions.map(toResolved);
+  configCache = { expiresAt: now + CONFIG_CACHE_MS, versions: resolved };
+  return resolved;
+}
+
 // Returns whichever bucket_config version was effective on `asOf` (defaults to now),
 // i.e. the latest version with effectiveFrom <= asOf. This is what makes historical
 // payments immune to later percentage edits.
 export async function getBucketConfigAsOf(asOf: Date = new Date()): Promise<ResolvedBucketConfig> {
-  const version = await prisma.bucketConfigVersion.findFirst({
-    where: { effectiveFrom: { lte: asOf } },
-    orderBy: { effectiveFrom: "desc" },
-    include: { entries: true },
-  });
+  const versions = await getCachedBucketConfigVersions();
+  if (versions.length === 0) return DEFAULT_BUCKET_CONFIG;
 
-  if (!version) {
-    // Fall back to the earliest version ever created (covers dates before
-    // the very first configured version, e.g. bad clock skew on seed data).
-    const earliest = await prisma.bucketConfigVersion.findFirst({
-      orderBy: { effectiveFrom: "asc" },
-      include: { entries: true },
-    });
-    if (!earliest) return DEFAULT_BUCKET_CONFIG;
-    return toResolved(earliest);
+  let effective = versions[0];
+  for (const version of versions) {
+    if (version.effectiveFrom <= asOf) effective = version;
+    else break;
   }
-
-  return toResolved(version);
+  return effective;
 }
 
 export async function getCurrentBucketConfig(): Promise<ResolvedBucketConfig> {
@@ -131,6 +138,7 @@ export async function createBucketConfigVersion(
     include: { entries: true },
   });
 
+  configCache = null;
   return toResolved(version);
 }
 
@@ -143,6 +151,7 @@ export async function setBucketDueDay(bucketName: BucketName, dueDay: number | n
     where: { versionId_bucketName: { versionId: current.versionId, bucketName } },
     data: { dueDay },
   });
+  configCache = null;
 }
 
 // Dynamic targets that are NOT stored on bucket_config because they must

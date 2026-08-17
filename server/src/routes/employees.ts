@@ -18,18 +18,15 @@ function currentMonthStr(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
-async function withCurrentMonthStatus(employee: {
+function withCurrentMonthStatus(employee: {
   id: string;
   name: string;
   active: boolean;
   monthlySalaryPaise: number;
   joinDate: Date;
   createdAt: Date;
-}) {
+}, disb?: { amountDuePaise: number; amountPaidPaise: number } | null) {
   const month = currentMonthStr();
-  const disb = await prisma.salaryDisbursement.findUnique({
-    where: { employeeId_month: { employeeId: employee.id, month } },
-  });
   const amountDuePaise = disb?.amountDuePaise ?? employee.monthlySalaryPaise;
   const amountPaidPaise = disb?.amountPaidPaise ?? 0;
   const pendingPaise = amountDuePaise - amountPaidPaise;
@@ -50,7 +47,12 @@ employeesRouter.get("/", async (req, res) => {
     where: includeInactive ? {} : { active: true },
     orderBy: { name: "asc" },
   });
-  const withStatus = await Promise.all(employees.map(withCurrentMonthStatus));
+  const month = currentMonthStr();
+  const disbursements = await prisma.salaryDisbursement.findMany({
+    where: { employeeId: { in: employees.map((employee) => employee.id) }, month },
+  });
+  const disbursementByEmployeeId = new Map(disbursements.map((disb) => [disb.employeeId, disb]));
+  const withStatus = employees.map((employee) => withCurrentMonthStatus(employee, disbursementByEmployeeId.get(employee.id)));
   withStatus.sort((a, b) => b.currentMonthPendingPaise - a.currentMonthPendingPaise);
   res.json(withStatus);
 });

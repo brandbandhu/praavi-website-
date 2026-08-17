@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 const BASE_PATH = "/finance-management-system/fms/praavi-internal";
 const ADMIN_PATH = `${BASE_PATH}/admin`;
 const FINANCE_PATH = `${BASE_PATH}/finance-team`;
-const APP_PATH = `${BASE_PATH}/app/index.html#/login`;
+const APP_PATH = `${BASE_PATH}/app/index.html`;
 
 const FinanceManagementSystem = () => {
   const { pathname } = useLocation();
