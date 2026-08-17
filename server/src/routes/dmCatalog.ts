@@ -97,6 +97,7 @@ quotationPackagesRouter.post("/", requireRole("accountant"), async (req, res) =>
   const parsed = packageSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
   const count = await prisma.quotationPackage.count({ where: { department: parsed.data.department } });
+  const normalizedItems = await normalizePackageItems(parsed.data.items);
   const pkg = await prisma.quotationPackage.create({
     data: {
       name: parsed.data.name,
@@ -104,7 +105,7 @@ quotationPackagesRouter.post("/", requireRole("accountant"), async (req, res) =>
       department: parsed.data.department,
       defaultPricePaise: parsed.data.defaultPricePaise,
       sortOrder: count,
-      items: { create: parsed.data.items },
+      items: { create: normalizedItems },
     },
     include: { items: { include: { deliverableType: true } } },
   });
@@ -118,9 +119,18 @@ quotationPackagesRouter.put("/:id", requireRole("accountant"), async (req, res) 
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
   const existing = await prisma.quotationPackage.findUnique({ where: { id: req.params.id } });
   if (!existing) return res.status(404).json({ error: "Package not found" });
+  const normalizedItems = parsed.data.items
+    ? await normalizePackageItems(parsed.data.items)
+    : undefined;
+  if (parsed.data.items) {
+    const includedCount = normalizedItems!.filter((item) => item.included).length;
+    console.log(
+      `[quotation-packages] saving ${req.params.id}: ${includedCount}/${normalizedItems!.length} items included`
+    );
+  }
 
   const pkg = await prisma.$transaction(async (tx) => {
-    if (parsed.data.items) {
+    if (normalizedItems) {
       await tx.quotationPackageItem.deleteMany({ where: { packageId: req.params.id } });
     }
     return tx.quotationPackage.update({
@@ -131,7 +141,7 @@ quotationPackagesRouter.put("/:id", requireRole("accountant"), async (req, res) 
         department: parsed.data.department,
         defaultPricePaise: parsed.data.defaultPricePaise,
         active: parsed.data.active,
-        items: parsed.data.items ? { create: parsed.data.items } : undefined,
+        items: normalizedItems ? { create: normalizedItems } : undefined,
       },
       include: { items: { include: { deliverableType: true } } },
     });
@@ -139,6 +149,21 @@ quotationPackagesRouter.put("/:id", requireRole("accountant"), async (req, res) 
 
   res.json(serializePackage(pkg));
 });
+
+async function normalizePackageItems(items: z.infer<typeof packageItemSchema>[]) {
+  const deliverableTypeIds = [...new Set(items.map((item) => item.deliverableTypeId))];
+  const deliverableTypes = await prisma.deliverableType.findMany({ where: { id: { in: deliverableTypeIds } } });
+  const unitById = new Map(deliverableTypes.map((type) => [type.id, type.unit]));
+
+  return items.map((item) => ({
+    ...item,
+    quantity: !item.included
+      ? 0
+      : unitById.get(item.deliverableTypeId) !== "included" && item.quantity <= 0
+        ? 1
+        : item.quantity,
+  }));
+}
 
 quotationPackagesRouter.delete("/:id", requireRole("accountant"), async (req, res) => {
   const existing = await prisma.quotationPackage.findUnique({ where: { id: req.params.id } });

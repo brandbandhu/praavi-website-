@@ -10,5 +10,48 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (() => {
+        const originalFetch = window.fetch;
+        const showFinanceToast = (message, isError = false) => {
+          let toast = document.getElementById("finance-save-toast");
+          if (!toast) {
+            toast = document.createElement("div");
+            toast.id = "finance-save-toast";
+            toast.style.position = "fixed";
+            toast.style.right = "24px";
+            toast.style.bottom = "24px";
+            toast.style.zIndex = "9999";
+            toast.style.borderRadius = "8px";
+            toast.style.padding = "10px 14px";
+            toast.style.font = "600 14px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+            toast.style.boxShadow = "0 10px 30px rgba(15, 23, 42, 0.18)";
+            toast.style.transition = "opacity 160ms ease, transform 160ms ease";
+            document.body.appendChild(toast);
+          }
+          toast.textContent = message;
+          toast.style.background = isError ? "#fee2e2" : "#dcfce7";
+          toast.style.color = isError ? "#b91c1c" : "#166534";
+          toast.style.border = isError ? "1px solid #fecaca" : "1px solid #bbf7d0";
+          toast.style.opacity = "1";
+          toast.style.transform = "translateY(0)";
+          clearTimeout(window.__financeSaveToastTimer);
+          window.__financeSaveToastTimer = setTimeout(() => {
+            toast.style.opacity = "0";
+            toast.style.transform = "translateY(8px)";
+          }, 2400);
+        };
+
+        window.fetch = async (...args) => {
+          const response = await originalFetch(...args);
+          const url = typeof args[0] === "string" ? args[0] : args[0]?.url || "";
+          const method = String(args[1]?.method || "GET").toUpperCase();
+          if (url.includes("/api/quotation-packages") && ["POST", "PUT", "DELETE"].includes(method)) {
+            showFinanceToast(response.ok ? "Package saved" : "Package save failed", !response.ok);
+          }
+          return response;
+        };
+      })();
+    </script>
   </body>
 </html>

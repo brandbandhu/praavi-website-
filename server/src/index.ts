@@ -38,6 +38,7 @@ const supabaseKey =
   process.env.SUPABASE_ANON_KEY ||
   process.env.VITE_SUPABASE_ANON_KEY ||
   "";
+const databaseKeyType = process.env.SUPABASE_SERVICE_ROLE_KEY ? "service_role" : "anon";
 const databaseConfigured =
   supabaseUrl.length > 0 &&
   supabaseKey.length > 0 &&
@@ -48,7 +49,7 @@ app.get("/", (_req, res) => {
   res.json({ ok: true, service: "Praavi Finance API", health: "/api/health" });
 });
 
-app.get("/api/health", (_req, res) => res.json({ ok: true, databaseConfigured }));
+app.get("/api/health", (_req, res) => res.json({ ok: true, databaseConfigured, databaseKeyType }));
 
 app.use("/api", (_req, res, next) => {
   if (!databaseConfigured) {

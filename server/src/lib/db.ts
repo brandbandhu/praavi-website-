@@ -173,10 +173,18 @@ async function includeRelations(model: string, row: any, include: any): Promise<
     result._count = { followUps: await prisma.followUp.count({ where: { receivableId: row.id } }) };
   }
   if (model === "quotationPackage" && include.items) {
-    result.items = await prisma.quotationPackageItem.findMany({
-      where: { packageId: row.id },
-      include: include.items.include,
-    });
+    const items = await prisma.quotationPackageItem.findMany({ where: { packageId: row.id } });
+    if (include.items.include?.deliverableType) {
+      const deliverableTypeIds = [...new Set(items.map((item) => item.deliverableTypeId).filter(Boolean))];
+      const deliverableTypes = await prisma.deliverableType.findMany({ where: { id: { in: deliverableTypeIds } } });
+      const deliverableTypeById = new Map(deliverableTypes.map((type) => [type.id, type]));
+      result.items = items.map((item) => ({
+        ...item,
+        deliverableType: deliverableTypeById.get(item.deliverableTypeId) ?? null,
+      }));
+    } else {
+      result.items = items;
+    }
   }
   if (model === "quotationPackageItem" && include.deliverableType) {
     result.deliverableType = await prisma.deliverableType.findUnique({ where: { id: row.deliverableTypeId } });
