@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Inbox, Trash2 } from "lucide-react";
+import { CalendarDays, Inbox, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -227,6 +227,18 @@ export function RecordDialog({ open, onOpenChange, title, fields, initial, onSub
                   <Select value={val} onChange={(x) => set(f.name, x)} options={f.options ?? []} />
                 ) : f.type === "client" ? (
                   <ClientSelect value={val} onChange={(x) => set(f.name, x)} placeholder="Select client" />
+                ) : f.type === "date" ? (
+                  <div className="relative">
+                    <Input
+                      id={id}
+                      type="date"
+                      required={f.required}
+                      value={val}
+                      className="pr-10 [color-scheme:dark]"
+                      onChange={(e) => set(f.name, e.target.value)}
+                    />
+                    <CalendarDays className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  </div>
                 ) : (
                   <Input id={id} type={f.type ?? "text"} required={f.required} value={val} min={f.type === "number" ? 0 : undefined} step={f.type === "number" ? "any" : undefined} onChange={(e) => set(f.name, e.target.value)} />
                 )}
