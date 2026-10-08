@@ -23,7 +23,34 @@ const clientFields: Field[] = [
   { name: "notes", label: "Notes", type: "textarea", full: true },
 ];
 
-function printReportPdf(rows: Record<string, unknown>[], month: string) {
+type BusinessReportRow = {
+  "Sr No": number;
+  "Business Name": string;
+  Category: string;
+  Status: string;
+  "Assigned To": string;
+  "Contact Person": string;
+  Mobile: string;
+  Email: string;
+  "Contract Start": string;
+  Instagram: string;
+  Facebook: string;
+  "Monthly Post Target": number;
+  "Monthly Reel Target": number;
+  "Monthly Group Share Target": number;
+  "Ad Budget INR": number;
+  "Report Month": string;
+  "Posted Posts": number;
+  "Posted Reels": number;
+  "Group Shares Done": number;
+  "Delivery Percent": string;
+  "Funds Added INR": number;
+  "Ad Spend INR": number;
+  "Ad Balance INR": number;
+  Notes: string;
+};
+
+function printReportPdf(rows: BusinessReportRow[], month: string) {
   if (!rows.length) return;
   const esc = (value: unknown) =>
     String(value ?? "")
@@ -31,7 +58,16 @@ function printReportPdf(rows: Record<string, unknown>[], month: string) {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
-  const keys = Object.keys(rows[0]!);
+  const shortLink = (value: string) => {
+    if (!value) return "-";
+    try {
+      const url = new URL(value);
+      return `${url.hostname}${url.pathname}`.replace(/\/$/, "");
+    } catch {
+      return value;
+    }
+  };
+  const metric = (label: string, value: unknown) => `<div class="metric"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
   const popup = window.open("", "_blank", "width=1200,height=800");
   if (!popup) {
     window.alert("Please allow popups to export the PDF report.");
@@ -43,34 +79,101 @@ function printReportPdf(rows: Record<string, unknown>[], month: string) {
 <head>
   <title>Business Report - ${esc(month)}</title>
   <style>
-    @page { size: A4 landscape; margin: 12mm; }
+    @page { size: A4; margin: 13mm; }
     * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; color: #111827; margin: 0; }
-    .header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid #f97316; padding-bottom: 12px; margin-bottom: 16px; }
-    h1 { font-size: 22px; margin: 0 0 6px; }
-    .meta { color: #6b7280; font-size: 12px; line-height: 1.5; }
-    table { width: 100%; border-collapse: collapse; font-size: 9px; }
-    th { background: #111827; color: #ffffff; padding: 7px 6px; text-align: left; white-space: nowrap; }
-    td { border: 1px solid #e5e7eb; padding: 6px; vertical-align: top; }
-    tr:nth-child(even) td { background: #f9fafb; }
-    .footer { margin-top: 14px; color: #6b7280; font-size: 11px; }
+    body { font-family: Arial, sans-serif; color: #111827; margin: 0; background: #f3f4f6; }
+    .page { background: #fff; min-height: 100vh; padding: 22px; }
+    .topbar { height: 7px; background: linear-gradient(90deg, #f97316, #ec4899); border-radius: 999px; margin-bottom: 18px; }
+    .header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 20px; }
+    .brand { font-size: 11px; font-weight: 700; color: #f97316; letter-spacing: 1.6px; text-transform: uppercase; }
+    h1 { font-size: 28px; margin: 4px 0 8px; color: #0f172a; }
+    .meta { color: #64748b; font-size: 12px; line-height: 1.6; }
+    .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+    .metric { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; background: #fafafa; }
+    .metric span { display: block; color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: .6px; }
+    .metric strong { display: block; margin-top: 4px; font-size: 16px; color: #111827; }
+    .business-card { border: 1px solid #e5e7eb; border-radius: 14px; margin: 14px 0; overflow: hidden; page-break-inside: avoid; background: #fff; }
+    .card-head { display: flex; justify-content: space-between; gap: 18px; padding: 14px 16px; background: #111827; color: #fff; }
+    .card-title { font-size: 18px; font-weight: 700; }
+    .tagline { color: #cbd5e1; margin-top: 3px; font-size: 12px; }
+    .status { align-self: flex-start; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 700; }
+    .card-body { padding: 14px 16px 16px; }
+    .section-title { color: #f97316; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-bottom: 14px; }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+    .field { border: 1px solid #e5e7eb; border-radius: 9px; padding: 8px 9px; min-height: 48px; overflow-wrap: anywhere; }
+    .field span { display: block; color: #64748b; font-size: 9px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+    .field strong { font-size: 12px; color: #111827; }
+    .progress { height: 8px; border-radius: 999px; background: #e5e7eb; overflow: hidden; margin-top: 8px; }
+    .progress > div { height: 100%; background: linear-gradient(90deg, #f97316, #ec4899); }
+    .notes { border-left: 3px solid #f97316; padding: 8px 10px; background: #fff7ed; color: #374151; font-size: 12px; margin-top: 6px; }
+    .footer { margin-top: 18px; color: #64748b; font-size: 11px; text-align: right; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <div>
-      <h1>SocialDesk Business Report</h1>
-      <div class="meta">Report Month: ${esc(monthLabel(month))}<br/>Selected Businesses: ${rows.length}</div>
+  <main class="page">
+    <div class="topbar"></div>
+    <div class="header">
+      <div>
+        <div class="brand">SocialDesk CRM</div>
+        <h1>Business Performance Report</h1>
+        <div class="meta">Report Month: ${esc(monthLabel(month))}<br/>Selected Businesses: ${rows.length}</div>
+      </div>
+      <div class="meta">Generated<br/>${esc(new Date().toLocaleString("en-IN"))}</div>
     </div>
-    <div class="meta">Generated: ${esc(new Date().toLocaleString("en-IN"))}</div>
-  </div>
-  <table>
-    <thead><tr>${keys.map((key) => `<th>${esc(key)}</th>`).join("")}</tr></thead>
-    <tbody>${rows
-      .map((row) => `<tr>${keys.map((key) => `<td>${esc(row[key])}</td>`).join("")}</tr>`)
-      .join("")}</tbody>
-  </table>
-  <div class="footer">Generated from SocialDesk CRM</div>
+    <div class="summary">
+      ${metric("Selected Businesses", rows.length)}
+      ${metric("Total Ad Budget", inr(rows.reduce((sum, row) => sum + Number(row["Ad Budget INR"] || 0), 0)))}
+      ${metric("Total Ad Balance", inr(rows.reduce((sum, row) => sum + Number(row["Ad Balance INR"] || 0), 0)))}
+    </div>
+    ${rows
+      .map((row) => {
+        const pct = Number(String(row["Delivery Percent"]).replace("%", "")) || 0;
+        return `<section class="business-card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">${esc(row["Business Name"])}</div>
+              <div class="tagline">${esc(row.Category || "Uncategorized")} · Assigned to ${esc(row["Assigned To"] || "-")}</div>
+            </div>
+            <div class="status">${esc(row.Status)}</div>
+          </div>
+          <div class="card-body">
+            <div class="section-title">Contact & Social</div>
+            <div class="grid">
+              <div class="field"><span>Contact Person</span><strong>${esc(row["Contact Person"] || "-")}</strong></div>
+              <div class="field"><span>Mobile</span><strong>${esc(row.Mobile || "-")}</strong></div>
+              <div class="field"><span>Email</span><strong>${esc(row.Email || "-")}</strong></div>
+              <div class="field"><span>Contract Start</span><strong>${esc(row["Contract Start"] || "-")}</strong></div>
+              <div class="field"><span>Instagram</span><strong>${esc(shortLink(row.Instagram))}</strong></div>
+              <div class="field"><span>Facebook</span><strong>${esc(shortLink(row.Facebook))}</strong></div>
+              <div class="field"><span>Report Month</span><strong>${esc(monthLabel(month))}</strong></div>
+              <div class="field"><span>Status</span><strong>${esc(row.Status)}</strong></div>
+            </div>
+            <div class="section-title">Delivery</div>
+            <div class="grid three">
+              <div class="field"><span>Post Target / Done</span><strong>${esc(row["Monthly Post Target"])} / ${esc(row["Posted Posts"])}</strong></div>
+              <div class="field"><span>Reel Target / Done</span><strong>${esc(row["Monthly Reel Target"])} / ${esc(row["Posted Reels"])}</strong></div>
+              <div class="field"><span>Group Share Target / Done</span><strong>${esc(row["Monthly Group Share Target"])} / ${esc(row["Group Shares Done"])}</strong></div>
+            </div>
+            <div class="field">
+              <span>Overall Delivery</span>
+              <strong>${esc(row["Delivery Percent"])}</strong>
+              <div class="progress"><div style="width:${Math.max(0, Math.min(100, pct))}%"></div></div>
+            </div>
+            <div class="section-title" style="margin-top:14px;">Finance</div>
+            <div class="grid">
+              <div class="field"><span>Ad Budget</span><strong>${esc(inr(row["Ad Budget INR"]))}</strong></div>
+              <div class="field"><span>Funds Added</span><strong>${esc(inr(row["Funds Added INR"]))}</strong></div>
+              <div class="field"><span>Ad Spend</span><strong>${esc(inr(row["Ad Spend INR"]))}</strong></div>
+              <div class="field"><span>Ad Balance</span><strong>${esc(inr(row["Ad Balance INR"]))}</strong></div>
+            </div>
+            ${row.Notes ? `<div class="notes"><strong>Notes:</strong> ${esc(row.Notes)}</div>` : ""}
+          </div>
+        </section>`;
+      })
+      .join("")}
+    <div class="footer">Generated from SocialDesk CRM</div>
+  </main>
   <script>window.onload = () => { window.print(); };</script>
 </body>
 </html>`);
