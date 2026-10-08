@@ -1,0 +1,88 @@
+.app .grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.app .app-sidebar,
+.app .field {
+  min-width: 0;
+}
+
+.app .client-service-field {
+  grid-column: 1 / -1;
+}
+
+.app .client-service-field {
+  grid-column: 1 / -1;
+}
+
+.app .field input:not([type="checkbox"]):not([type="radio"]),
+.app .field select,
+.app .field textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.app .addon-label {
+  min-width: 0;
+}
+
+.app .addon-controls {
+  flex-wrap: wrap;
+}
+
+.app .addon-input input {
+  width: 110px;
+  min-width: 0;
+}
+
+.app .addon-qty input {
+  width: 64px;
+}
+
+.app .preview-totals {
+  max-width: 100%;
+}
+
+.app .preview-totals .grand {
+  align-items: center;
+  gap: 8px;
+}
+
+.app .final-amount-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.app .final-amount-input {
+  width: 128px;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px;
+  background: #fff;
+  color: var(--text-h);
+  font: inherit;
+  text-align: right;
+}
+
+.app .final-amount-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+@media (max-width: 900px) {
+  .app .app-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 480px) {
+  .app .grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

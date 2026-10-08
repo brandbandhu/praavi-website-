@@ -131,7 +131,7 @@
       const discount = asNumber(item.discount);
       const base = money(qty * rate);
       const taxable = money(Math.max(0, base - discount));
-      const gstRate = asNumber(item.gstRate || 18);
+      const gstRate = Math.max(0, asNumber(item.gstRate ?? 18));
       const lineCgst = taxMode === "Intra-State" ? money(taxable * (gstRate / 2) / 100) : 0;
       const lineSgst = taxMode === "Intra-State" ? money(taxable * (gstRate / 2) / 100) : 0;
       const lineIgst = taxMode === "Inter-State" ? money(taxable * gstRate / 100) : 0;
@@ -152,8 +152,9 @@
 
   function readQuoteData() {
     const text = (document.body.innerText || "").replace(/\s+/g, " ");
-    const fields = {};
+    const fields = { serviceName: norm(document.getElementById("client-service")?.value) };
     document.querySelectorAll("input, textarea, select").forEach((el) => {
+      if (el.type === "checkbox" || el.type === "radio") return;
       const idLabel = el.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`) : null;
       const nearLabel = el.closest("label");
       const wrapperText = el.closest("div, label, td")?.innerText || "";
@@ -165,7 +166,7 @@
       if (/email/.test(label) && !fields.email) fields.email = value;
       if (/mobile|phone|contact/.test(label) && !fields.phone) fields.phone = value;
       if (/address/.test(label) && !fields.address) fields.address = value;
-      if (/gst/.test(label) && !fields.gstin) fields.gstin = value;
+      if (/gst.*number|gstin/.test(label) && !fields.gstin) fields.gstin = value;
       if (/project/.test(label) && !fields.projectName) fields.projectName = value;
       if (/payment/.test(label) && !fields.paymentTerms) fields.paymentTerms = value;
       if (/quote|quotation/.test(label) && !fields.quotationNumber) fields.quotationNumber = value;
@@ -173,18 +174,24 @@
 
     const totalMatch = text.match(/(?:grand total|total amount|total)\s*(?:rs\.?|inr|₹)?\s*([0-9,]+(?:\.[0-9]{1,2})?)/i);
     const projectMatch = text.match(/project(?:\s*name)?\s*[:\-]?\s*([A-Za-z0-9 &().,\-]{3,80})/i);
-    const amount = totalMatch ? asNumber(totalMatch[1]) : 0;
+    const gstCheckbox = [...document.querySelectorAll(".doc-settings input[type='checkbox']")]
+      .find((el) => /include gst/i.test(el.closest("label")?.textContent || ""));
+    const gstBilling = gstCheckbox?.checked ? "With GST" : "Without GST";
+    const finalAmountInput = document.getElementById("preview-final-amount");
+    const amount = finalAmountInput
+      ? asNumber(finalAmountInput.value || finalAmountInput.placeholder)
+      : totalMatch ? asNumber(totalMatch[1]) : 0;
     const item = {
-      serviceName: fields.projectName || "Professional Services",
-      description: fields.projectName || projectMatch?.[1] || "Services as per approved quotation",
+      serviceName: fields.serviceName || fields.projectName || "Professional Services",
+      description: fields.serviceName || fields.projectName || projectMatch?.[1] || "Services as per approved quotation",
       hsnSac: "9983",
       quantity: 1,
       unit: "Service",
-      rate: amount || 0,
+      rate: gstBilling === "With GST" ? money(amount / 1.18) : amount,
       discount: 0,
       gstRate: 18
     };
-    return { ...fields, items: [item] };
+    return { ...fields, gstBilling, items: [item] };
   }
 
   function detectSupplierCompany() {
@@ -211,8 +218,8 @@
       supplierCompany,
       supplier,
       prefix: supplier.prefix || settings().invoicePrefix,
-      invoiceType: "Tax Invoice",
-      gstBilling: "With GST",
+      invoiceType: quote.gstBilling === "With GST" ? "Tax Invoice" : "Standard Invoice",
+      gstBilling: quote.gstBilling,
       financialYear: fy,
       sequenceNumber,
       invoiceNumber: buildNumber({ prefix: supplier.prefix || settings().invoicePrefix, type: "INV", financialYear: fy, sequenceNumber }),
@@ -321,6 +328,12 @@
 
   function set(path, value, shouldRender = true) {
     const clone = structuredClone(invoice);
+    const usesGeneratedNumber = norm(invoice.invoiceNumber) === buildNumber({
+      prefix: invoice.prefix,
+      type: "INV",
+      financialYear: invoice.financialYear,
+      sequenceNumber: invoice.sequenceNumber
+    });
     const parts = path.split(".");
     let ref = clone;
     while (parts.length > 1) ref = ref[parts.shift()];
@@ -332,6 +345,10 @@
     if (path === "gstBilling" && value === "With GST" && clone.taxMode === "No GST") {
       clone.taxMode = clone.client.state.toLowerCase() === getSupplier(clone.supplierCompany).state.toLowerCase() ? "Intra-State" : "Inter-State";
     }
+    if (path === "taxMode") clone.gstBilling = value === "No GST" ? "Without GST" : "With GST";
+    if (path === "client.state" && clone.gstBilling === "With GST") {
+      clone.taxMode = norm(value).toLowerCase() === getSupplier(clone.supplierCompany).state.toLowerCase() ? "Intra-State" : "Inter-State";
+    }
     if (path === "supplierCompany") {
       const supplier = getSupplier(value);
       clone.supplier = supplier;
@@ -339,7 +356,7 @@
       clone.bankDetails.accountName = supplier.bankAccountName;
       if (clone.gstBilling === "With GST") clone.taxMode = clone.client.state.toLowerCase() === supplier.state.toLowerCase() ? "Intra-State" : "Inter-State";
     }
-    if (["prefix", "financialYear", "sequenceNumber"].includes(path)) {
+    if (usesGeneratedNumber && ["prefix", "financialYear", "sequenceNumber"].includes(path)) {
       clone.invoiceNumber = buildNumber({ prefix: clone.prefix, type: "INV", financialYear: clone.financialYear, sequenceNumber: clone.sequenceNumber });
     }
     invoice = calculateTotals(clone);
@@ -513,7 +530,7 @@
         <td><input data-item="${i}" data-key="rate" type="number" min="0" step="0.01" value="${item.rate}" ${disabled}></td>
         <td><input data-item="${i}" data-key="discount" type="number" min="0" step="0.01" value="${item.discount}" ${disabled}></td>
         <td>${fmt(item.taxableAmount)}</td>
-        <td><input data-item="${i}" data-key="gstRate" type="number" min="0" step="0.01" value="${item.gstRate || 18}" ${disabled}></td>
+        <td><input data-item="${i}" data-key="gstRate" type="number" min="0" step="0.01" value="${item.gstRate ?? 18}" ${invoice.taxMode === "No GST" ? "disabled" : disabled}></td>
         <td>${fmt(item.lineTotal)}</td>
         <td>
           <button data-duplicate="${i}" class="praavi-table-action" type="button" ${disabled}>Duplicate</button>
@@ -854,7 +871,7 @@
               ${field("Document Prefix", "prefix")}
               ${field("Financial Year", "financialYear")}
               ${field("Sequence Number", "sequenceNumber", "number")}
-              ${field("Generated Invoice Number", "invoiceNumber")}
+              ${field("Invoice Number", "invoiceNumber")}
               ${field("Supplier Company", "supplierCompany", "text", ["Praavi Consultants", "Webakoof"])}
               ${field("Invoice Type", "invoiceType", "text", ["Standard Invoice", "Tax Invoice", "Proforma Invoice", "Advance Invoice", "Milestone Invoice", "Final Invoice"])}
               ${field("GST Option", "gstBilling", "text", ["With GST", "Without GST"])}
@@ -883,7 +900,7 @@
             </div></section>
             <section class="praavi-panel"><h3>Line Items</h3><div class="praavi-items-wrap"><table class="praavi-items"><thead><tr><th>Sr</th><th>Service / Item</th><th>Description</th><th>HSN / SAC</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Discount</th><th>Taxable</th><th>GST %</th><th>Total</th><th>Actions</th></tr></thead><tbody>${renderItems()}</tbody></table></div><button type="button" data-add-item ${invoiceUnlocked ? "" : "disabled"}>Add Item</button><div class="praavi-error">${errors.items || ""}</div></section>
             <section class="praavi-panel"><h3>Charges, GST and Payment</h3><div class="praavi-form-grid">
-              ${field("Tax Mode", "taxMode", "text", invoice.gstBilling === "Without GST" ? ["No GST"] : ["Intra-State", "Inter-State", "No GST", "Custom Tax"])}
+              ${field("Tax Mode", "taxMode", "text", invoice.gstBilling === "Without GST" ? ["No GST"] : ["Intra-State", "Inter-State", "No GST"])}
               ${field("Overall Discount", "overallDiscount", "number")}
               ${field("Additional Charges", "additionalCharges", "number")}
               ${field("Delivery / Travel Charges", "travelCharges", "number")}
@@ -962,6 +979,14 @@
           input.value = fmt(invoice[key] || 0);
         });
         if (event.target.dataset.path === "gstBilling") {
+          renderModal();
+          return;
+        }
+        if (event.target.dataset.path === "taxMode") {
+          renderModal();
+          return;
+        }
+        if (event.target.dataset.path === "client.state") {
           const taxModeInput = modal.querySelector('[data-path="taxMode"]');
           if (taxModeInput) taxModeInput.value = invoice.taxMode;
         }
