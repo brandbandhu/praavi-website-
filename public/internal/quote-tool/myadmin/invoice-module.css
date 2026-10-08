@@ -526,8 +526,22 @@
 .praavi-bill-grid,
 .praavi-total-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 20px;
+}
+
+.praavi-pdf-head,
+.praavi-bill-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.praavi-total-grid {
+  grid-template-columns: minmax(0, 1fr) 250px;
+  align-items: start;
+  gap: 24px;
+}
+
+.praavi-total-grid > * {
+  min-width: 0;
 }
 
 .praavi-pdf-meta,
@@ -535,6 +549,23 @@
   border: 1px solid #dde3ee;
   border-radius: 8px;
   padding: 12px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.praavi-pdf-box p {
+  margin: 8px 0 0;
+  line-height: 1.45;
+}
+
+.praavi-payment-info p {
+  display: grid;
+  gap: 3px;
+}
+
+.praavi-payment-info span {
+  display: block;
+  min-width: 0;
 }
 
 .praavi-pdf-table {
@@ -559,6 +590,7 @@
 
 .praavi-total-box {
   grid-column: 2;
+  min-width: 250px;
 }
 
 .praavi-total-line {
@@ -627,6 +659,7 @@
 
   .praavi-total-box {
     grid-column: auto;
+    min-width: 0;
   }
 
   .praavi-modal-footer {
@@ -674,6 +707,11 @@
     margin: 0;
     box-shadow: none;
     page-break-after: always;
+  }
+
+  .praavi-total-grid {
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 22px;
   }
 
   .praavi-pdf-table tr {
