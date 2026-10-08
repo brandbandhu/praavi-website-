@@ -39,6 +39,11 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        brand: "hsl(var(--primary))",
+        success: "hsl(142 72% 45%)",
+        warning: "hsl(38 92% 50%)",
+        info: "hsl(199 89% 48%)",
+        violet: "hsl(262 83% 58%)",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -84,6 +89,12 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      boxShadow: {
+        card: "var(--shadow-card)",
+      },
+      fontFamily: {
+        display: ["Space Grotesk", "Poppins", "sans-serif"],
       },
     },
   },
