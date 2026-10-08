@@ -26,6 +26,7 @@ const clientFields: Field[] = [
 export default function ClientsPage() {
   const [status, setStatus] = useState("");
   const [q, setQ] = useState("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const editor = useEditor<Client>();
   const save = useSave("social_desk_clients");
   const remove = useRemove("social_desk_clients");
@@ -42,6 +43,19 @@ export default function ClientsPage() {
     });
   }, [clients, q, status]);
 
+  const selectedRows = filtered.filter((client) => selectedIds.includes(client.id));
+  const allFilteredSelected = filtered.length > 0 && filtered.every((client) => selectedIds.includes(client.id));
+  const toggleSelected = (id: string) => {
+    setSelectedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  };
+  const toggleAllFiltered = () => {
+    setSelectedIds((current) => {
+      const filteredIds = filtered.map((client) => client.id);
+      if (allFilteredSelected) return current.filter((id) => !filteredIds.includes(id));
+      return Array.from(new Set([...current, ...filteredIds]));
+    });
+  };
+
   const initial = {
     status: "Active",
     post_target: 12,
@@ -54,8 +68,12 @@ export default function ClientsPage() {
   return (
     <div className="space-y-5">
       <PageHeader title="Businesses" subtitle="Keep business details, monthly targets, and ad balances in one place.">
-        <Button variant="outline" onClick={() => downloadCSV(filtered as unknown as Record<string, unknown>[], "social_desk_clients")}>
-          <Download /> Export
+        <Button
+          variant="outline"
+          disabled={!selectedRows.length}
+          onClick={() => downloadCSV(selectedRows as unknown as Record<string, unknown>[], "social_desk_clients")}
+        >
+          <Download /> Export selected{selectedRows.length ? ` (${selectedRows.length})` : ""}
         </Button>
         <Button onClick={() => editor.edit({})}>
           <Plus /> Add business
@@ -76,6 +94,15 @@ export default function ClientsPage() {
             <table className="w-full min-w-[900px] text-sm">
               <thead className="border-b text-left text-xs uppercase text-muted-foreground">
                 <tr>
+                  <th className="w-10 py-3 pr-4">
+                    <input
+                      type="checkbox"
+                      checked={allFilteredSelected}
+                      onChange={toggleAllFiltered}
+                      aria-label="Select all businesses"
+                      className="size-4 rounded border-input accent-primary"
+                    />
+                  </th>
                   <th className="py-3 pr-4">Business</th>
                   <th className="py-3 pr-4">Owner</th>
                   <th className="py-3 pr-4">Targets</th>
@@ -91,6 +118,15 @@ export default function ClientsPage() {
                   const balance = clientBalance(txns, c.id);
                   return (
                     <tr key={c.id}>
+                      <td className="py-3 pr-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(c.id)}
+                          onChange={() => toggleSelected(c.id)}
+                          aria-label={`Select ${businessName(c)}`}
+                          className="size-4 rounded border-input accent-primary"
+                        />
+                      </td>
                       <td className="py-3 pr-4">
                         <div className="font-semibold">{businessName(c)}</div>
                         <div className="text-xs text-muted-foreground">{c.category || "No category"}</div>
