@@ -77,12 +77,12 @@ function printReportPdf(rows: BusinessReportRow[], month: string) {
   popup.document.write(`<!doctype html>
 <html>
 <head>
-  <title>Business Report - ${esc(month)}</title>
+  <title> </title>
   <style>
-    @page { size: A4; margin: 13mm; }
+    @page { size: A4; margin: 0; }
     * { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; color: #111827; margin: 0; background: #f3f4f6; }
-    .page { background: #fff; min-height: 100vh; padding: 22px; }
+    .page { background: #fff; min-height: 100vh; padding: 18mm; }
     .topbar { height: 7px; background: linear-gradient(90deg, #f97316, #ec4899); border-radius: 999px; margin-bottom: 18px; }
     .header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 20px; }
     .brand { font-size: 11px; font-weight: 700; color: #f97316; letter-spacing: 1.6px; text-transform: uppercase; }
@@ -93,10 +93,10 @@ function printReportPdf(rows: BusinessReportRow[], month: string) {
     .metric span { display: block; color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: .6px; }
     .metric strong { display: block; margin-top: 4px; font-size: 16px; color: #111827; }
     .business-card { border: 1px solid #e5e7eb; border-radius: 14px; margin: 14px 0; overflow: hidden; page-break-inside: avoid; background: #fff; }
-    .card-head { display: flex; justify-content: space-between; gap: 18px; padding: 14px 16px; background: #111827; color: #fff; }
-    .card-title { font-size: 18px; font-weight: 700; }
-    .tagline { color: #cbd5e1; margin-top: 3px; font-size: 12px; }
-    .status { align-self: flex-start; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 700; }
+    .card-head { display: flex; justify-content: space-between; gap: 18px; padding: 14px 16px; background: #fff; color: #111827; border-bottom: 1px solid #e5e7eb; }
+    .card-title { font-size: 18px; font-weight: 800; color: #000; }
+    .tagline { color: #374151; margin-top: 3px; font-size: 12px; }
+    .status { align-self: flex-start; border: 1px solid #d1d5db; border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 700; color: #111827; background: #f9fafb; }
     .card-body { padding: 14px 16px 16px; }
     .section-title { color: #f97316; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
     .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-bottom: 14px; }
@@ -174,7 +174,7 @@ function printReportPdf(rows: BusinessReportRow[], month: string) {
       .join("")}
     <div class="footer">Generated from SocialDesk CRM</div>
   </main>
-  <script>window.onload = () => { window.print(); };</script>
+  <script>window.onload = () => { document.title = " "; setTimeout(() => window.print(), 150); };</script>
 </body>
 </html>`);
   popup.document.close();
