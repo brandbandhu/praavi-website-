@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
-import { Download, Edit2, Plus, Search } from "lucide-react";
+import { Edit2, FileSpreadsheet, FileText, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ConfirmDelete, EmptyState, PageHeader, Panel, ProgressBar, RecordDialog, Select, StatusBadge, useEditor, type Field } from "@/components/social-desk/ui";
-import { CLIENT_STATUS, businessName, clientBalance, downloadCSV, inr, monthStats, currentMonth, useClients, useContent, useRemove, useSave, useTxns, type Client } from "@/lib/socialDesk";
+import { CLIENT_STATUS, businessName, clientBalance, downloadExcel, inr, monthStats, currentMonth, monthLabel, useClients, useContent, useRemove, useSave, useTxns, type Client } from "@/lib/socialDesk";
 
 const clientFields: Field[] = [
   { name: "business_name", label: "Business name", required: true },
@@ -22,6 +22,60 @@ const clientFields: Field[] = [
   { name: "facebook", label: "Facebook", type: "url" },
   { name: "notes", label: "Notes", type: "textarea", full: true },
 ];
+
+function printReportPdf(rows: Record<string, unknown>[], month: string) {
+  if (!rows.length) return;
+  const esc = (value: unknown) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  const keys = Object.keys(rows[0]!);
+  const popup = window.open("", "_blank", "width=1200,height=800");
+  if (!popup) {
+    window.alert("Please allow popups to export the PDF report.");
+    return;
+  }
+
+  popup.document.write(`<!doctype html>
+<html>
+<head>
+  <title>Business Report - ${esc(month)}</title>
+  <style>
+    @page { size: A4 landscape; margin: 12mm; }
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; color: #111827; margin: 0; }
+    .header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid #f97316; padding-bottom: 12px; margin-bottom: 16px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    .meta { color: #6b7280; font-size: 12px; line-height: 1.5; }
+    table { width: 100%; border-collapse: collapse; font-size: 9px; }
+    th { background: #111827; color: #ffffff; padding: 7px 6px; text-align: left; white-space: nowrap; }
+    td { border: 1px solid #e5e7eb; padding: 6px; vertical-align: top; }
+    tr:nth-child(even) td { background: #f9fafb; }
+    .footer { margin-top: 14px; color: #6b7280; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>SocialDesk Business Report</h1>
+      <div class="meta">Report Month: ${esc(monthLabel(month))}<br/>Selected Businesses: ${rows.length}</div>
+    </div>
+    <div class="meta">Generated: ${esc(new Date().toLocaleString("en-IN"))}</div>
+  </div>
+  <table>
+    <thead><tr>${keys.map((key) => `<th>${esc(key)}</th>`).join("")}</tr></thead>
+    <tbody>${rows
+      .map((row) => `<tr>${keys.map((key) => `<td>${esc(row[key])}</td>`).join("")}</tr>`)
+      .join("")}</tbody>
+  </table>
+  <div class="footer">Generated from SocialDesk CRM</div>
+  <script>window.onload = () => { window.print(); };</script>
+</body>
+</html>`);
+  popup.document.close();
+}
 
 export default function ClientsPage() {
   const [status, setStatus] = useState("");
@@ -101,9 +155,16 @@ export default function ClientsPage() {
         <Button
           variant="outline"
           disabled={!reportRows.length}
-          onClick={() => downloadCSV(reportRows, `business-report-${month}`)}
+          onClick={() => printReportPdf(reportRows, month)}
         >
-          <Download /> Export report{reportRows.length ? ` (${reportRows.length})` : ""}
+          <FileText /> PDF{reportRows.length ? ` (${reportRows.length})` : ""}
+        </Button>
+        <Button
+          variant="outline"
+          disabled={!reportRows.length}
+          onClick={() => downloadExcel({ Businesses: reportRows }, `business-report-${month}`)}
+        >
+          <FileSpreadsheet /> Excel{reportRows.length ? ` (${reportRows.length})` : ""}
         </Button>
         <Button onClick={() => editor.edit({})}>
           <Plus /> Add business
