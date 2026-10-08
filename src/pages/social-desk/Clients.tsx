@@ -6,8 +6,8 @@ import { ConfirmDelete, EmptyState, PageHeader, Panel, ProgressBar, RecordDialog
 import { CLIENT_STATUS, clientBalance, downloadCSV, inr, monthStats, currentMonth, useClients, useContent, useRemove, useSave, useTxns, type Client } from "@/lib/socialDesk";
 
 const clientFields: Field[] = [
-  { name: "name", label: "Client name", required: true },
-  { name: "business_name", label: "Business name" },
+  { name: "business_name", label: "Business name", required: true },
+  { name: "name", label: "Client name" },
   { name: "category", label: "Category" },
   { name: "status", label: "Status", type: "select", options: CLIENT_STATUS },
   { name: "contact_person", label: "Contact person" },
@@ -67,7 +67,7 @@ export default function ClientsPage() {
         <div className="mb-4 grid gap-3 md:grid-cols-[1fr_180px]">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, category, contact..." className="pl-9" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search business, name, category, contact..." className="pl-9" />
           </div>
           <Select value={status} onChange={setStatus} placeholder="All statuses" options={CLIENT_STATUS} />
         </div>
@@ -93,8 +93,8 @@ export default function ClientsPage() {
                   return (
                     <tr key={c.id}>
                       <td className="py-3 pr-4">
-                        <div className="font-semibold">{c.name}</div>
-                        <div className="text-xs text-muted-foreground">{c.category || c.business_name || "No category"}</div>
+                        <div className="font-semibold">{c.business_name || c.name}</div>
+                        <div className="text-xs text-muted-foreground">{c.name && c.business_name ? c.name : c.category || "No category"}</div>
                       </td>
                       <td className="py-3 pr-4">{c.assigned_to || c.contact_person || "-"}</td>
                       <td className="py-3 pr-4 text-xs text-muted-foreground">
@@ -111,7 +111,7 @@ export default function ClientsPage() {
                           <Button size="icon" variant="ghost" aria-label="Edit" onClick={() => editor.edit(c)}>
                             <Edit2 />
                           </Button>
-                          <ConfirmDelete label={c.name} onConfirm={() => remove.mutate(c.id)} />
+                          <ConfirmDelete label={c.business_name || c.name} onConfirm={() => remove.mutate(c.id)} />
                         </div>
                       </td>
                     </tr>
@@ -132,7 +132,15 @@ export default function ClientsPage() {
         fields={clientFields}
         initial={initial}
         saving={save.isPending}
-        onSubmit={(row) => save.mutate(row, { onSuccess: () => editor.setOpen(false) })}
+        onSubmit={(row) =>
+          save.mutate(
+            {
+              ...row,
+              name: row.name || row.business_name,
+            },
+            { onSuccess: () => editor.setOpen(false) },
+          )
+        }
       />
     </div>
   );
