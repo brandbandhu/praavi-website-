@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
 import { PageHeader, Panel, Select, StatusBadge } from "@/components/social-desk/ui";
-import { CONTENT_STATUS, currentMonth, isOverdue, monthLabel, useClients, useContent } from "@/lib/socialDesk";
+import { CONTENT_STATUS, businessName, currentMonth, isOverdue, monthLabel, useClients, useContent } from "@/lib/socialDesk";
 
 export default function CalendarPage() {
   const [month, setMonth] = useState(currentMonth());
   const [status, setStatus] = useState("");
   const { data: content = [] } = useContent();
   const { data: clients = [] } = useClients();
-  const clientName = (id: string) => clients.find((c) => c.id === id)?.name ?? "Unknown client";
+  const getBusinessName = (id: string) => businessName(clients.find((c) => c.id === id));
   const days = useMemo(() => buildMonth(month), [month]);
   const items = content.filter((c) => (c.scheduled_date ?? c.published_date)?.startsWith(month) && (!status || c.status === status));
 
@@ -33,7 +33,7 @@ export default function CalendarPage() {
                   {dateItems.slice(0, 4).map((c) => (
                     <div key={c.id} className="rounded-md bg-muted p-2">
                       <div className="truncate font-medium text-foreground">{c.title}</div>
-                      <div className="truncate text-muted-foreground">{clientName(c.client_id)}</div>
+                      <div className="truncate text-muted-foreground">{getBusinessName(c.client_id)}</div>
                       <div className="mt-1"><StatusBadge status={isOverdue(c) ? "Overdue" : c.status} /></div>
                     </div>
                   ))}

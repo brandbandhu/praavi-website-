@@ -25,7 +25,7 @@ export default function DashboardPage() {
       <PageHeader title="Dashboard" subtitle={`Overview for ${monthLabel(month)}`} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Active clients" value={activeClients.length} icon={Users} color="primary" hint={`${clients.length} total accounts`} />
+        <StatCard label="Active businesses" value={activeClients.length} icon={Users} color="primary" hint={`${clients.length} total accounts`} />
         <StatCard label="Content posted" value={posted.length} icon={CheckCircle2} color="success" hint={`${monthContent.length} scheduled this month`} />
         <StatCard label="Overdue items" value={overdue.length} icon={AlertTriangle} color={overdue.length ? "destructive" : "info"} hint="Needs attention" />
         <StatCard label="Ad balance" value={inr(funds.balance)} icon={Wallet} color={funds.balance < 0 ? "destructive" : "violet"} hint={`${inr(funds.spent)} spent`} />
@@ -92,7 +92,7 @@ export default function DashboardPage() {
 
         <Panel title="Quick links">
           <div className="grid gap-3 sm:grid-cols-2">
-            <QuickLink to="/social_desk/clients" icon={Users} label="Manage clients" />
+            <QuickLink to="/social_desk/clients" icon={Users} label="Manage businesses" />
             <QuickLink to="/social_desk/content" icon={Clapperboard} label="Plan content" />
             <QuickLink to="/social_desk/boosts" icon={Megaphone} label="Track boosts" />
             <QuickLink to="/social_desk/funds" icon={Wallet} label="Update funds" />

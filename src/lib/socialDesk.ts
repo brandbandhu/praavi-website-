@@ -117,6 +117,9 @@ export const CLIENT_STATUS = ["Active", "Paused", "Archived"];
 export const isOverdue = (c: Content) =>
   !!c.scheduled_date && c.scheduled_date < today() && !["Posted", "Cancelled"].includes(c.status);
 
+export const businessName = (client: Pick<Client, "business_name" | "name"> | undefined) =>
+  client?.business_name || client?.name || "Unknown business";
+
 export function clientBalance(txns: Txn[], clientId?: string) {
   let added = 0,
     spent = 0;

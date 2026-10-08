@@ -19,7 +19,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Settings" subtitle="Agency defaults used across client setup and fund alerts." />
+      <PageHeader title="Settings" subtitle="Agency defaults used across business setup and fund alerts." />
       <Panel>
         <form
           className="grid gap-5 sm:grid-cols-2"

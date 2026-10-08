@@ -2,11 +2,11 @@ import { useMemo, useState } from "react";
 import { Download, Edit2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDelete, EmptyState, PageHeader, Panel, RecordDialog, Select, StatCard, StatusBadge, useEditor, type Field } from "@/components/social-desk/ui";
-import { TXN_TYPES, clientBalance, downloadCSV, inr, useClients, useRemove, useSave, useSettings, useTxns, type Txn } from "@/lib/socialDesk";
+import { TXN_TYPES, businessName, clientBalance, downloadCSV, inr, useClients, useRemove, useSave, useSettings, useTxns, type Txn } from "@/lib/socialDesk";
 import { Wallet, TrendingDown, TrendingUp } from "lucide-react";
 
 const txnFields: Field[] = [
-  { name: "client_id", label: "Client", type: "client", required: true },
+  { name: "client_id", label: "Business name", type: "client", required: true },
   { name: "txn_type", label: "Type", type: "select", options: TXN_TYPES },
   { name: "amount", label: "Amount", type: "number", required: true },
   { name: "txn_date", label: "Date", type: "date", required: true },
@@ -23,7 +23,7 @@ export default function FundsPage() {
   const { data: txns = [] } = useTxns();
   const { data: clients = [] } = useClients();
   const { data: settings } = useSettings();
-  const clientName = (id: string) => clients.find((c) => c.id === id)?.name ?? "Unknown client";
+  const getBusinessName = (id: string) => businessName(clients.find((c) => c.id === id));
 
   const filtered = useMemo(() => txns.filter((t) => !client || t.client_id === client), [client, txns]);
   const balance = clientBalance(filtered);
@@ -44,12 +44,12 @@ export default function FundsPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Funds added" value={inr(balance.added)} icon={TrendingUp} color="success" />
         <StatCard label="Ad spend" value={inr(balance.spent)} icon={TrendingDown} color="destructive" />
-        <StatCard label="Balance" value={inr(balance.balance)} icon={Wallet} color={balance.balance < 0 ? "destructive" : "primary"} hint={`${lowClients.length} low-balance clients`} />
+        <StatCard label="Balance" value={inr(balance.balance)} icon={Wallet} color={balance.balance < 0 ? "destructive" : "primary"} hint={`${lowClients.length} low-balance businesses`} />
       </div>
 
       <Panel>
         <div className="mb-4 max-w-sm">
-          <Select value={client} onChange={setClient} placeholder="All clients" options={clients.map((c) => ({ value: c.id, label: c.name }))} />
+          <Select value={client} onChange={setClient} placeholder="All businesses" options={clients.map((c) => ({ value: c.id, label: businessName(c) }))} />
         </div>
 
         {filtered.length ? (
@@ -58,7 +58,7 @@ export default function FundsPage() {
               <thead className="border-b text-left text-xs uppercase text-muted-foreground">
                 <tr>
                   <th className="py-3 pr-4">Date</th>
-                  <th className="py-3 pr-4">Client</th>
+                  <th className="py-3 pr-4">Business</th>
                   <th className="py-3 pr-4">Type</th>
                   <th className="py-3 pr-4">Amount</th>
                   <th className="py-3 pr-4">Reference</th>
@@ -69,7 +69,7 @@ export default function FundsPage() {
                 {filtered.map((t) => (
                   <tr key={t.id}>
                     <td className="py-3 pr-4">{t.txn_date}</td>
-                    <td className="py-3 pr-4">{clientName(t.client_id)}</td>
+                    <td className="py-3 pr-4">{getBusinessName(t.client_id)}</td>
                     <td className="py-3 pr-4"><StatusBadge status={t.txn_type} /></td>
                     <td className="py-3 pr-4 font-medium">{inr(t.amount)}</td>
                     <td className="py-3 pr-4 text-muted-foreground">{t.reference || t.payment_method || "-"}</td>
@@ -87,7 +87,7 @@ export default function FundsPage() {
             </table>
           </div>
         ) : (
-          <EmptyState title="No transactions found" text="Add a fund entry or choose another client." />
+          <EmptyState title="No transactions found" text="Add a fund entry or choose another business." />
         )}
       </Panel>
 

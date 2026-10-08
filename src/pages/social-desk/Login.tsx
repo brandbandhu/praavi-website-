@@ -82,7 +82,7 @@ export default function SocialDeskLogin() {
         </div>
         <div className="relative">
           <h1 className="text-4xl font-bold leading-tight text-sidebar-accent-foreground">
-            Every client. Every post.
+            Every business. Every post.
             <br />
             Every rupee - tracked.
           </h1>

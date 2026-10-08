@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useClients } from "@/lib/socialDesk";
+import { businessName, useClients } from "@/lib/socialDesk";
 
 const tone: Record<string, string> = {
   Planned: "bg-info/10 text-info",
@@ -172,9 +172,9 @@ export function Select({ value, onChange, options, placeholder, className }: { v
   );
 }
 
-export function ClientSelect({ value, onChange, placeholder = "All clients", className }: { value: string; onChange: (v: string) => void; placeholder?: string | undefined; className?: string | undefined }) {
+export function ClientSelect({ value, onChange, placeholder = "All businesses", className }: { value: string; onChange: (v: string) => void; placeholder?: string | undefined; className?: string | undefined }) {
   const { data = [] } = useClients();
-  return <Select className={className} value={value} onChange={onChange} placeholder={placeholder} options={data.filter((c) => c.status !== "Archived").map((c) => ({ value: c.id, label: c.name }))} />;
+  return <Select className={className} value={value} onChange={onChange} placeholder={placeholder} options={data.filter((c) => c.status !== "Archived").map((c) => ({ value: c.id, label: businessName(c) }))} />;
 }
 
 export type Field = {
@@ -273,7 +273,7 @@ export function RecordDialog({ open, onOpenChange, title, fields, initial, onSub
                 ) : f.type === "multiselect" ? (
                   <MultiSelect value={val} onChange={(x) => set(f.name, x)} options={f.options ?? []} />
                 ) : f.type === "client" ? (
-                  <ClientSelect value={val} onChange={(x) => set(f.name, x)} placeholder="Select client" />
+                  <ClientSelect value={val} onChange={(x) => set(f.name, x)} placeholder="Select business" />
                 ) : f.type === "date" ? (
                   <div className="relative">
                     <Input

@@ -2,10 +2,10 @@ import { useMemo, useState } from "react";
 import { Download, Edit2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDelete, EmptyState, PageHeader, Panel, ProgressBar, RecordDialog, Select, StatusBadge, useEditor, type Field } from "@/components/social-desk/ui";
-import { BOOST_STATUS, PLATFORMS, downloadCSV, inr, num, useBoosts, useClients, useRemove, useSave, type Boost } from "@/lib/socialDesk";
+import { BOOST_STATUS, PLATFORMS, businessName, downloadCSV, inr, num, useBoosts, useClients, useRemove, useSave, type Boost } from "@/lib/socialDesk";
 
 const boostFields: Field[] = [
-  { name: "client_id", label: "Client", type: "client", required: true },
+  { name: "client_id", label: "Business name", type: "client", required: true },
   { name: "campaign_name", label: "Campaign name", required: true },
   { name: "objective", label: "Objective" },
   { name: "platform", label: "Platform", type: "multiselect", options: PLATFORMS },
@@ -33,7 +33,7 @@ export default function BoostsPage() {
   const remove = useRemove("social_desk_boosts");
   const { data: boosts = [] } = useBoosts();
   const { data: clients = [] } = useClients();
-  const clientName = (id: string) => clients.find((c) => c.id === id)?.name ?? "Unknown client";
+  const getBusinessName = (id: string) => businessName(clients.find((c) => c.id === id));
 
   const filtered = useMemo(() => boosts.filter((b) => (!client || b.client_id === client) && (!status || b.status === status)), [boosts, client, status]);
   const initial = { status: "Draft", platform: "Instagram", budget: 0, spent: 0, reach: 0, impressions: 0, engagements: 0, link_clicks: 0, profile_visits: 0, ...editor.row };
@@ -51,7 +51,7 @@ export default function BoostsPage() {
 
       <Panel>
         <div className="mb-4 grid gap-3 md:grid-cols-2">
-          <Select value={client} onChange={setClient} placeholder="All clients" options={clients.map((c) => ({ value: c.id, label: c.name }))} />
+          <Select value={client} onChange={setClient} placeholder="All businesses" options={clients.map((c) => ({ value: c.id, label: businessName(c) }))} />
           <Select value={status} onChange={setStatus} placeholder="All statuses" options={BOOST_STATUS} />
         </div>
 
@@ -61,7 +61,7 @@ export default function BoostsPage() {
               <thead className="border-b text-left text-xs uppercase text-muted-foreground">
                 <tr>
                   <th className="py-3 pr-4">Campaign</th>
-                  <th className="py-3 pr-4">Client</th>
+                  <th className="py-3 pr-4">Business</th>
                   <th className="py-3 pr-4">Spend</th>
                   <th className="py-3 pr-4">Performance</th>
                   <th className="py-3 pr-4">Dates</th>
@@ -78,7 +78,7 @@ export default function BoostsPage() {
                         <div className="font-semibold">{b.campaign_name}</div>
                         <div className="text-xs text-muted-foreground">{b.platform ?? b.objective ?? "Boost"}</div>
                       </td>
-                      <td className="py-3 pr-4">{clientName(b.client_id)}</td>
+                      <td className="py-3 pr-4">{getBusinessName(b.client_id)}</td>
                       <td className="w-48 py-3 pr-4">
                         <ProgressBar value={pct} />
                         <div className="mt-1 text-xs text-muted-foreground">{inr(b.spent)} / {inr(b.budget)}</div>

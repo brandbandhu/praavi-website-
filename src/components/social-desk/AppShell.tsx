@@ -11,7 +11,7 @@ import { isOverdue, useContent } from "@/lib/socialDesk";
 
 const nav = [
   { to: "/social_desk/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/social_desk/clients", label: "Clients", icon: Users },
+  { to: "/social_desk/clients", label: "Businesses", icon: Users },
   { to: "/social_desk/content", label: "Content", icon: Clapperboard },
   { to: "/social_desk/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/social_desk/boosts", label: "Boosts & Ads", icon: Megaphone },
@@ -102,7 +102,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             }}
           >
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search clients..." className="bg-background pl-9" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search businesses..." className="bg-background pl-9" />
           </form>
           <div className="ml-auto flex items-center gap-2">
             <Link to="/social_desk/content" className="relative grid size-9 place-items-center rounded-lg hover:bg-muted" aria-label="Overdue content">

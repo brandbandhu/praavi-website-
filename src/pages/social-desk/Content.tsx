@@ -2,10 +2,10 @@ import { useMemo, useState } from "react";
 import { Download, Edit2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDelete, EmptyState, PageHeader, Panel, RecordDialog, Select, StatusBadge, useEditor, type Field } from "@/components/social-desk/ui";
-import { CONTENT_STATUS, CONTENT_TYPES, PLATFORMS, currentMonth, downloadCSV, isOverdue, useClients, useContent, useRemove, useSave, type Content } from "@/lib/socialDesk";
+import { CONTENT_STATUS, CONTENT_TYPES, PLATFORMS, businessName, currentMonth, downloadCSV, isOverdue, useClients, useContent, useRemove, useSave, type Content } from "@/lib/socialDesk";
 
 const contentFields: Field[] = [
-  { name: "client_id", label: "Client", type: "client", required: true },
+  { name: "client_id", label: "Business name", type: "client", required: true },
   { name: "title", label: "Title", required: true },
   { name: "content_type", label: "Type", type: "select", options: CONTENT_TYPES },
   { name: "platform", label: "Platform", type: "multiselect", options: PLATFORMS },
@@ -27,7 +27,7 @@ export default function ContentPage() {
   const remove = useRemove("social_desk_content_items");
   const { data: content = [] } = useContent();
   const { data: clients = [] } = useClients();
-  const clientName = (id: string) => clients.find((c) => c.id === id)?.name ?? "Unknown client";
+  const getBusinessName = (id: string) => businessName(clients.find((c) => c.id === id));
 
   const filtered = useMemo(() => {
     return content.filter((c) => (!client || c.client_id === client) && (!status || (status === "Overdue" ? isOverdue(c) : c.status === status)));
@@ -55,7 +55,7 @@ export default function ContentPage() {
 
       <Panel>
         <div className="mb-4 grid gap-3 md:grid-cols-2">
-          <Select value={client} onChange={setClient} placeholder="All clients" options={clients.map((c) => ({ value: c.id, label: c.name }))} />
+          <Select value={client} onChange={setClient} placeholder="All businesses" options={clients.map((c) => ({ value: c.id, label: businessName(c) }))} />
           <Select value={status} onChange={setStatus} placeholder="All statuses" options={["Overdue", ...CONTENT_STATUS]} />
         </div>
 
@@ -65,7 +65,7 @@ export default function ContentPage() {
               <thead className="border-b text-left text-xs uppercase text-muted-foreground">
                 <tr>
                   <th className="py-3 pr-4">Content</th>
-                  <th className="py-3 pr-4">Client</th>
+                  <th className="py-3 pr-4">Business</th>
                   <th className="py-3 pr-4">Date</th>
                   <th className="py-3 pr-4">Platform</th>
                   <th className="py-3 pr-4">Owner</th>
@@ -80,7 +80,7 @@ export default function ContentPage() {
                       <div className="font-semibold">{c.title}</div>
                       <div className="text-xs text-muted-foreground">{c.content_type}</div>
                     </td>
-                    <td className="py-3 pr-4">{clientName(c.client_id)}</td>
+                    <td className="py-3 pr-4">{getBusinessName(c.client_id)}</td>
                     <td className="py-3 pr-4">{c.scheduled_date ?? c.published_date ?? "-"}</td>
                     <td className="py-3 pr-4">{c.platform ?? "-"}</td>
                     <td className="py-3 pr-4">{c.assigned_to ?? "-"}</td>

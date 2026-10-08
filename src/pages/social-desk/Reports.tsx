@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Download, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader, Panel, ProgressBar, Select } from "@/components/social-desk/ui";
-import { clientBalance, currentMonth, downloadCSV, downloadExcel, inr, monthLabel, monthStats, useBoosts, useClients, useContent, useTxns } from "@/lib/socialDesk";
+import { businessName, clientBalance, currentMonth, downloadCSV, downloadExcel, inr, monthLabel, monthStats, useBoosts, useClients, useContent, useTxns } from "@/lib/socialDesk";
 
 export default function ReportsPage() {
   const [month, setMonth] = useState(currentMonth());
@@ -20,7 +20,7 @@ export default function ReportsPage() {
         const funds = clientBalance(txns, c.id);
         const clientBoosts = boosts.filter((b) => b.client_id === c.id && (b.start_date?.startsWith(month) || b.end_date?.startsWith(month)));
         return {
-          Client: c.name,
+          Business: businessName(c),
           Status: c.status,
           Posts: stats.posts,
           Reels: stats.reels,
@@ -46,13 +46,13 @@ export default function ReportsPage() {
       <Panel>
         <div className="mb-4 grid gap-3 sm:grid-cols-[180px_260px]">
           <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="flex h-9 rounded-md border border-input bg-card px-3 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
-          <Select value={client} onChange={setClient} placeholder="All clients" options={clients.map((c) => ({ value: c.id, label: c.name }))} />
+          <Select value={client} onChange={setClient} placeholder="All businesses" options={clients.map((c) => ({ value: c.id, label: businessName(c) }))} />
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] text-sm">
             <thead className="border-b text-left text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="py-3 pr-4">Client</th>
+                <th className="py-3 pr-4">Business</th>
                 <th className="py-3 pr-4">Delivery</th>
                 <th className="py-3 pr-4">Posts</th>
                 <th className="py-3 pr-4">Reels</th>
@@ -63,8 +63,8 @@ export default function ReportsPage() {
             </thead>
             <tbody className="divide-y">
               {rows.map((r) => (
-                <tr key={r.Client}>
-                  <td className="py-3 pr-4 font-semibold">{r.Client}</td>
+                <tr key={r.Business}>
+                  <td className="py-3 pr-4 font-semibold">{r.Business}</td>
                   <td className="w-48 py-3 pr-4">
                     <ProgressBar value={Number(String(r.Progress).replace("%", ""))} />
                     <div className="mt-1 text-xs text-muted-foreground">{r.Progress}</div>
