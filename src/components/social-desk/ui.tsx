@@ -180,11 +180,56 @@ export function ClientSelect({ value, onChange, placeholder = "All clients", cla
 export type Field = {
   name: string;
   label: string;
-  type?: "text" | "number" | "date" | "textarea" | "select" | "client" | "url" | "email" | "tel";
+  type?: "text" | "number" | "date" | "textarea" | "select" | "multiselect" | "client" | "url" | "email" | "tel";
   options?: string[];
   required?: boolean;
   full?: boolean;
 };
+
+function MultiSelect({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+}) {
+  const selected = value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  const toggle = (option: string) => {
+    const next = selected.includes(option)
+      ? selected.filter((item) => item !== option)
+      : [...selected, option];
+    onChange(next.join(", "));
+  };
+
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      {options.map((option) => {
+        const active = selected.includes(option);
+        return (
+          <button
+            key={option}
+            type="button"
+            onClick={() => toggle(option)}
+            className={cn(
+              "flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors",
+              active
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-input bg-card text-foreground hover:bg-muted",
+            )}
+          >
+            {option}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 export function RecordDialog({ open, onOpenChange, title, fields, initial, onSubmit, saving }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; fields: Field[]; initial: Record<string, unknown>; onSubmit: (v: Record<string, unknown>) => void; saving?: boolean }) {
   const [v, setV] = useState<Record<string, unknown>>(initial);
@@ -225,6 +270,8 @@ export function RecordDialog({ open, onOpenChange, title, fields, initial, onSub
                   <Textarea id={id} value={val} onChange={(e) => set(f.name, e.target.value)} rows={3} />
                 ) : f.type === "select" ? (
                   <Select value={val} onChange={(x) => set(f.name, x)} options={f.options ?? []} />
+                ) : f.type === "multiselect" ? (
+                  <MultiSelect value={val} onChange={(x) => set(f.name, x)} options={f.options ?? []} />
                 ) : f.type === "client" ? (
                   <ClientSelect value={val} onChange={(x) => set(f.name, x)} placeholder="Select client" />
                 ) : f.type === "date" ? (

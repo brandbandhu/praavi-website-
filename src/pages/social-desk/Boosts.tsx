@@ -8,7 +8,7 @@ const boostFields: Field[] = [
   { name: "client_id", label: "Client", type: "client", required: true },
   { name: "campaign_name", label: "Campaign name", required: true },
   { name: "objective", label: "Objective" },
-  { name: "platform", label: "Platform", type: "select", options: PLATFORMS },
+  { name: "platform", label: "Platform", type: "multiselect", options: PLATFORMS },
   { name: "status", label: "Status", type: "select", options: BOOST_STATUS },
   { name: "start_date", label: "Start date", type: "date" },
   { name: "end_date", label: "End date", type: "date" },

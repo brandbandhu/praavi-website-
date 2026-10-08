@@ -100,7 +100,7 @@ export const monthLabel = (m: string) =>
   new Date(m + "-01T00:00:00").toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 
 export const CONTENT_TYPES = ["Post", "Reel", "Carousel", "Story", "Other"];
-export const PLATFORMS = ["Instagram", "Facebook", "LinkedIn", "YouTube", "X", "Other"];
+export const PLATFORMS = ["Instagram", "Facebook"];
 export const CONTENT_STATUS = [
   "Planned",
   "In Progress",

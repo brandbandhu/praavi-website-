@@ -8,7 +8,7 @@ const contentFields: Field[] = [
   { name: "client_id", label: "Client", type: "client", required: true },
   { name: "title", label: "Title", required: true },
   { name: "content_type", label: "Type", type: "select", options: CONTENT_TYPES },
-  { name: "platform", label: "Platform", type: "select", options: PLATFORMS },
+  { name: "platform", label: "Platform", type: "multiselect", options: PLATFORMS },
   { name: "status", label: "Status", type: "select", options: CONTENT_STATUS },
   { name: "scheduled_date", label: "Scheduled date", type: "date" },
   { name: "published_date", label: "Published date", type: "date" },
