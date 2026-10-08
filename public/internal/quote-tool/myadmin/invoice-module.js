@@ -551,6 +551,17 @@
 
   function previewHTML(inv = invoice) {
     const clientAddress = inv.client.address || inv.client.billingAddress || "-";
+    const clientName = norm(inv.client.name || inv.client.companyName || "-");
+    const clientCompany = norm(inv.client.companyName || "");
+    const clientContact = [inv.client.phone, inv.client.email].map(norm).filter(Boolean).join(" ");
+    const billToLines = [
+      `<strong>${clientName}</strong>`,
+      clientCompany && clientCompany.toLowerCase() !== clientName.toLowerCase() ? clientCompany : "",
+      clientAddress && clientAddress !== "-" ? clientAddress : "",
+      `GST Number: ${inv.client.gstin || "-"}`,
+      `State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})`,
+      clientContact
+    ].filter(Boolean);
     return `
       <article class="praavi-a4">
         <div class="praavi-pdf-head">
@@ -573,7 +584,7 @@
         </div>
         <div class="praavi-bill-grid" style="margin-top:18px">
           <div class="praavi-pdf-box"><strong>Bill From</strong><p>${inv.supplier?.name || "Praavi Consultants"}<br>${inv.supplier?.address || "Maharashtra, India"}<br>Email: ${inv.supplier?.email || "info@praaviconsultants.in"}</p></div>
-          <div class="praavi-pdf-box"><strong>Bill To</strong><p>${inv.client.companyName || inv.client.name}<br>${inv.client.name}<br>${clientAddress}<br>GST Number: ${inv.client.gstin || "-"}<br>State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})<br>${inv.client.phone || ""} ${inv.client.email || ""}</p></div>
+          <div class="praavi-pdf-box"><strong>Bill To</strong><p>${billToLines.join("<br>")}</p></div>
         </div>
         <table class="praavi-pdf-table">
           <thead><tr><th>Sr. No.</th><th>Description</th><th>SAC</th><th>Qty</th><th>Rate</th><th>Discount</th><th>Taxable Value</th><th>GST</th><th>Amount</th></tr></thead>
@@ -637,6 +648,17 @@
     const dark = [0.067, 0.094, 0.153];
     const supplier = inv.supplier || getSupplier(inv.supplierCompany);
     const clientAddress = inv.client.address || inv.client.billingAddress || "-";
+    const clientName = norm(inv.client.name || inv.client.companyName || "-");
+    const clientCompany = norm(inv.client.companyName || "");
+    const clientContact = [inv.client.phone, inv.client.email].map(norm).filter(Boolean).join(" ");
+    const billToLines = [
+      clientName,
+      clientCompany && clientCompany.toLowerCase() !== clientName.toLowerCase() ? clientCompany : "",
+      clientAddress && clientAddress !== "-" ? clientAddress : "",
+      `GST Number: ${inv.client.gstin || "-"}`,
+      `State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})`,
+      clientContact
+    ].filter(Boolean);
 
     const color = (rgb) => page.push(`${rgb.join(" ")} rg ${rgb.join(" ")} RG`);
     const draw = (text, x, size = 7, bold = false) => page.push(`BT /${bold ? "F2" : "F1"} ${size} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td (${pdfText(text)}) Tj ET`);
@@ -710,7 +732,14 @@
     drawAt("Bill From", margin + 9, 663, 7.5, true);
     drawAt("Bill To", 326, 663, 7.5, true);
     rowText(`${supplier.name} ${supplier.address} Email: ${supplier.email}`, margin + 9, 648, 40, 6.5);
-    rowText(`${inv.client.companyName || inv.client.name || "-"} ${inv.client.name || ""} ${clientAddress} GST Number: ${inv.client.gstin || "-"} State: ${inv.client.state || "-"} (${inv.client.stateCode || "-"})`, 326, 648, 40, 6.5);
+    let billToY = 648;
+    billToLines.slice(0, 7).forEach((lineText, index) => {
+      const lines = wrapPdfText(lineText, 40).slice(0, index === 0 ? 2 : 1);
+      lines.forEach((text, lineIndex) => {
+        drawAt(text, 326, billToY, 6.5, index === 0);
+        billToY -= lineIndex ? 8 : 9;
+      });
+    });
 
     y = 568;
     drawTableHeader();
