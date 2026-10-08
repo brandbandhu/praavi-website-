@@ -167,18 +167,30 @@ export async function downloadExcel(sheets: Record<string, Record<string, unknow
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
-  const html = Object.entries(sheets)
+  const cellType = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? "Number" : "String");
+  const sheetXml = Object.entries(sheets)
     .map(([sheetName, rows]) => {
       const safeRows = rows.length ? rows : [{ Note: "No data" }];
       const keys = Object.keys(safeRows[0]!);
-      return `<h2>${esc(sheetName)}</h2><table><thead><tr>${keys
-        .map((key) => `<th>${esc(key)}</th>`)
-        .join("")}</tr></thead><tbody>${safeRows
-        .map((row) => `<tr>${keys.map((key) => `<td>${esc(row[key])}</td>`).join("")}</tr>`)
-        .join("")}</tbody></table>`;
+      return `<Worksheet ss:Name="${esc(sheetName.slice(0, 31))}"><Table>${keys
+        .map(() => `<Column ss:AutoFitWidth="1" ss:Width="125"/>`)
+        .join("")}<Row ss:StyleID="Header">${keys.map((key) => `<Cell><Data ss:Type="String">${esc(key)}</Data></Cell>`).join("")}</Row>${safeRows
+        .map((row) => `<Row>${keys.map((key) => `<Cell><Data ss:Type="${cellType(row[key])}">${esc(row[key])}</Data></Cell>`).join("")}</Row>`)
+        .join("")}</Table></Worksheet>`;
     })
     .join("");
-  const blob = new Blob([`<html><body>${html}</body></html>`], {
+  const workbook = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Styles>
+  <Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#111827" ss:Pattern="Solid"/></Style>
+ </Styles>
+ ${sheetXml}
+</Workbook>`;
+  const blob = new Blob([workbook], {
     type: "application/vnd.ms-excel;charset=utf-8",
   });
   const a = document.createElement("a");
