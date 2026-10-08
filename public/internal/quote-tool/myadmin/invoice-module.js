@@ -554,6 +554,17 @@
     const clientName = norm(inv.client.name || inv.client.companyName || "-");
     const clientCompany = norm(inv.client.companyName || "");
     const clientContact = [inv.client.phone, inv.client.email].map(norm).filter(Boolean).join(" ");
+    const supplierLines = [
+      inv.supplier?.address || "Maharashtra, India",
+      `Email: ${inv.supplier?.email || "info@praaviconsultants.in"}`,
+      `Website: ${inv.supplier?.website || "www.praaviconsultants.in"}`,
+      `GST Number: ${inv.supplier?.gstin || "-"}`
+    ];
+    const billFromLines = [
+      `<strong>${inv.supplier?.name || "Praavi Consultants"}</strong>`,
+      inv.supplier?.address || "Maharashtra, India",
+      `Email: ${inv.supplier?.email || "info@praaviconsultants.in"}`
+    ];
     const billToLines = [
       `<strong>${clientName}</strong>`,
       clientCompany && clientCompany.toLowerCase() !== clientName.toLowerCase() ? clientCompany : "",
@@ -565,12 +576,12 @@
     return `
       <article class="praavi-a4">
         <div class="praavi-pdf-head">
-          <div>
-            <strong style="font-size:20px;color:#143b73">${inv.supplier?.name || "Praavi Consultants"}</strong>
+          <div class="praavi-invoice-brand">
+            <strong>${inv.supplier?.name || "Praavi Consultants"}</strong>
             <p>Digital marketing, website development and business consulting services.</p>
-            <p>${inv.supplier?.address || "Maharashtra, India"}<br>Email: ${inv.supplier?.email || "info@praaviconsultants.in"}<br>Website: ${inv.supplier?.website || "www.praaviconsultants.in"}<br>GST Number: ${inv.supplier?.gstin || "-"}</p>
+            <p>${supplierLines.join("<br>")}</p>
           </div>
-          <div>
+          <div class="praavi-invoice-title-block">
             <h1>${inv.invoiceType === "Tax Invoice" ? "TAX INVOICE" : inv.invoiceType.toUpperCase()}</h1>
             <div class="praavi-pdf-meta">
               <p><strong>Invoice No:</strong> ${inv.invoiceNumber}</p>
@@ -582,8 +593,8 @@
             </div>
           </div>
         </div>
-        <div class="praavi-bill-grid" style="margin-top:18px">
-          <div class="praavi-pdf-box"><strong>Bill From</strong><p>${inv.supplier?.name || "Praavi Consultants"}<br>${inv.supplier?.address || "Maharashtra, India"}<br>Email: ${inv.supplier?.email || "info@praaviconsultants.in"}</p></div>
+        <div class="praavi-bill-grid">
+          <div class="praavi-pdf-box"><strong>Bill From</strong><p>${billFromLines.join("<br>")}</p></div>
           <div class="praavi-pdf-box"><strong>Bill To</strong><p>${billToLines.join("<br>")}</p></div>
         </div>
         <table class="praavi-pdf-table">
@@ -591,7 +602,7 @@
           <tbody>${inv.items.map((item, i) => `<tr><td>${i + 1}</td><td><strong>${item.serviceName || ""}</strong><br>${item.description || ""}</td><td>${item.hsnSac || ""}</td><td>${item.quantity} ${item.unit || ""}</td><td>${fmt(item.rate)}</td><td>${fmt(item.discount)}</td><td>${fmt(item.taxableAmount)}</td><td>${inv.taxMode === "Intra-State" ? `CGST ${fmt(item.cgst)}<br>SGST ${fmt(item.sgst)}` : inv.taxMode === "Inter-State" ? `IGST ${fmt(item.igst)}` : "No GST"}</td><td>${fmt(item.lineTotal)}</td></tr>`).join("")}</tbody>
         </table>
         <div class="praavi-total-grid">
-          <div class="praavi-invoice-summary-left"><strong>Amount in Words:</strong><p>${inv.amountInWords}</p><div class="praavi-pdf-box praavi-payment-info"><strong>Payment Information</strong><p><span>Terms: ${inv.paymentTerms}</span><span>Method: ${inv.paymentMethod}</span><span>Payment Done Date: ${inv.paymentDoneDate || "-"}</span><span>Bank: ${inv.bankDetails.bankName || "-"}</span><span>Account: ${inv.bankDetails.accountName || "-"}</span><span>A/C No: ${inv.bankDetails.accountNumber || "-"}</span><span>IFSC: ${inv.bankDetails.ifsc || "-"}</span><span>UPI: ${inv.bankDetails.upiId || "-"}</span></p></div>${paymentHistoryHTML(inv)}</div>
+          <div class="praavi-invoice-summary-left"><div class="praavi-amount-words"><strong>Amount in Words:</strong><p>${inv.amountInWords}</p></div><div class="praavi-pdf-box praavi-payment-info"><strong>Payment Information</strong><p><span class="is-long">Terms: ${inv.paymentTerms}</span><span>Method: ${inv.paymentMethod}</span><span>Payment Done Date: ${inv.paymentDoneDate || "-"}</span><span>Bank: ${inv.bankDetails.bankName || "-"}</span><span>Account: ${inv.bankDetails.accountName || "-"}</span><span>A/C No: ${inv.bankDetails.accountNumber || "-"}</span><span>IFSC: ${inv.bankDetails.ifsc || "-"}</span><span>UPI: ${inv.bankDetails.upiId || "-"}</span></p></div>${paymentHistoryHTML(inv)}</div>
           <div class="praavi-total-box">
             ${[
               ["Subtotal", inv.subtotal], ["Item Discount", inv.itemDiscount], ["Overall Discount", inv.overallDiscount], ["Taxable Amount", inv.taxableAmount],
@@ -766,7 +777,7 @@
     ensure(170);
     y -= 10;
     const totalTop = y;
-    const totalX = 312;
+    const totalX = 340;
     [
       ["Subtotal", inv.subtotal], ["Item Discount", inv.itemDiscount], ["Overall Discount", inv.overallDiscount],
       ["Taxable Amount", inv.taxableAmount], ["CGST", inv.cgst], ["SGST", inv.sgst], ["IGST", inv.igst],
@@ -784,15 +795,15 @@
     y = totalTop;
     draw("Amount in Words:", margin, 7.2, true);
     y -= 10;
-    wrapPdfText(inv.amountInWords, 48).slice(0, 4).forEach((text) => {
+    wrapPdfText(inv.amountInWords, 42).slice(0, 4).forEach((text) => {
       draw(text, margin, 6.4);
       y -= 9;
     });
     y -= 8;
-    rect(margin, y - 92, 248, 102, light);
+    rect(margin, y - 104, 238, 114, light);
     draw("Payment Information", margin + 9, 7.2, true);
     y -= 11;
-    wrapPdfText(`Terms: ${inv.paymentTerms}`, 52).slice(0, 3).forEach((text) => {
+    wrapPdfText(`Terms: ${inv.paymentTerms}`, 38).slice(0, 4).forEach((text) => {
       draw(text, margin + 9, 6.3);
       y -= 8;
     });
