@@ -55,6 +55,36 @@ export default function ClientsPage() {
       return Array.from(new Set([...current, ...filteredIds]));
     });
   };
+  const reportRows = selectedRows.map((client, index) => {
+    const stats = monthStats(client, content, month);
+    const balance = clientBalance(txns, client.id);
+    return {
+      "Sr No": index + 1,
+      "Business Name": businessName(client),
+      Category: client.category || "",
+      Status: client.status,
+      "Assigned To": client.assigned_to || "",
+      "Contact Person": client.contact_person || "",
+      Mobile: client.mobile || "",
+      Email: client.email || "",
+      "Contract Start": client.contract_start || "",
+      Instagram: client.instagram || "",
+      Facebook: client.facebook || "",
+      "Monthly Post Target": client.post_target,
+      "Monthly Reel Target": client.reel_target,
+      "Monthly Group Share Target": client.group_target,
+      "Ad Budget INR": Number(client.ad_budget || 0),
+      "Report Month": month,
+      "Posted Posts": stats.posts,
+      "Posted Reels": stats.reels,
+      "Group Shares Done": stats.groups,
+      "Delivery Percent": `${stats.pct}%`,
+      "Funds Added INR": balance.added,
+      "Ad Spend INR": balance.spent,
+      "Ad Balance INR": balance.balance,
+      Notes: client.notes || "",
+    };
+  });
 
   const initial = {
     status: "Active",
@@ -70,10 +100,10 @@ export default function ClientsPage() {
       <PageHeader title="Businesses" subtitle="Keep business details, monthly targets, and ad balances in one place.">
         <Button
           variant="outline"
-          disabled={!selectedRows.length}
-          onClick={() => downloadCSV(selectedRows as unknown as Record<string, unknown>[], "social_desk_clients")}
+          disabled={!reportRows.length}
+          onClick={() => downloadCSV(reportRows, `business-report-${month}`)}
         >
-          <Download /> Export selected{selectedRows.length ? ` (${selectedRows.length})` : ""}
+          <Download /> Export report{reportRows.length ? ` (${reportRows.length})` : ""}
         </Button>
         <Button onClick={() => editor.edit({})}>
           <Plus /> Add business
