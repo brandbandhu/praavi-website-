@@ -1,22 +1,25 @@
 import { useMemo, useState } from "react";
-import { PageHeader, Panel, Select, StatusBadge } from "@/components/social-desk/ui";
+import { ClientSelect, PageHeader, Panel, Select, StatusBadge } from "@/components/social-desk/ui";
 import { CONTENT_STATUS, businessName, currentMonth, isOverdue, monthLabel, useClients, useContent } from "@/lib/socialDesk";
 
 export default function CalendarPage() {
   const [month, setMonth] = useState(currentMonth());
   const [status, setStatus] = useState("");
+  const [client, setClient] = useState("");
   const { data: content = [] } = useContent();
   const { data: clients = [] } = useClients();
   const getBusinessName = (id: string) => businessName(clients.find((c) => c.id === id));
+  const selectedBusiness = client ? getBusinessName(client) : "";
   const days = useMemo(() => buildMonth(month), [month]);
-  const items = content.filter((c) => (c.scheduled_date ?? c.published_date)?.startsWith(month) && (!status || c.status === status));
+  const items = content.filter((c) => (c.scheduled_date ?? c.published_date)?.startsWith(month) && (!status || c.status === status) && (!client || c.client_id === client));
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Calendar" subtitle={`Content schedule for ${monthLabel(month)}`} />
+      <PageHeader title="Calendar" subtitle={`Content schedule for ${selectedBusiness || "all businesses"} - ${monthLabel(month)}`} />
       <Panel>
-        <div className="mb-4 grid gap-3 sm:grid-cols-[180px_220px]">
+        <div className="mb-4 grid gap-3 sm:grid-cols-[180px_260px_220px]">
           <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="flex h-9 rounded-md border border-input bg-card px-3 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+          <ClientSelect value={client} onChange={setClient} placeholder="All businesses" />
           <Select value={status} onChange={setStatus} placeholder="All statuses" options={CONTENT_STATUS} />
         </div>
         <div className="grid grid-cols-7 border-l border-t text-xs font-medium text-muted-foreground">
