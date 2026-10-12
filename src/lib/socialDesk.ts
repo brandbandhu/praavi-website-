@@ -8,11 +8,13 @@ export type TableName =
   | "social_desk_clients"
   | "social_desk_content_items"
   | "social_desk_boosts"
-  | "social_desk_transactions";
+  | "social_desk_transactions"
+  | "social_desk_follower_snapshots";
 export type Client = Tables["clients"]["Row"];
 export type Content = Tables["content_items"]["Row"];
 export type Boost = Tables["boosts"]["Row"];
 export type Txn = Tables["transactions"]["Row"];
+export type FollowerSnapshot = Tables["follower_snapshots"]["Row"];
 export type Settings = Tables["settings"]["Row"];
 
 const orderBy: Record<TableName, string> = {
@@ -20,6 +22,7 @@ const orderBy: Record<TableName, string> = {
   social_desk_content_items: "scheduled_date",
   social_desk_boosts: "start_date",
   social_desk_transactions: "txn_date",
+  social_desk_follower_snapshots: "snapshot_date",
 };
 
 export function useRows<T>(table: TableName) {
@@ -40,6 +43,7 @@ export const useClients = () => useRows<Client>("social_desk_clients");
 export const useContent = () => useRows<Content>("social_desk_content_items");
 export const useBoosts = () => useRows<Boost>("social_desk_boosts");
 export const useTxns = () => useRows<Txn>("social_desk_transactions");
+export const useFollowerSnapshots = () => useRows<FollowerSnapshot>("social_desk_follower_snapshots");
 
 export function useSettings() {
   return useQuery({
@@ -140,9 +144,22 @@ export function monthStats(client: Client, content: Content[], month: string) {
   const posts = posted.filter((c) => c.content_type !== "Reel").length;
   const reels = posted.filter((c) => c.content_type === "Reel").length;
   const groups = items.reduce((s, c) => s + (c.group_share_count ?? 0), 0);
+  const sharedOnGroup = items.filter((c) => c.shared_on_group === "Yes").length;
+  const creativeTarget = client.post_target + client.reel_target;
+  const creativeDone = posts + reels;
   const target = client.post_target + client.reel_target + client.group_target;
   const done = Math.min(posts, client.post_target) + Math.min(reels, client.reel_target) + Math.min(groups, client.group_target);
-  return { items, posts, reels, groups, pct: target ? Math.round((done / target) * 100) : 0 };
+  return {
+    items,
+    posts,
+    reels,
+    groups,
+    sharedOnGroup,
+    creativeDone,
+    creativeTarget,
+    groupTarget: client.group_target,
+    pct: target ? Math.round((done / target) * 100) : 0,
+  };
 }
 
 /* ---------- exports ---------- */

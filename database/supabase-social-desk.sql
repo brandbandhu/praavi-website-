@@ -76,7 +76,9 @@ create table if not exists public.social_desk_clients (
   email text,
   category text,
   instagram text,
+  instagram_business_account_id text,
   facebook text,
+  facebook_page_id text,
   other_links text,
   logo_url text,
   contract_start date,
@@ -91,6 +93,10 @@ create table if not exists public.social_desk_clients (
   updated_at timestamptz not null default now()
 );
 
+alter table public.social_desk_clients
+add column if not exists instagram_business_account_id text,
+add column if not exists facebook_page_id text;
+
 create table if not exists public.social_desk_content_items (
   id uuid primary key default gen_random_uuid(),
   client_id uuid not null references public.social_desk_clients(id) on delete cascade,
@@ -103,11 +109,27 @@ create table if not exists public.social_desk_content_items (
   assigned_to text,
   status text not null default 'Planned',
   url text,
+  shared_on_group text not null default 'No' check (shared_on_group in ('Yes','No')),
   group_share_count int not null default 0,
   remarks text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.social_desk_content_items
+add column if not exists shared_on_group text not null default 'No';
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'social_desk_content_items_shared_on_group_check'
+  ) then
+    alter table public.social_desk_content_items
+    add constraint social_desk_content_items_shared_on_group_check check (shared_on_group in ('Yes','No'));
+  end if;
+end $$;
 
 create table if not exists public.social_desk_boosts (
   id uuid primary key default gen_random_uuid(),
@@ -148,6 +170,27 @@ create table if not exists public.social_desk_transactions (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.social_desk_follower_snapshots (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references public.social_desk_clients(id) on delete cascade,
+  snapshot_date date not null default current_date,
+  instagram_start_followers int not null default 0 check (instagram_start_followers >= 0),
+  instagram_followers int not null default 0 check (instagram_followers >= 0),
+  facebook_start_followers int not null default 0 check (facebook_start_followers >= 0),
+  facebook_followers int not null default 0 check (facebook_followers >= 0),
+  instagram_url text,
+  facebook_url text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(client_id, snapshot_date)
+);
+
+alter table public.social_desk_follower_snapshots
+add column if not exists instagram_start_followers int not null default 0,
+add column if not exists facebook_start_followers int not null default 0,
+add column if not exists facebook_url text;
+
 create table if not exists public.social_desk_settings (
   id int primary key default 1 check (id = 1),
   agency_name text not null default 'My Agency',
@@ -166,11 +209,12 @@ insert into public.social_desk_settings(id) values (1) on conflict (id) do nothi
 create index if not exists social_desk_content_items_client_date_idx on public.social_desk_content_items(client_id, scheduled_date);
 create index if not exists social_desk_boosts_client_start_idx on public.social_desk_boosts(client_id, start_date);
 create index if not exists social_desk_transactions_client_date_idx on public.social_desk_transactions(client_id, txn_date);
+create index if not exists social_desk_follower_snapshots_client_date_idx on public.social_desk_follower_snapshots(client_id, snapshot_date);
 
 do $$
 declare t text;
 begin
-  foreach t in array array['social_desk_clients','social_desk_content_items','social_desk_boosts','social_desk_transactions','social_desk_settings'] loop
+  foreach t in array array['social_desk_clients','social_desk_content_items','social_desk_boosts','social_desk_transactions','social_desk_follower_snapshots','social_desk_settings'] loop
     execute format('grant select, insert, update, delete on public.%I to authenticated; grant all on public.%I to service_role;', t, t);
     execute format('alter table public.%I enable row level security;', t);
     execute format('drop policy if exists "social desk staff all" on public.%I;', t);

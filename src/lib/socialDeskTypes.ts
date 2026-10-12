@@ -116,9 +116,11 @@ export type Database = {
           created_at: string
           email: string | null
           facebook: string | null
+          facebook_page_id: string | null
           group_target: number
           id: string
           instagram: string | null
+          instagram_business_account_id: string | null
           logo_url: string | null
           mobile: string | null
           name: string
@@ -140,9 +142,11 @@ export type Database = {
           created_at?: string
           email?: string | null
           facebook?: string | null
+          facebook_page_id?: string | null
           group_target?: number
           id?: string
           instagram?: string | null
+          instagram_business_account_id?: string | null
           logo_url?: string | null
           mobile?: string | null
           name: string
@@ -164,9 +168,11 @@ export type Database = {
           created_at?: string
           email?: string | null
           facebook?: string | null
+          facebook_page_id?: string | null
           group_target?: number
           id?: string
           instagram?: string | null
+          instagram_business_account_id?: string | null
           logo_url?: string | null
           mobile?: string | null
           name?: string
@@ -192,6 +198,7 @@ export type Database = {
           published_date: string | null
           remarks: string | null
           scheduled_date: string | null
+          shared_on_group: string
           status: string
           title: string
           updated_at: string
@@ -209,6 +216,7 @@ export type Database = {
           published_date?: string | null
           remarks?: string | null
           scheduled_date?: string | null
+          shared_on_group?: string
           status?: string
           title: string
           updated_at?: string
@@ -226,6 +234,7 @@ export type Database = {
           published_date?: string | null
           remarks?: string | null
           scheduled_date?: string | null
+          shared_on_group?: string
           status?: string
           title?: string
           updated_at?: string
@@ -234,6 +243,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "content_items_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follower_snapshots: {
+        Row: {
+          client_id: string
+          created_at: string
+          facebook_followers: number
+          facebook_start_followers: number
+          facebook_url: string | null
+          id: string
+          instagram_followers: number
+          instagram_start_followers: number
+          instagram_url: string | null
+          notes: string | null
+          snapshot_date: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          facebook_followers?: number
+          facebook_start_followers?: number
+          facebook_url?: string | null
+          id?: string
+          instagram_followers?: number
+          instagram_start_followers?: number
+          instagram_url?: string | null
+          notes?: string | null
+          snapshot_date?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          facebook_followers?: number
+          facebook_start_followers?: number
+          facebook_url?: string | null
+          id?: string
+          instagram_followers?: number
+          instagram_start_followers?: number
+          instagram_url?: string | null
+          notes?: string | null
+          snapshot_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follower_snapshots_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"

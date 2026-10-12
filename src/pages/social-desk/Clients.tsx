@@ -19,7 +19,9 @@ const clientFields: Field[] = [
   { name: "ad_budget", label: "Ad budget", type: "number" },
   { name: "contract_start", label: "Contract start", type: "date" },
   { name: "instagram", label: "Instagram", type: "url" },
+  { name: "instagram_business_account_id", label: "Instagram Business Account ID" },
   { name: "facebook", label: "Facebook", type: "url" },
+  { name: "facebook_page_id", label: "Facebook Page ID (optional)" },
   { name: "notes", label: "Notes", type: "textarea", full: true },
 ];
 
@@ -34,7 +36,9 @@ type BusinessReportRow = {
   Email: string;
   "Contract Start": string;
   Instagram: string;
+  "Instagram Business Account ID": string;
   Facebook: string;
+  "Facebook Page ID": string;
   "Monthly Post Target": number;
   "Monthly Reel Target": number;
   "Monthly Group Share Target": number;
@@ -145,7 +149,9 @@ function printReportPdf(rows: BusinessReportRow[], month: string) {
               <div class="field"><span>Email</span><strong>${esc(row.Email || "-")}</strong></div>
               <div class="field"><span>Contract Start</span><strong>${esc(row["Contract Start"] || "-")}</strong></div>
               <div class="field"><span>Instagram</span><strong>${esc(shortLink(row.Instagram))}</strong></div>
+              <div class="field"><span>IG Business ID</span><strong>${esc(row["Instagram Business Account ID"] || "-")}</strong></div>
               <div class="field"><span>Facebook</span><strong>${esc(shortLink(row.Facebook))}</strong></div>
+              <div class="field"><span>Facebook Page ID</span><strong>${esc(row["Facebook Page ID"] || "-")}</strong></div>
               <div class="field"><span>Report Month</span><strong>${esc(monthLabel(month))}</strong></div>
               <div class="field"><span>Status</span><strong>${esc(row.Status)}</strong></div>
             </div>
@@ -226,7 +232,9 @@ export default function ClientsPage() {
       Email: client.email || "",
       "Contract Start": client.contract_start || "",
       Instagram: client.instagram || "",
+      "Instagram Business Account ID": client.instagram_business_account_id || "",
       Facebook: client.facebook || "",
+      "Facebook Page ID": client.facebook_page_id || "",
       "Monthly Post Target": client.post_target,
       "Monthly Reel Target": client.reel_target,
       "Monthly Group Share Target": client.group_target,
@@ -332,6 +340,10 @@ export default function ClientsPage() {
                       <td className="w-48 py-3 pr-4">
                         <ProgressBar value={stats.pct} />
                         <div className="mt-1 text-xs text-muted-foreground">{stats.pct}% delivered</div>
+                        <div className="mt-1 grid gap-0.5 text-[11px] leading-4 text-muted-foreground">
+                          <span>Creative/Reel: {stats.creativeDone}/{stats.creativeTarget}</span>
+                          <span>Group shared: {stats.sharedOnGroup}/{stats.groupTarget}</span>
+                        </div>
                       </td>
                       <td className="py-3 pr-4 font-medium">{inr(balance.balance)}</td>
                       <td className="py-3 pr-4"><StatusBadge status={c.status} /></td>

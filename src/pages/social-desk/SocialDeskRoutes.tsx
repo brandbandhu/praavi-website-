@@ -9,6 +9,7 @@ import Clients from "./Clients";
 import Content from "./Content";
 import Calendar from "./Calendar";
 import Boosts from "./Boosts";
+import Followers from "./Followers";
 import Funds from "./Funds";
 import Reports from "./Reports";
 import Settings from "./Settings";
@@ -86,6 +87,14 @@ export default function SocialDeskRoutes() {
         element={
           <SocialDeskProtected>
             <Boosts />
+          </SocialDeskProtected>
+        }
+      />
+      <Route
+        path="followers"
+        element={
+          <SocialDeskProtected>
+            <Followers />
           </SocialDeskProtected>
         }
       />

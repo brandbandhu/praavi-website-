@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, CalendarDays, ChevronsLeft, FileBarChart, LayoutDashboard, LogOut, Megaphone, Menu, Search, Settings, Users, Wallet, Clapperboard } from "lucide-react";
+import { Bell, CalendarDays, ChevronsLeft, FileBarChart, LayoutDashboard, LogOut, Megaphone, Menu, Search, Settings, TrendingUp, Users, Wallet, Clapperboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -15,6 +15,7 @@ const nav = [
   { to: "/social_desk/content", label: "Content", icon: Clapperboard },
   { to: "/social_desk/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/social_desk/boosts", label: "Boosts & Ads", icon: Megaphone },
+  { to: "/social_desk/followers", label: "Followers", icon: TrendingUp },
   { to: "/social_desk/funds", label: "Funds", icon: Wallet },
   { to: "/social_desk/reports", label: "Reports", icon: FileBarChart },
   { to: "/social_desk/settings", label: "Settings", icon: Settings },

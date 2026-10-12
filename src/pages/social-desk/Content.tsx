@@ -13,6 +13,7 @@ const contentFields: Field[] = [
   { name: "scheduled_date", label: "Scheduled date", type: "date" },
   { name: "published_date", label: "Published date", type: "date" },
   { name: "assigned_to", label: "Assigned to" },
+  { name: "shared_on_group", label: "Shared on group", type: "select", options: ["No", "Yes"] },
   { name: "group_share_count", label: "Group shares", type: "number" },
   { name: "url", label: "Published URL", type: "url" },
   { name: "description", label: "Description", type: "textarea", full: true },
@@ -38,6 +39,7 @@ export default function ContentPage() {
     platform: "Instagram",
     status: "Planned",
     scheduled_date: new Date().toISOString().slice(0, 10),
+    shared_on_group: "No",
     group_share_count: 0,
     ...editor.row,
   };

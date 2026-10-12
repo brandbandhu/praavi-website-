@@ -11,6 +11,7 @@ import { dashboardRouter } from "./routes/dashboard.js";
 import { reportCardRouter } from "./routes/reportCard.js";
 import { quotationsRouter } from "./routes/quotations.js";
 import { deliverableTypesRouter, quotationPackagesRouter } from "./routes/dmCatalog.js";
+import { socialDeskFollowersRouter } from "./routes/socialDeskFollowers.js";
 
 const app = express();
 app.use(cors());
@@ -72,6 +73,7 @@ app.use("/api/report-card", wrapAsyncRouter(reportCardRouter));
 app.use("/api/quotations", wrapAsyncRouter(quotationsRouter));
 app.use("/api/deliverable-types", wrapAsyncRouter(deliverableTypesRouter));
 app.use("/api/quotation-packages", wrapAsyncRouter(quotationPackagesRouter));
+app.use("/api/social-desk/followers", wrapAsyncRouter(socialDeskFollowersRouter));
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err);

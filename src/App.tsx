@@ -40,6 +40,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import FinanceManagementSystem from "./pages/FinanceManagementSystem";
 import SocialDeskRoutes from "./pages/social-desk/SocialDeskRoutes";
+import DigitalMarketingTeamRoutes from "./pages/digital-marketing-team/DigitalMarketingTeamRoutes";
 import NotFound from "./pages/NotFound";
 import { ADMIN_DASHBOARD_PATH, ADMIN_LOGIN_PATH } from "./lib/adminRoutes";
 
@@ -115,12 +116,23 @@ const AppRoutes = () => (
 const AppShell = () => {
   const { pathname } = useLocation();
   const isSocialDesk = pathname.startsWith("/social_desk");
+  const isDigitalMarketingTeam = pathname.startsWith("/digital_marketing_team");
 
   if (isSocialDesk) {
     return (
       <AppErrorBoundary>
         <Routes>
           <Route path="/social_desk/*" element={<SocialDeskRoutes />} />
+        </Routes>
+      </AppErrorBoundary>
+    );
+  }
+
+  if (isDigitalMarketingTeam) {
+    return (
+      <AppErrorBoundary>
+        <Routes>
+          <Route path="/digital_marketing_team/*" element={<DigitalMarketingTeamRoutes />} />
         </Routes>
       </AppErrorBoundary>
     );

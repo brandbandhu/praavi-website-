@@ -1,0 +1,10 @@
+-- Auth user setup note for Digital Marketing Team.
+--
+-- Create the login user from Supabase Dashboard > Authentication > Users.
+-- Email: digital_marketing_team@praavi.local
+-- Password: set manually in Supabase Dashboard.
+--
+-- After creating and confirming the Auth user, run:
+-- database/supabase-digital-marketing-team-db-login-setup.sql
+--
+-- Real passwords are intentionally not stored in repository SQL files.
