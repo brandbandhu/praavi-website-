@@ -26,7 +26,7 @@ const snapshotFields: Field[] = [
   { name: "instagram_followers", label: "Current Instagram followers", type: "number" },
   { name: "facebook_followers", label: "Current Facebook followers (optional)", type: "number" },
   { name: "instagram_url", label: "Instagram link", type: "url", full: true },
-  { name: "facebook_url", label: "Facebook link", type: "url", full: true },
+  { name: "facebook_url", label: "Facebook link (optional)", type: "url", full: true },
   { name: "notes", label: "Notes", type: "textarea", full: true },
 ];
 
@@ -79,40 +79,42 @@ function rowsWithGrowth(rows: FollowerSnapshot[]) {
 }
 
 function reportRows(rows: SnapshotWithGrowth[], client?: Client): FollowerReportRow[] {
+  const showFacebook = Boolean(client?.facebook || rows.some((row) => row.facebook_url || Number(row.facebook_followers || 0) > 0));
   return rows.map((row) => ({
     Date: row.snapshot_date,
     Business: businessName(client),
     "Instagram Followers": Number(row.instagram_followers || 0),
     "Instagram Daily Growth": row.instagram_growth,
-    "Facebook Followers": Number(row.facebook_followers || 0),
-    "Facebook Daily Growth": row.facebook_growth,
-    "Total Followers": Number(row.instagram_followers || 0) + Number(row.facebook_followers || 0),
-    "Total Daily Growth": row.total_growth,
+    "Facebook Followers": showFacebook ? Number(row.facebook_followers || 0) : 0,
+    "Facebook Daily Growth": showFacebook ? row.facebook_growth : 0,
+    "Total Followers": Number(row.instagram_followers || 0) + (showFacebook ? Number(row.facebook_followers || 0) : 0),
+    "Total Daily Growth": row.instagram_growth + (showFacebook ? row.facebook_growth : 0),
     "Instagram Link": row.instagram_url || client?.instagram || "",
-    "Facebook Link": row.facebook_url || client?.facebook || "",
+    "Facebook Link": showFacebook ? row.facebook_url || client?.facebook || "" : "",
     Notes: row.notes || "",
   }));
 }
 
 function downloadFollowersPDF(rows: SnapshotWithGrowth[], client: Client | undefined, month: string) {
   if (!rows.length || !client) return;
+  const showFacebook = Boolean(client.facebook || rows.some((row) => row.facebook_url || Number(row.facebook_followers || 0) > 0));
   const first = rows[0]!;
   const last = rows[rows.length - 1]!;
   const instagramGrowth = rows.reduce((sum, row) => sum + row.instagram_growth, 0);
-  const facebookGrowth = rows.reduce((sum, row) => sum + row.facebook_growth, 0);
+  const facebookGrowth = showFacebook ? rows.reduce((sum, row) => sum + row.facebook_growth, 0) : 0;
   const totalGrowth = instagramGrowth + facebookGrowth;
   const html = `<!doctype html><html><head><title> </title><style>
     @page{size:A4;margin:0}*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;color:#111827;background:#fff}.page{padding:17mm}.top{height:7px;border-radius:999px;background:linear-gradient(90deg,#f97316,#ec4899);margin-bottom:18px}.head{display:flex;justify-content:space-between;gap:24px;border-bottom:1px solid #e5e7eb;padding-bottom:16px}.brand{font-size:11px;font-weight:800;letter-spacing:1.5px;color:#f97316;text-transform:uppercase}h1{margin:5px 0 8px;font-size:28px}.meta{color:#64748b;font-size:12px;line-height:1.6}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.card{border:1px solid #e5e7eb;border-radius:10px;padding:11px;background:#fafafa}.card span{display:block;color:#64748b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px}.card strong{display:block;margin-top:5px;font-size:17px;color:#0f172a}.links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}.field{border:1px solid #e5e7eb;border-radius:10px;padding:10px;overflow-wrap:anywhere}.field span{display:block;color:#64748b;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}.field strong{font-size:12px}table{width:100%;border-collapse:collapse;font-size:11px}th{background:#111827;color:#fff;padding:8px 7px;text-align:left;font-size:9px;text-transform:uppercase}td{border:1px solid #e5e7eb;padding:8px 7px}td.num,th.num{text-align:right}.pos{color:#15803d;font-weight:700}.neg{color:#dc2626;font-weight:700}.footer{margin-top:14px;color:#64748b;font-size:11px;text-align:right}
   </style></head><body><main class="page">
     <div class="top"></div>
     <section class="head"><div><div class="brand">SocialDesk CRM</div><h1>Follower Tracking Report</h1><div class="meta">${esc(businessName(client))}<br/>${esc(monthLabel(month))}</div></div><div class="meta">Generated<br/>${esc(new Date().toLocaleString("en-IN"))}</div></section>
-    <section class="cards"><div class="card"><span>Start Total</span><strong>${esc(num(Number(first.instagram_start_followers || 0) + Number(first.facebook_start_followers || 0)))}</strong></div><div class="card"><span>End Total</span><strong>${esc(num(Number(last.instagram_followers || 0) + Number(last.facebook_followers || 0)))}</strong></div><div class="card"><span>Month Growth</span><strong>${totalGrowth >= 0 ? "+" : ""}${esc(num(totalGrowth))}</strong></div><div class="card"><span>Tracked Days</span><strong>${rows.length}</strong></div></section>
-    <section class="links"><div class="field"><span>Instagram</span><strong>${esc(shortLink(client.instagram))}</strong></div><div class="field"><span>Facebook</span><strong>${esc(shortLink(client.facebook))}</strong></div></section>
-    <table><thead><tr><th>Date</th><th class="num">Instagram</th><th class="num">IG Growth</th><th class="num">Facebook</th><th class="num">FB Growth</th><th class="num">Total Growth</th><th>Notes</th></tr></thead><tbody>
+    <section class="cards"><div class="card"><span>Start Total</span><strong>${esc(num(Number(first.instagram_start_followers || 0) + (showFacebook ? Number(first.facebook_start_followers || 0) : 0)))}</strong></div><div class="card"><span>End Total</span><strong>${esc(num(Number(last.instagram_followers || 0) + (showFacebook ? Number(last.facebook_followers || 0) : 0)))}</strong></div><div class="card"><span>Month Growth</span><strong>${totalGrowth >= 0 ? "+" : ""}${esc(num(totalGrowth))}</strong></div><div class="card"><span>Tracked Days</span><strong>${rows.length}</strong></div></section>
+    <section class="links"><div class="field"><span>Instagram</span><strong>${esc(shortLink(client.instagram))}</strong></div>${showFacebook ? `<div class="field"><span>Facebook</span><strong>${esc(shortLink(client.facebook))}</strong></div>` : ""}</section>
+    <table><thead><tr><th>Date</th><th class="num">Instagram</th><th class="num">IG Growth</th>${showFacebook ? `<th class="num">Facebook</th><th class="num">FB Growth</th>` : ""}<th class="num">Total Growth</th><th>Notes</th></tr></thead><tbody>
       ${rows
         .map(
           (row) =>
-            `<tr><td>${esc(row.snapshot_date)}</td><td class="num">${esc(num(row.instagram_followers))}</td><td class="num ${row.instagram_growth < 0 ? "neg" : "pos"}">${row.instagram_growth >= 0 ? "+" : ""}${esc(num(row.instagram_growth))}</td><td class="num">${esc(num(row.facebook_followers))}</td><td class="num ${row.facebook_growth < 0 ? "neg" : "pos"}">${row.facebook_growth >= 0 ? "+" : ""}${esc(num(row.facebook_growth))}</td><td class="num ${row.total_growth < 0 ? "neg" : "pos"}">${row.total_growth >= 0 ? "+" : ""}${esc(num(row.total_growth))}</td><td>${esc(row.notes || "")}</td></tr>`,
+            `<tr><td>${esc(row.snapshot_date)}</td><td class="num">${esc(num(row.instagram_followers))}</td><td class="num ${row.instagram_growth < 0 ? "neg" : "pos"}">${row.instagram_growth >= 0 ? "+" : ""}${esc(num(row.instagram_growth))}</td>${showFacebook ? `<td class="num">${esc(num(row.facebook_followers))}</td><td class="num ${row.facebook_growth < 0 ? "neg" : "pos"}">${row.facebook_growth >= 0 ? "+" : ""}${esc(num(row.facebook_growth))}</td>` : ""}<td class="num ${row.instagram_growth + (showFacebook ? row.facebook_growth : 0) < 0 ? "neg" : "pos"}">${row.instagram_growth + (showFacebook ? row.facebook_growth : 0) >= 0 ? "+" : ""}${esc(num(row.instagram_growth + (showFacebook ? row.facebook_growth : 0)))}</td><td>${esc(row.notes || "")}</td></tr>`,
         )
         .join("")}
     </tbody></table><p class="footer">Generated from SocialDesk CRM</p>
@@ -147,6 +149,7 @@ export default function FollowersPage() {
   const firstRow = monthRows[0];
   const monthGrowth = monthRows.reduce((sum, row) => sum + row.total_growth, 0);
   const dailyAverage = monthRows.length ? Math.round(monthGrowth / monthRows.length) : 0;
+  const hasFacebook = Boolean(selectedClient?.facebook || monthRows.some((row) => row.facebook_url || Number(row.facebook_followers || 0) > 0));
   const workbookRows = reportRows(monthRows, selectedClient);
 
   const syncCurrentCount = useCallback(async (silent = false) => {
@@ -224,7 +227,7 @@ export default function FollowersPage() {
 
       <div className="grid gap-4 md:grid-cols-4">
         <StatCard label="Instagram" value={num(lastRow?.instagram_followers)} icon={TrendingUp} color="primary" hint={selectedClient ? shortLink(selectedClient.instagram) : ""} />
-        <StatCard label="Facebook" value={num(lastRow?.facebook_followers)} icon={TrendingUp} color="info" hint={selectedClient ? shortLink(selectedClient.facebook) : ""} />
+        {hasFacebook && <StatCard label="Facebook" value={num(lastRow?.facebook_followers)} icon={TrendingUp} color="info" hint={selectedClient ? shortLink(selectedClient.facebook) : ""} />}
         <StatCard label="Month Growth" value={`${monthGrowth >= 0 ? "+" : ""}${num(monthGrowth)}`} icon={TrendingUp} color={monthGrowth >= 0 ? "success" : "destructive"} hint={`${monthRows.length} tracked days`} />
         <StatCard label="Daily Average" value={`${dailyAverage >= 0 ? "+" : ""}${num(dailyAverage)}`} icon={TrendingUp} color="violet" hint={monthLabel(month)} />
       </div>
@@ -238,8 +241,8 @@ export default function FollowersPage() {
                   <th className="py-3 pr-4">Date</th>
                   <th className="py-3 pr-4">Current Instagram</th>
                   <th className="py-3 pr-4">IG growth</th>
-                  <th className="py-3 pr-4">Current Facebook</th>
-                  <th className="py-3 pr-4">FB growth</th>
+                  {hasFacebook && <th className="py-3 pr-4">Current Facebook</th>}
+                  {hasFacebook && <th className="py-3 pr-4">FB growth</th>}
                   <th className="py-3 pr-4">Current total</th>
                   <th className="py-3 pr-4">Total growth</th>
                   <th className="py-3 pr-4">Source</th>
@@ -255,18 +258,20 @@ export default function FollowersPage() {
                       {row.instagram_growth >= 0 ? "+" : ""}
                       {num(row.instagram_growth)}
                     </td>
-                    <td className="py-3 pr-4">{num(row.facebook_followers)}</td>
-                    <td className={row.facebook_growth < 0 ? "py-3 pr-4 font-medium text-destructive" : "py-3 pr-4 font-medium text-success"}>
-                      {row.facebook_growth >= 0 ? "+" : ""}
-                      {num(row.facebook_growth)}
-                    </td>
-                    <td className="py-3 pr-4 font-medium">{num(Number(row.instagram_followers || 0) + Number(row.facebook_followers || 0))}</td>
+                    {hasFacebook && <td className="py-3 pr-4">{num(row.facebook_followers)}</td>}
+                    {hasFacebook && (
+                      <td className={row.facebook_growth < 0 ? "py-3 pr-4 font-medium text-destructive" : "py-3 pr-4 font-medium text-success"}>
+                        {row.facebook_growth >= 0 ? "+" : ""}
+                        {num(row.facebook_growth)}
+                      </td>
+                    )}
+                    <td className="py-3 pr-4 font-medium">{num(Number(row.instagram_followers || 0) + (hasFacebook ? Number(row.facebook_followers || 0) : 0))}</td>
                     <td className={row.total_growth < 0 ? "py-3 pr-4 font-semibold text-destructive" : "py-3 pr-4 font-semibold text-success"}>
                       {row.total_growth >= 0 ? "+" : ""}
                       {num(row.total_growth)}
                     </td>
                     <td className="max-w-[260px] truncate py-3 pr-4 text-xs text-muted-foreground">
-                      {[shortLink(row.instagram_url || selectedClient?.instagram), shortLink(row.facebook_url || selectedClient?.facebook)].filter((link) => link !== "-").join(" / ") || "-"}
+                      {[shortLink(row.instagram_url || selectedClient?.instagram), hasFacebook ? shortLink(row.facebook_url || selectedClient?.facebook) : "-"].filter((link) => link !== "-").join(" / ") || "-"}
                     </td>
                     <td className="py-3">
                       <div className="flex justify-end gap-1">

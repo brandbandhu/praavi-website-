@@ -268,7 +268,7 @@ function Shell({ member, children }: { member: TeamMember; children: ReactNode }
     navigate("/digital_marketing_team/login", { replace: true });
   }
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-950">
+    <div className="min-h-screen bg-slate-50 text-slate-950 lg:flex">
       <aside className="hidden w-72 shrink-0 flex-col bg-[#07111f] text-white lg:flex">
         <div className="p-6">
           <div className="flex items-center gap-3">
@@ -303,7 +303,42 @@ function Shell({ member, children }: { member: TeamMember; children: ReactNode }
           </Button>
         </div>
       </aside>
-      <main className="min-w-0 flex-1 p-4 md:p-8">{children}</main>
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-white/95 px-4 py-3 shadow-sm backdrop-blur lg:hidden">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-blue-600 text-sm font-bold text-white">DM</div>
+            <div className="min-w-0">
+              <div className="truncate font-display text-base font-bold text-slate-950">Team Ops</div>
+              <div className="truncate text-xs text-slate-500">{roleLabel[member.role]}</div>
+            </div>
+          </div>
+          <button type="button" onClick={signOut} className="grid size-10 place-items-center rounded-full text-slate-600 hover:bg-slate-100" aria-label="Logout">
+            <LogOut className="size-5" />
+          </button>
+        </header>
+        <main className="min-w-0 flex-1 p-4 pb-24 md:p-8 lg:pb-8">{children}</main>
+      </div>
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-white px-2 py-2 shadow-[0_-8px_24px_rgba(15,23,42,0.12)] lg:hidden" aria-label="Mobile digital marketing navigation">
+        <div className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {nav.map(({ to, label, icon: Icon }) => {
+            const active = location.pathname.startsWith(to);
+            return (
+              <button
+                key={to}
+                type="button"
+                onClick={() => navigate(to)}
+                className={cn(
+                  "flex min-w-[74px] flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-[11px] font-semibold transition-colors",
+                  active ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-950",
+                )}
+              >
+                <Icon className="size-4" />
+                <span className="max-w-[68px] truncate">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

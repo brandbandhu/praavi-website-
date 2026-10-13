@@ -75,6 +75,21 @@
   max-width: 100%;
 }
 
+.app .preview-table th:last-child:not(:first-child),
+.app .preview-table td:last-child:not(:first-child) {
+  display: none;
+}
+
+.app .preview-table th:first-child,
+.app .preview-table td:first-child {
+  width: 100%;
+}
+
+.app .preview-totals > div:not(.grand),
+.app .preview-totals-footnote {
+  display: none;
+}
+
 @media (max-width: 980px) {
   .app .app-body {
     grid-template-columns: 1fr;
