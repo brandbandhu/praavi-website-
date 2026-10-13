@@ -300,6 +300,7 @@ export default function FollowersPage() {
         saving={save.isPending}
         onSubmit={(row) => {
           const { instagram_growth, facebook_growth, total_growth, ...snapshot } = row;
+          if (!snapshot.facebook_url) delete snapshot.facebook_url;
           const existingForDay = snapshots.find(
             (item) =>
               item.client_id === snapshot.client_id &&
