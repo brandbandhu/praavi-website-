@@ -143,6 +143,8 @@ const getErrorMessage = (error: unknown) => {
   return "Unknown error";
 };
 
+const MAX_EMBEDDED_IMAGE_LENGTH = 1_500_000;
+
 const fileToDataUrl = (file: File) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -150,6 +152,68 @@ const fileToDataUrl = (file: File) =>
     reader.onerror = () => reject(new Error("Failed to read file."));
     reader.readAsDataURL(file);
   });
+
+const blobToDataUrl = (blob: Blob) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
+    reader.onerror = () => reject(new Error("Failed to read compressed image."));
+    reader.readAsDataURL(blob);
+  });
+
+const loadImageElement = (file: File) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Failed to load image for compression."));
+    };
+    image.src = objectUrl;
+  });
+
+const canvasToBlob = (canvas: HTMLCanvasElement, type: string, quality: number) =>
+  new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("Failed to compress image."));
+    }, type, quality);
+  });
+
+const fileToCompactDataUrl = async (file: File) => {
+  const originalDataUrl = await fileToDataUrl(file);
+  if (originalDataUrl.length <= MAX_EMBEDDED_IMAGE_LENGTH || file.type === "image/svg+xml") {
+    return originalDataUrl;
+  }
+
+  const image = await loadImageElement(file);
+  const maxWidth = 1400;
+  const maxHeight = 900;
+  const scale = Math.min(1, maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+  const width = Math.max(1, Math.round(image.naturalWidth * scale));
+  const height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Image compression is not supported in this browser.");
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+
+  for (const quality of [0.82, 0.72, 0.62, 0.52, 0.42]) {
+    const blob = await canvasToBlob(canvas, "image/jpeg", quality);
+    const dataUrl = await blobToDataUrl(blob);
+    if (dataUrl.length <= MAX_EMBEDDED_IMAGE_LENGTH) return dataUrl;
+  }
+
+  throw new Error("Image is too large. Upload a smaller/compressed image.");
+};
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
@@ -375,7 +439,7 @@ const AdminDashboardPage = () => {
     }
 
     const normalizedImage = imageUrl.trim() || "/placeholder.svg";
-    if (normalizedImage.length > 1_500_000) {
+    if (normalizedImage.length > MAX_EMBEDDED_IMAGE_LENGTH) {
       setError("Image is too large. Upload a smaller/compressed image.");
       return;
     }
@@ -445,7 +509,7 @@ const AdminDashboardPage = () => {
       setWorkError("Please upload a portfolio image or paste a real image URL before saving.");
       return;
     }
-    if (normalizedImage.length > 1_500_000) {
+    if (normalizedImage.length > MAX_EMBEDDED_IMAGE_LENGTH) {
       setWorkError("Image is too large. Upload a smaller/compressed image.");
       return;
     }
@@ -509,7 +573,7 @@ const AdminDashboardPage = () => {
     }
 
     const normalizedScreenshot = caseScreenshot.trim() || "/placeholder.svg";
-    if (normalizedScreenshot.length > 1_500_000) {
+    if (normalizedScreenshot.length > MAX_EMBEDDED_IMAGE_LENGTH) {
       setCaseError("Screenshot is too large. Upload a smaller/compressed image.");
       return;
     }
@@ -889,13 +953,9 @@ const AdminDashboardPage = () => {
         setError("");
       } catch (storageError) {
         try {
-          const dataUrl = await fileToDataUrl(file);
-          if (dataUrl.length > 1_500_000) {
-            setError("Image is too large. Upload a smaller/compressed image.");
-            return;
-          }
+          const dataUrl = await fileToCompactDataUrl(file);
           setImageUrl(dataUrl);
-          setError(`Upload failed. GoDaddy: ${getErrorMessage(error)} | Supabase Storage: ${getErrorMessage(storageError)}`);
+          setError("");
         } catch {
           setError(`Could not upload blog image: ${getErrorMessage(storageError)}`);
         }
@@ -918,11 +978,7 @@ const AdminDashboardPage = () => {
         setWorkError("");
       } catch (storageError) {
         try {
-          const dataUrl = await fileToDataUrl(file);
-          if (dataUrl.length > 1_500_000) {
-            setWorkError("Image is too large. Upload a smaller/compressed image.");
-            return;
-          }
+          const dataUrl = await fileToCompactDataUrl(file);
           setWorkImageUrl(dataUrl);
           setWorkError("");
         } catch {
@@ -949,15 +1005,9 @@ const AdminDashboardPage = () => {
         setCaseError("");
       } catch (storageError) {
         try {
-          const dataUrl = await fileToDataUrl(file);
-          if (dataUrl.length > 1_500_000) {
-            setCaseError("Screenshot is too large. Upload a smaller/compressed image.");
-            return;
-          }
+          const dataUrl = await fileToCompactDataUrl(file);
           setCaseScreenshot(dataUrl);
-          setCaseError(
-            `Upload failed. GoDaddy: ${getErrorMessage(error)} | Supabase Storage: ${getErrorMessage(storageError)}`
-          );
+          setCaseError("");
         } catch {
           setCaseError(`Could not upload case study screenshot: ${getErrorMessage(storageError)}`);
         }
@@ -980,15 +1030,9 @@ const AdminDashboardPage = () => {
         setClientError("");
       } catch (storageError) {
         try {
-          const dataUrl = await fileToDataUrl(file);
-          if (dataUrl.length > 1_500_000) {
-            setClientError("Image is too large. Upload a smaller/compressed image.");
-            return;
-          }
+          const dataUrl = await fileToCompactDataUrl(file);
           setClientLogoUrl(dataUrl);
-          setClientError(
-            `Upload failed. GoDaddy: ${getErrorMessage(error)} | Supabase Storage: ${getErrorMessage(storageError)}`
-          );
+          setClientError("");
         } catch {
           setClientError(`Could not upload client logo: ${getErrorMessage(storageError)}`);
         }
