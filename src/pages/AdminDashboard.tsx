@@ -174,6 +174,7 @@ const AdminDashboardPage = () => {
   const [workImageUrl, setWorkImageUrl] = useState("/placeholder.svg");
   const [workLiveUrl, setWorkLiveUrl] = useState("");
   const [workError, setWorkError] = useState("");
+  const [workImageUploading, setWorkImageUploading] = useState(false);
   const [editingWorkId, setEditingWorkId] = useState<string | null>(null);
 
   const [caseStudies, setCaseStudies] = useState<CaseStudyItem[]>(getCaseStudyItems());
@@ -338,6 +339,7 @@ const AdminDashboardPage = () => {
     setWorkStat("");
     setWorkImageUrl("/placeholder.svg");
     setWorkLiveUrl("");
+    setWorkImageUploading(false);
     setEditingWorkId(null);
   };
 
@@ -431,6 +433,10 @@ const AdminDashboardPage = () => {
     }
     if (tags.length === 0) {
       setWorkError("Add at least one tag (comma separated).");
+      return;
+    }
+    if (workImageUploading) {
+      setWorkError("Image upload is still in progress. Please wait a moment.");
       return;
     }
 
@@ -899,6 +905,8 @@ const AdminDashboardPage = () => {
 
   const handleWorkImageUpload = async (file?: File) => {
     if (!file) return;
+    setWorkImageUploading(true);
+    setWorkError("Uploading image...");
     try {
       const uploadedUrl = await uploadImageToGodaddy(file, "works");
       setWorkImageUrl(uploadedUrl);
@@ -916,13 +924,13 @@ const AdminDashboardPage = () => {
             return;
           }
           setWorkImageUrl(dataUrl);
-          setWorkError(
-            `Upload failed. GoDaddy: ${getErrorMessage(error)} | Supabase Storage: ${getErrorMessage(storageError)}`
-          );
+          setWorkError("");
         } catch {
           setWorkError(`Could not upload work image: ${getErrorMessage(storageError)}`);
         }
       }
+    } finally {
+      setWorkImageUploading(false);
     }
   };
 
@@ -1112,11 +1120,11 @@ const AdminDashboardPage = () => {
                 <div><label className="block text-sm mb-2">Tags (comma separated)</label><input value={workTagsInput} onChange={(e) => setWorkTagsInput(e.target.value)} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
                 <div><label className="block text-sm mb-2">Result/Stat</label><input value={workStat} onChange={(e) => setWorkStat(e.target.value)} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
                 <div><label className="block text-sm mb-2">Image URL</label><input value={workImageUrl} onChange={(e) => setWorkImageUrl(e.target.value)} required className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
-                <div><label className="block text-sm mb-2">Or Upload Image</label><input type="file" accept="image/*" onChange={(e) => handleWorkImageUpload(e.target.files?.[0])} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm" /></div>
+                <div><label className="block text-sm mb-2">Or Upload Image</label><input type="file" accept="image/*" onChange={(e) => handleWorkImageUpload(e.target.files?.[0])} disabled={workImageUploading} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm disabled:cursor-not-allowed disabled:opacity-60" /></div>
                 <div className="md:col-span-2"><label className="block text-sm mb-2">Live Project URL (optional)</label><input value={workLiveUrl} onChange={(e) => setWorkLiveUrl(e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm" /></div>
                 {workError && <p className="md:col-span-2 text-sm text-destructive">{workError}</p>}
                 <div className="md:col-span-2 flex flex-wrap gap-3">
-                  <button type="submit" className="gradient-bg px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity">{editingWorkId ? "Update Work" : "Add Work"}</button>
+                  <button type="submit" disabled={workImageUploading} className="gradient-bg px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity disabled:cursor-not-allowed disabled:opacity-60">{workImageUploading ? "Uploading image..." : editingWorkId ? "Update Work" : "Add Work"}</button>
                   {editingWorkId && <button type="button" onClick={resetWorkForm} className="px-6 py-3 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">Cancel Edit</button>}
                 </div>
               </form>
