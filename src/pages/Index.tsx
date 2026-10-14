@@ -3,7 +3,6 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound, Bot, Database, Server, IndianRupee, Star, Quote } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
-import LeadPopup from "@/components/LeadPopup";
 import SeoHead from "@/components/SeoHead";
 import heroBanner from "@/assets/banner.jpg";
 
@@ -695,7 +694,6 @@ const Index = () => {
       <VideoTestimonialsSection />
       <WhyChooseUs />
       <ContactForm />
-      <LeadPopup />
     </>
   );
 };
