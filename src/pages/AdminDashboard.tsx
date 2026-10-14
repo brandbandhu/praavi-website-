@@ -82,6 +82,8 @@ const parseTags = (input: string) =>
     .map((tag) => tag.trim())
     .filter(Boolean);
 
+const isPlaceholderImage = (value: string) => value.trim().toLowerCase() === "/placeholder.svg";
+
 const emptyJobForm: JobPayload = {
   title: "",
   department: "",
@@ -432,7 +434,11 @@ const AdminDashboardPage = () => {
       return;
     }
 
-    const normalizedImage = workImageUrl.trim() || "/placeholder.svg";
+    const normalizedImage = workImageUrl.trim();
+    if (!normalizedImage || isPlaceholderImage(normalizedImage)) {
+      setWorkError("Please upload a portfolio image or paste a real image URL before saving.");
+      return;
+    }
     if (normalizedImage.length > 1_500_000) {
       setWorkError("Image is too large. Upload a smaller/compressed image.");
       return;
