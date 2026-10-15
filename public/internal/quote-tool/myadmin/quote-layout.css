@@ -74,6 +74,12 @@
   max-width: 100%;
 }
 
+.app .preview-table th:first-child,
+.app .preview-table td:first-child {
+  text-align: left;
+  white-space: normal;
+}
+
 .app .preview-totals .grand {
   align-items: center;
   gap: 8px;
