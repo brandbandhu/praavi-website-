@@ -83,6 +83,8 @@
 .app .preview-table th:first-child,
 .app .preview-table td:first-child {
   width: 100%;
+  text-align: left;
+  white-space: normal;
 }
 
 .app .preview-totals > div:not(.grand),
