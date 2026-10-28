@@ -238,8 +238,10 @@ export const submitJobApplication = async (formData: FormData) => {
       },
       `New job application: ${String(formData.get("position_applied_for") || `Job #${jobId}`)} - ${application.full_name}`
     );
-  } catch {
-    message += " Your application was saved, but our email notification could not be sent.";
+  } catch (notificationError) {
+    console.error("Web3Forms job application notification failed:", notificationError);
+    const reason = notificationError instanceof Error ? notificationError.message : "Unknown email error";
+    message += ` Your application was saved, but the email notification failed: ${reason}`;
   }
 
   return { success: true, message };
