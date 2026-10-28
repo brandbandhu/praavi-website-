@@ -7,6 +7,29 @@ export interface LeadPayload {
   message?: string;
 }
 
+const WEB3FORMS_ACCESS_KEY = "b6401e2e-6d3c-4fcd-8147-1cdb7ae010c9";
+
+export async function sendFormToWeb3Forms(
+  fields: Record<string, string>,
+  subject: string
+): Promise<void> {
+  const response = await fetch("https://api.web3forms.com/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject,
+      from_name: "Praavi Consultants Website",
+      botcheck: "",
+      ...fields,
+    }),
+  });
+  const result = await response.json().catch(() => null);
+  if (!response.ok || result?.success !== true) {
+    throw new Error(result?.message || "Could not send the notification email.");
+  }
+}
+
 const PRIVYR_WEBHOOK_URL =
   (import.meta.env.VITE_PRIVYR_WEBHOOK_URL as string | undefined)?.trim() ||
   "https://www.privyr.com/api/v1/incoming-leads/0vZfjMQw/cgVVSiYW";
@@ -76,6 +99,19 @@ export async function sendLeadToPrivyr(payload: LeadPayload): Promise<void> {
   };
 
   await sendLeadToGoogleSheets(body);
+
+  await sendFormToWeb3Forms(
+    {
+      name: body.name,
+      email: body.email,
+      phone: body.phone,
+      service: body.service,
+      message: body.message,
+      source_form: body.source_form,
+      source_page: body.source_page,
+    },
+    `New website enquiry: ${body.name}`
+  );
 
   try {
     const res = await fetch(PRIVYR_WEBHOOK_URL, {

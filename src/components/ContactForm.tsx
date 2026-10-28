@@ -3,12 +3,14 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Send } from "lucide-react";
 import { sendLeadToPrivyr } from "@/lib/leadWebhook";
+import { saveContactLead } from "@/lib/contactLeadApi";
 
 const ContactForm = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [form, setForm] = useState({ name: "", email: "", phone: "", service: "", message: "" });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,18 +18,31 @@ const ContactForm = () => {
     if (submitting) return;
 
     setSubmitting(true);
+    setSubmitError("");
     try {
-      await sendLeadToPrivyr({
+      const payload = {
         sourceForm: "contact-form",
         name: form.name,
         email: form.email,
         phone: form.phone,
         service: form.service,
         message: form.message,
-      });
+      } as const;
+      await Promise.all([
+        sendLeadToPrivyr(payload),
+        saveContactLead({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          service: form.service,
+          message: form.message,
+        }),
+      ]);
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 3000);
       setForm({ name: "", email: "", phone: "", service: "", message: "" });
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Could not submit the form. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -86,6 +101,7 @@ const ContactForm = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="service-card p-6 sm:p-8 space-y-4">
+                {submitError ? <p role="alert" className="text-sm text-destructive">{submitError}</p> : null}
                 <input
                   type="text"
                   required

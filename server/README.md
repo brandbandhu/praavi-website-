@@ -18,9 +18,6 @@ FMS_ADMIN_PASSWORD="admin-password"
 FMS_FINANCE_USERNAME="finance-username"
 FMS_FINANCE_PASSWORD="finance-password"
 PORT=4000
-RESEND_API_KEY="your-resend-api-key"
-RESEND_FROM_EMAIL="Praavi Careers <careers@your-verified-domain.com>"
-CAREER_NOTIFICATION_EMAIL="hr@your-company.com"
 ```
 
 Then run:
@@ -34,11 +31,11 @@ Run `database/supabase-finance-management-system.sql` once in Supabase SQL
 Editor to create the finance tables, RLS policies, default login hashes, and
 bucket defaults.
 
-Career applications send an email notification through Resend after the
-application is saved. Set the three `RESEND_*` / `CAREER_NOTIFICATION_EMAIL`
-values above in the production server environment, and use a sender address
-from a domain verified in Resend. Apply `database/supabase-careers.sql` to make
-resume uploads private; the admin download button then uses a short-lived link.
+Career application email notifications are sent through Web3Forms. Apply
+`database/supabase-careers.sql` to make resume uploads private; the admin
+download button then uses a short-lived link. Apply
+`database/supabase-contact-leads.sql` to collect website contact enquiries in
+the admin dashboard.
 
 The frontend expects the API at `/api/...`. In local development with the main
 site on port 8082, run this API on port 4000 and proxy `/api` to it.

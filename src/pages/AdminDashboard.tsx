@@ -21,6 +21,7 @@ import {
   type JobStatus,
 } from "@/lib/careerApi";
 import { supabase } from "@/lib/supabase";
+import { fetchContactLeads, type ContactLead } from "@/lib/contactLeadApi";
 import { ADMIN_LOGIN_PATH } from "@/lib/adminRoutes";
 import { uploadImageToGodaddy, uploadImageToSupabaseStorage } from "@/lib/uploadApi";
 import {
@@ -217,7 +218,7 @@ const fileToCompactDataUrl = async (file: File) => {
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState<"blog" | "work" | "case-studies" | "clients" | "career">("blog");
+  const [activeSection, setActiveSection] = useState<"blog" | "work" | "case-studies" | "clients" | "career" | "leads">("blog");
 
   const [posts, setPosts] = useState<BlogPost[]>(getBlogPosts());
   const [title, setTitle] = useState("");
@@ -276,6 +277,9 @@ const AdminDashboardPage = () => {
   const [savingApplicationId, setSavingApplicationId] = useState<number | null>(null);
   const [applicationError, setApplicationError] = useState("");
   const [applicationMessage, setApplicationMessage] = useState("");
+  const [contactLeads, setContactLeads] = useState<ContactLead[]>([]);
+  const [contactLeadsLoading, setContactLeadsLoading] = useState(false);
+  const [contactLeadsError, setContactLeadsError] = useState("");
 
   useEffect(() => {
     const normalizedPosts = normalizeIds(posts);
@@ -345,6 +349,26 @@ const AdminDashboardPage = () => {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (activeSection !== "leads") return;
+    let mounted = true;
+    setContactLeadsLoading(true);
+    setContactLeadsError("");
+    fetchContactLeads()
+      .then((leads) => {
+        if (mounted) setContactLeads(leads);
+      })
+      .catch((error) => {
+        if (mounted) setContactLeadsError(`Could not load contact enquiries: ${getErrorMessage(error)}`);
+      })
+      .finally(() => {
+        if (mounted) setContactLeadsLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [activeSection]);
 
   const syncAllToSupabase = async () => {
     setSyncing(true);
@@ -1126,6 +1150,14 @@ const AdminDashboardPage = () => {
           >
             Career / Job Posts
           </button>
+          <button
+            onClick={() => setActiveSection("leads")}
+            className={`px-5 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
+              activeSection === "leads" ? "gradient-bg text-primary-foreground border-transparent" : "border-border hover:bg-secondary"
+            }`}
+          >
+            Contact Enquiries ({contactLeads.length})
+          </button>
         </div>
 
         {activeSection === "blog" ? (
@@ -1339,7 +1371,7 @@ const AdminDashboardPage = () => {
               ))}
             </div>
           </>
-        ) : (
+        ) : activeSection === "career" ? (
           <>
             <div className="service-card">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
@@ -1507,6 +1539,48 @@ const AdminDashboardPage = () => {
               ))}
             </div>
           </>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-display text-2xl font-semibold">Contact Enquiries</h2>
+                <p className="text-sm text-muted-foreground mt-1">Website contact form submissions saved in Supabase.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setContactLeadsLoading(true);
+                  setContactLeadsError("");
+                  void fetchContactLeads()
+                    .then(setContactLeads)
+                    .catch((error) => setContactLeadsError(`Could not load contact enquiries: ${getErrorMessage(error)}`))
+                    .finally(() => setContactLeadsLoading(false));
+                }}
+                className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary transition-colors"
+              >
+                Refresh
+              </button>
+            </div>
+            {contactLeadsError ? <p className="text-sm text-destructive">{contactLeadsError}</p> : null}
+            {contactLeadsLoading ? (
+              <div className="service-card text-sm text-muted-foreground">Loading enquiries...</div>
+            ) : contactLeads.length === 0 ? (
+              <div className="service-card text-sm text-muted-foreground">No contact enquiries submitted yet.</div>
+            ) : contactLeads.map((lead) => (
+              <article key={lead.id} className="service-card space-y-2">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-display text-lg font-semibold">{lead.name}</h3>
+                    <p className="text-sm text-muted-foreground">{lead.email}{lead.phone ? ` | ${lead.phone}` : ""}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{new Date(lead.created_at).toLocaleString()}</span>
+                </div>
+                <p className="text-sm"><span className="font-medium">Service:</span> {lead.service}</p>
+                {lead.message ? <p className="text-sm text-muted-foreground whitespace-pre-wrap">{lead.message}</p> : null}
+                <a href={`mailto:${lead.email}`} className="inline-block text-sm text-primary hover:underline">Reply by email</a>
+              </article>
+            ))}
+          </div>
         )}
       </div>
     </section>

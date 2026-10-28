@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { sendFormToWeb3Forms } from "@/lib/leadWebhook";
 
 export type JobStatus = "active" | "inactive";
 export type ApplicationStatus = "new" | "selected" | "not_selected" | "on_hold" | "interview_scheduled";
@@ -222,15 +223,21 @@ export const submitJobApplication = async (formData: FormData) => {
 
   let message = "Application submitted successfully. Our team will review it soon.";
   try {
-    const notification = await fetch("/api/career/application-notification", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...application,
-        position_applied_for: String(formData.get("position_applied_for") || ""),
-      }),
-    });
-    if (!notification.ok) throw new Error("Notification email could not be sent.");
+    await sendFormToWeb3Forms(
+      {
+        name: application.full_name,
+        email: application.email,
+        phone: application.phone,
+        position: String(formData.get("position_applied_for") || `Job #${jobId}`),
+        experience: application.experience,
+        location: application.current_location,
+        portfolio: application.portfolio_link || "",
+        resume: resumeFile,
+        message: application.message,
+        source_form: "career-application",
+      },
+      `New job application: ${String(formData.get("position_applied_for") || `Job #${jobId}`)} - ${application.full_name}`
+    );
   } catch {
     message += " Your application was saved, but our email notification could not be sent.";
   }

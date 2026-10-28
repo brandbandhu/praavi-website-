@@ -12,7 +12,6 @@ import { reportCardRouter } from "./routes/reportCard.js";
 import { quotationsRouter } from "./routes/quotations.js";
 import { deliverableTypesRouter, quotationPackagesRouter } from "./routes/dmCatalog.js";
 import { socialDeskFollowersRouter } from "./routes/socialDeskFollowers.js";
-import { careerNotificationsRouter } from "./routes/careerNotifications.js";
 
 const app = express();
 app.use(cors());
@@ -52,7 +51,6 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, databaseConfigured, databaseKeyType }));
-app.use("/api/career", wrapAsyncRouter(careerNotificationsRouter));
 
 app.use("/api", (_req, res, next) => {
   if (!databaseConfigured) {
