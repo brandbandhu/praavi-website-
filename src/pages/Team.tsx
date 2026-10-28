@@ -48,6 +48,7 @@ const TeamPage = () => (
               </div>
               <div>
                 <p className="text-sm text-primary font-semibold mb-2">Founder</p>
+                <p className="font-display text-xl sm:text-2xl font-semibold mb-2">Malhar Pandey</p>
                 <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Founder-Led Strategy, Built on Trust</h2>
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6">
                   Praavi's founder works closely on business discovery, brand positioning, website direction, and
