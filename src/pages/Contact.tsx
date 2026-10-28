@@ -40,8 +40,8 @@ const ContactInfoSection = () => {
               </div>
               <h3 className="font-display text-2xl font-bold mb-4">{item.title}</h3>
               <div className="space-y-1.5 text-muted-foreground leading-relaxed">
-                {item.content.map((line) => (
-                  {item.title === "Call Us" ? (
+                {item.content.map((line) =>
+                  item.title === "Call Us" ? (
                     <a key={line} href={`tel:${line.replace(/\D/g, "")}`} className="block text-sm sm:text-base hover:text-primary transition-colors">
                       {line}
                     </a>
@@ -49,8 +49,8 @@ const ContactInfoSection = () => {
                     <p key={line} className="text-sm sm:text-base">
                       {line}
                     </p>
-                  )}
-                ))}
+                  )
+                )}
               </div>
             </div>
           ))}
