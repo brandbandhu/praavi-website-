@@ -11,6 +11,7 @@ const navLinks = [
   { label: "Case Studies", path: "/case-studies" },
   { label: "Team", path: "/team" },
   { label: "Our Clients", path: "/clients" },
+  { label: "Career", path: "/career" },
   { label: "About", path: "/about" },
   { label: "Blog", path: "/blog" },
 ];
