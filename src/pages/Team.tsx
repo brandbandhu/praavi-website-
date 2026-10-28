@@ -76,6 +76,7 @@ const TeamPage = () => (
             <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
               <div className="order-2 lg:order-1">
                 <p className="text-sm text-primary font-semibold mb-2">CEO</p>
+                <p className="font-display text-xl sm:text-2xl font-semibold mb-2">Pooja Pandey</p>
                 <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Execution Leadership That Keeps Growth Moving</h2>
                 <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-6">
                   The CEO leads daily delivery, coordinates specialist teams, and keeps every project focused on
