@@ -16,7 +16,7 @@ const contactInfo = [
   {
     title: "Call Us",
     icon: Phone,
-    content: ["+91 9699369117"],
+    content: ["+91 9699369117", "+91 9096829117"],
   },
   {
     title: "Email Us",
@@ -41,9 +41,15 @@ const ContactInfoSection = () => {
               <h3 className="font-display text-2xl font-bold mb-4">{item.title}</h3>
               <div className="space-y-1.5 text-muted-foreground leading-relaxed">
                 {item.content.map((line) => (
-                  <p key={line} className="text-sm sm:text-base">
-                    {line}
-                  </p>
+                  {item.title === "Call Us" ? (
+                    <a key={line} href={`tel:${line.replace(/\D/g, "")}`} className="block text-sm sm:text-base hover:text-primary transition-colors">
+                      {line}
+                    </a>
+                  ) : (
+                    <p key={line} className="text-sm sm:text-base">
+                      {line}
+                    </p>
+                  )}
                 ))}
               </div>
             </div>

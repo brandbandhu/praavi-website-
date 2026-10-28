@@ -82,10 +82,14 @@ const Footer = () => {
                 <Mail size={14} className="text-primary flex-shrink-0" />
                 <span className="break-all">praavi.consultants@gmail.com</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <a href="tel:+919699369117" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 <Phone size={14} className="text-primary flex-shrink-0" />
                 +91 9699369117
-              </div>
+              </a>
+              <a href="tel:+919096829117" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Phone size={14} className="text-primary flex-shrink-0" />
+                +91 9096829117
+              </a>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin size={14} className="text-primary flex-shrink-0" />
                 <span className="break-words">
