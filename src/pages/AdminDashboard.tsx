@@ -940,6 +940,16 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const handleDownloadResume = async (resumeFile: string) => {
+    setApplicationError("");
+    try {
+      const url = await getResumeUrl(resumeFile);
+      window.location.assign(url);
+    } catch (error) {
+      setApplicationError(`Could not download resume: ${getErrorMessage(error)}`);
+    }
+  };
+
   const handleBlogImageUpload = async (file?: File) => {
     if (!file) return;
     try {
@@ -1477,9 +1487,9 @@ const AdminDashboardPage = () => {
                         />
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <a href={getResumeUrl(application.resume_file)} target="_blank" rel="noreferrer" className="text-sm px-4 py-2 rounded-lg border border-border hover:bg-secondary transition-colors text-center">
+                        <button type="button" onClick={() => void handleDownloadResume(application.resume_file)} className="text-sm px-4 py-2 rounded-lg border border-border hover:bg-secondary transition-colors text-center">
                           Download Resume
-                        </a>
+                        </button>
                         <button
                           onClick={() => void handleUpdateApplication(application, {})}
                           disabled={savingApplicationId === application.id}

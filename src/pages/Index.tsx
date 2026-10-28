@@ -55,7 +55,7 @@ const Hero = () => (
         transition={{ duration: 0.6, delay: 0.4 }}
         className="text-muted-foreground mt-3 text-sm sm:text-base max-w-3xl mx-auto"
       >
-        Praavi Consultants helps ambitious businesses in Pune turn online visibility into qualified enquiries with websites, SEO, Google Ads, social media, and automation.
+        Praavi Consultants helps ambitious businesses in Maharashtra turn online visibility into qualified enquiries with websites, SEO, Google Ads, social media, and automation.
       </motion.p>
 
       <motion.div

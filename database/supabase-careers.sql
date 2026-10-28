@@ -79,8 +79,8 @@ for each row
 execute function public.set_updated_at();
 
 insert into storage.buckets (id, name, public)
-values ('job-resumes', 'job-resumes', true)
-on conflict (id) do update set public = true;
+values ('job-resumes', 'job-resumes', false)
+on conflict (id) do update set public = false;
 
 alter table public.jobs enable row level security;
 alter table public.job_applications enable row level security;
@@ -123,9 +123,10 @@ on storage.objects for insert
 with check (bucket_id = 'job-resumes');
 
 drop policy if exists "Public can read resumes" on storage.objects;
-create policy "Public can read resumes"
+drop policy if exists "Authenticated admins can read resumes" on storage.objects;
+create policy "Authenticated admins can read resumes"
 on storage.objects for select
-using (bucket_id = 'job-resumes');
+using (bucket_id = 'job-resumes' and auth.role() = 'authenticated');
 
 insert into public.jobs
   (title, department, job_type, work_mode, location, experience, salary_range, short_description, full_description, responsibilities, skills, qualification, open_positions, application_deadline, status)

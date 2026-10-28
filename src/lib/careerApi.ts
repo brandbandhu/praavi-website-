@@ -204,7 +204,7 @@ export const submitJobApplication = async (formData: FormData) => {
     resumeFile = upload.data.path;
   }
 
-  const { error } = await supabase.from("job_applications").insert({
+  const application = {
     job_id: jobId,
     full_name: String(formData.get("full_name") || ""),
     email: String(formData.get("email") || ""),
@@ -214,11 +214,28 @@ export const submitJobApplication = async (formData: FormData) => {
     resume_file: resumeFile,
     portfolio_link: String(formData.get("portfolio_link") || "") || null,
     message: String(formData.get("message") || ""),
-  });
+  };
+
+  const { error } = await supabase.from("job_applications").insert(application);
 
   if (error) throw error;
 
-  return { success: true, message: "Application submitted successfully. Our team will review it soon." };
+  let message = "Application submitted successfully. Our team will review it soon.";
+  try {
+    const notification = await fetch("/api/career/application-notification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...application,
+        position_applied_for: String(formData.get("position_applied_for") || ""),
+      }),
+    });
+    if (!notification.ok) throw new Error("Notification email could not be sent.");
+  } catch {
+    message += " Your application was saved, but our email notification could not be sent.";
+  }
+
+  return { success: true, message };
 };
 
 export const fetchJobApplications = async () => {
@@ -260,8 +277,13 @@ export const deleteJobApplication = async (id: number) => {
   return { success: true };
 };
 
-export const getResumeUrl = (resumeFile: string) => {
-  if (!resumeFile) return "#";
+export const getResumeUrl = async (resumeFile: string) => {
+  if (!resumeFile) throw new Error("Resume file is unavailable.");
   if (/^https?:\/\//i.test(resumeFile)) return resumeFile;
-  return supabase.storage.from(RESUME_BUCKET).getPublicUrl(resumeFile).data.publicUrl;
+
+  const { data, error } = await supabase.storage
+    .from(RESUME_BUCKET)
+    .createSignedUrl(resumeFile, 60, { download: true });
+  if (error) throw error;
+  return data.signedUrl;
 };
