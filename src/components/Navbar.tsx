@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const navLinks = [
@@ -16,6 +17,7 @@ const navLinks = [
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -23,6 +25,10 @@ const Navbar = () => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <nav
@@ -64,7 +70,46 @@ const Navbar = () => {
           </Link>
         </div>
 
+        <button
+          type="button"
+          className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border text-foreground hover:bg-secondary transition-colors"
+          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-primary-navigation"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+
       </div>
+
+      {menuOpen ? (
+        <div id="mobile-primary-navigation" className="lg:hidden border-t border-border bg-background/95 backdrop-blur-md shadow-xl">
+          <div className="container-max grid gap-1 px-4 py-3 sm:px-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.path}
+                onClick={() => setMenuOpen(false)}
+                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  location.pathname === link.path
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Link
+              to="/contact"
+              onClick={() => setMenuOpen(false)}
+              className="mt-1 rounded-lg gradient-bg px-4 py-2.5 text-center text-sm font-semibold text-primary-foreground"
+            >
+              Get Quote
+            </Link>
+          </div>
+        </div>
+      ) : null}
     </nav>
   );
 };

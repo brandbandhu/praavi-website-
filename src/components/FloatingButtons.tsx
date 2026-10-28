@@ -2,7 +2,7 @@ import { Phone } from "lucide-react";
 
 const FloatingButtons = () => {
   return (
-    <div className="hidden lg:flex fixed right-5 bottom-24 z-50 flex-col items-center gap-3">
+    <div className="fixed right-3 sm:right-5 bottom-24 z-[60] flex flex-col items-center gap-3">
       <a
         href="tel:+919699369117"
         aria-label="Call Now"
