@@ -4,23 +4,21 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound, Bot, Database, Server, IndianRupee, Star, Quote } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 import SeoHead from "@/components/SeoHead";
-import heroBanner from "@/assets/banner.jpg";
+import DiwaliCelebration from "@/components/diwali/DiwaliCelebration";
+import DiwaliHeroWish from "@/components/diwali/DiwaliHeroWish";
 
 /* ---- Hero ---- */
 const Hero = () => (
-  <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden">
-    {/* Banner background image */}
-    <div
-      className="absolute inset-0 bg-cover bg-center opacity-35"
-      style={{ backgroundImage: `url(${heroBanner})` }}
-    />
+  <section className="relative pt-8 sm:pt-10 lg:pt-12 pb-20 sm:pb-28 lg:pb-36 overflow-hidden">
     <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/50 to-background/70" />
 
     {/* Glow */}
     <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-primary/5 blur-[120px]" />
     <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-accent/5 blur-[100px]" />
+    <DiwaliCelebration />
 
     <div className="relative z-10 container-max px-4 sm:px-6 lg:px-8 text-center">
+      <DiwaliHeroWish />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
