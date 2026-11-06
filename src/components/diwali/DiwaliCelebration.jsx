@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Sparkles } from "lucide-react";
 import FireworksCanvas from "./FireworksCanvas";
 import { DIWALI_CONFIG } from "./config";
 import styles from "./diwali.module.css";
 
-// Also remember playback in memory when browser privacy settings block storage.
-let playedInMemory = false;
-
 export default function DiwaliCelebration() {
+  const sceneryRef = useRef(null);
   const [playing, setPlaying] = useState(false);
   const [cycle, setCycle] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(
@@ -25,55 +23,47 @@ export default function DiwaliCelebration() {
   useEffect(() => {
     if (!DIWALI_CONFIG.enabled) return;
     let timer;
+    let heroVisible = false;
     const beginWhenVisible = () => {
       window.clearTimeout(timer);
-      if (document.hidden || document.readyState !== "complete") return;
+      if (!heroVisible || document.hidden || reducedMotion) {
+        setPlaying(false);
+        return;
+      }
+      if (document.readyState !== "complete") return;
       // Let the loaded hero paint before starting the celebration.
       timer = window.setTimeout(() => {
-        let seen = playedInMemory;
-        try {
-          seen = seen || (!DIWALI_CONFIG.previewOnReload && sessionStorage.getItem(DIWALI_CONFIG.sessionKey) === "true");
-        } catch { /* Fall back to session memory when storage is unavailable. */ }
-        if (seen || document.hidden || window.scrollY > 0) return;
-        playedInMemory = true;
-        try {
-          sessionStorage.setItem(DIWALI_CONFIG.sessionKey, "true");
-        } catch { /* Session memory still prevents replay between routes. */ }
-        setPlaying(true);
+        if (heroVisible && !document.hidden) setPlaying(true);
       }, 400);
     };
-    beginWhenVisible();
+    const observer = new IntersectionObserver(([entry]) => {
+      heroVisible = entry.isIntersecting;
+      beginWhenVisible();
+    });
+    observer.observe(sceneryRef.current);
     window.addEventListener("load", beginWhenVisible);
     document.addEventListener("visibilitychange", beginWhenVisible);
     return () => {
       window.clearTimeout(timer);
+      observer.disconnect();
       window.removeEventListener("load", beginWhenVisible);
       document.removeEventListener("visibilitychange", beginWhenVisible);
     };
-  }, []);
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (!playing) return;
     const stopTimer = reducedMotion ? window.setTimeout(
       () => setPlaying(false), DIWALI_CONFIG.durationMs,
     ) : null;
-    // Keep short fireworks sequences running until the visitor scrolls.
+    // Keep fireworks running while the homepage hero is visible.
     const loopTimer = reducedMotion ? null : window.setInterval(
       () => setCycle((value) => value + 1),
       DIWALI_CONFIG.durationMs,
     );
-    const onScroll = () => setPlaying(false);
-    window.addEventListener("scroll", onScroll, { passive: true, once: true });
-    // Do not return to an old celebration after switching browser tabs.
-    const onVisibility = () => {
-      if (document.hidden) setPlaying(false);
-    };
-    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       if (stopTimer !== null) window.clearTimeout(stopTimer);
       if (loopTimer !== null) window.clearInterval(loopTimer);
-      window.removeEventListener("scroll", onScroll);
-      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [playing, reducedMotion]);
 
@@ -81,12 +71,14 @@ export default function DiwaliCelebration() {
 
   return (
     <>
-      {playing && !reducedMotion && (
-        <div key={cycle} className={styles.scenery} aria-hidden="true">
-          <div className={styles.glow} />
-          <FireworksCanvas durationMs={DIWALI_CONFIG.durationMs} />
-        </div>
-      )}
+      <div ref={sceneryRef} className={styles.scenery} aria-hidden="true">
+        {playing && !reducedMotion && (
+          <div key={cycle} className={styles.scenery}>
+            <div className={styles.glow} />
+            <FireworksCanvas durationMs={DIWALI_CONFIG.durationMs} />
+          </div>
+        )}
+      </div>
       {createPortal(
         <>
           <button
