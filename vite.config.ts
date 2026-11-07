@@ -27,6 +27,14 @@ export default defineConfig(({ mode }) => ({
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
           const url = req.url || "";
+          if (/^\/diwali-wishes\/?$/.test(url.split("?")[0])) {
+            const filePath = path.resolve(__dirname, "public/diwali-wishes/index.html");
+            if (fs.existsSync(filePath)) {
+              res.setHeader("Content-Type", "text/html; charset=utf-8");
+              res.end(fs.readFileSync(filePath, "utf-8"));
+              return;
+            }
+          }
           if (url === "/landing" || url === "/landing/") {
             const filePath = path.resolve(__dirname, "public/landing/index.html");
             if (fs.existsSync(filePath)) {
@@ -65,6 +73,14 @@ export default defineConfig(({ mode }) => ({
       configurePreviewServer(server) {
         server.middlewares.use((req, res, next) => {
           const url = req.url || "";
+          if (/^\/diwali-wishes\/?$/.test(url.split("?")[0])) {
+            const filePath = path.resolve(__dirname, "public/diwali-wishes/index.html");
+            if (fs.existsSync(filePath)) {
+              res.setHeader("Content-Type", "text/html; charset=utf-8");
+              res.end(fs.readFileSync(filePath, "utf-8"));
+              return;
+            }
+          }
           if (url === "/landing" || url === "/landing/") {
             const filePath = path.resolve(__dirname, "public/landing/index.html");
             if (fs.existsSync(filePath)) {

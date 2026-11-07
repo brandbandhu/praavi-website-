@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build:diwali": "node scripts/build-diwali-wishes.mjs",
     "sitemap": "node scripts/generate-sitemap.mjs",
     "build": "npm run sitemap && vite build && npm --prefix server run build",
     "build:dev": "vite build --mode development",

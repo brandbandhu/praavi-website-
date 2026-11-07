@@ -18,6 +18,7 @@ const staticRoutes = [
   "/career",
   "/clients",
   "/contact",
+  "/diwali-wishes",
   "/industries/hospitals",
   "/industries/manufacturers",
   "/industries/real-estate",

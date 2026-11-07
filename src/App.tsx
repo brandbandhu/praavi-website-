@@ -62,6 +62,14 @@ const QuoteToolRedirect = () => {
   return null;
 };
 
+const DiwaliWishesRedirect = () => {
+  useEffect(() => {
+    window.location.replace(`/diwali-wishes/index.html${window.location.search}${window.location.hash}`);
+  }, []);
+
+  return <p role="status">Opening Diwali wishes…</p>;
+};
+
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Index />} />
@@ -117,6 +125,10 @@ const AppShell = () => {
   const { pathname } = useLocation();
   const isSocialDesk = pathname.startsWith("/social_desk");
   const isDigitalMarketingTeam = pathname.startsWith("/digital_marketing_team");
+
+  if (/^\/diwali-wishes\/?$/.test(pathname)) {
+    return <DiwaliWishesRedirect />;
+  }
 
   if (isSocialDesk) {
     return (
