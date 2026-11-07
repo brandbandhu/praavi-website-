@@ -22,6 +22,7 @@ import {
 } from "@/lib/careerApi";
 import { supabase } from "@/lib/supabase";
 import { fetchContactLeads, type ContactLead } from "@/lib/contactLeadApi";
+import DiwaliGreetingsPanel from "@/components/admin/DiwaliGreetingsPanel";
 import { ADMIN_LOGIN_PATH } from "@/lib/adminRoutes";
 import { uploadImageToGodaddy, uploadImageToSupabaseStorage } from "@/lib/uploadApi";
 import {
@@ -218,7 +219,7 @@ const fileToCompactDataUrl = async (file: File) => {
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState<"blog" | "work" | "case-studies" | "clients" | "career" | "leads">("blog");
+  const [activeSection, setActiveSection] = useState<"blog" | "work" | "case-studies" | "clients" | "career" | "leads" | "diwali">("blog");
 
   const [posts, setPosts] = useState<BlogPost[]>(getBlogPosts());
   const [title, setTitle] = useState("");
@@ -1158,9 +1159,17 @@ const AdminDashboardPage = () => {
           >
             Contact Enquiries ({contactLeads.length})
           </button>
+          <button
+            onClick={() => setActiveSection("diwali")}
+            className={`px-5 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
+              activeSection === "diwali" ? "gradient-bg text-primary-foreground border-transparent" : "border-border hover:bg-secondary"
+            }`}
+          >
+            Diwali Wishes
+          </button>
         </div>
 
-        {activeSection === "blog" ? (
+        {activeSection === "diwali" ? <DiwaliGreetingsPanel /> : activeSection === "blog" ? (
           <>
             <div className="service-card">
               <h2 className="font-display text-xl font-semibold mb-4">{editingPostId ? "Edit Blog Post" : "Create New Blog Post"}</h2>

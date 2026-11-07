@@ -31,6 +31,11 @@ await build({
       transformIndexHtml() {
         return [
           {
+            tag: "script",
+            attrs: { type: "module", src: "/diwali-wishes/collector.js" },
+            injectTo: "body",
+          },
+          {
             tag: "link",
             attrs: { rel: "canonical", href: "https://praaviconsultants.in/diwali-wishes" },
             injectTo: "head",
@@ -49,3 +54,5 @@ await build({
     emptyOutDir: false,
   },
 });
+
+await import("./build-diwali-collector.mjs");

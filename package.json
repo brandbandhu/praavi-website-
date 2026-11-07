@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build:diwali": "node scripts/build-diwali-wishes.mjs",
+    "build:diwali-collector": "node scripts/build-diwali-collector.mjs",
     "sitemap": "node scripts/generate-sitemap.mjs",
-    "build": "npm run sitemap && vite build && npm --prefix server run build",
+    "build": "npm run sitemap && npm run build:diwali-collector && vite build && npm --prefix server run build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "security:secrets": "node scripts/check-secrets.mjs",
