@@ -9,6 +9,9 @@ export interface BlogPost {
   date: string;
   imageUrl: string;
   createdAt: number;
+  // Raw source metadata, kept separate from display dates and fallback timestamps.
+  publishedAt?: string | null;
+  modifiedAt?: string | null;
 }
 
 const BLOG_STORAGE_KEY = "praavi_blog_posts";
@@ -35,6 +38,7 @@ const defaultPosts: BlogPost[] = [
     category: "SEO",
     readTime: "6 min read",
     date: "Feb 10, 2026",
+    publishedAt: "2026-02-10",
     imageUrl: DEFAULT_IMAGE,
     createdAt: 1739145600000,
   },
@@ -49,6 +53,7 @@ const defaultPosts: BlogPost[] = [
     category: "Web Design",
     readTime: "5 min read",
     date: "Jan 28, 2026",
+    publishedAt: "2026-01-28",
     imageUrl: DEFAULT_IMAGE,
     createdAt: 1738022400000,
   },
@@ -63,6 +68,7 @@ const defaultPosts: BlogPost[] = [
     category: "Paid Ads",
     readTime: "7 min read",
     date: "Jan 15, 2026",
+    publishedAt: "2026-01-15",
     imageUrl: DEFAULT_IMAGE,
     createdAt: 1736899200000,
   },
@@ -83,6 +89,8 @@ const normalizeSinglePost = (post: Partial<BlogPost>): BlogPost | null => {
     date: post.date?.trim() || "Jan 1, 2026",
     imageUrl: normalizeImageUrl(post.imageUrl),
     createdAt: typeof post.createdAt === "number" ? post.createdAt : Date.now(),
+    publishedAt: post.publishedAt,
+    modifiedAt: post.modifiedAt,
   };
 };
 

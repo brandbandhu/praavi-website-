@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { getBlogPostBySlug, type BlogPost } from "@/lib/blogStore";
 import { fetchPublishedBlogPostBySlug } from "@/lib/contentApi";
 import SeoHead from "@/components/SeoHead";
+import { buildBlogPostingSchema } from "@/lib/blogSchema";
 
 const renderContent = (content: string) => {
   const lines = content
@@ -46,6 +47,7 @@ const BlogPostPage = () => {
 
     let mounted = true;
     setLoading(true);
+    setPost(getBlogPostBySlug(slug));
     fetchPublishedBlogPostBySlug(slug)
       .then((livePost) => {
         if (!mounted) return;
@@ -73,7 +75,7 @@ const BlogPostPage = () => {
     );
   }
 
-  if (!post) {
+  if (!post || post.slug !== slug) {
     return (
       <section className="section-padding">
         <div className="container-max max-w-3xl">
@@ -89,12 +91,19 @@ const BlogPostPage = () => {
     );
   }
 
+  const schema = buildBlogPostingSchema(post);
+
   return (
     <>
       <SeoHead
         title={`${post.title} | Praavi Blog`}
         description={post.excerpt}
         canonicalPath={`/blog/${post.slug}`}
+        schema={schema}
+        ogType="article"
+        ogTitle={post.title}
+        ogImage={typeof schema.image === "string" ? schema.image : null}
+        publishedTime={typeof schema.datePublished === "string" ? schema.datePublished : undefined}
       />
       <section className="section-padding">
         <article className="container-max max-w-3xl service-card">

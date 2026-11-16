@@ -73,6 +73,8 @@ export const fetchPublishedBlogPosts = async (): Promise<BlogPost[]> => {
     date: formatDate(row.published_at ?? row.created_at),
     imageUrl: normalizeImageUrl(row.image_url),
     createdAt: toTimestamp(row.published_at ?? row.created_at),
+    publishedAt: row.published_at,
+    modifiedAt: row.updated_at,
   }));
 };
 
@@ -98,6 +100,8 @@ export const fetchPublishedBlogPostBySlug = async (slug: string): Promise<BlogPo
     date: formatDate((data as any).published_at ?? (data as any).created_at),
     imageUrl: normalizeImageUrl((data as any).image_url),
     createdAt: toTimestamp((data as any).published_at ?? (data as any).created_at),
+    publishedAt: (data as any).published_at,
+    modifiedAt: (data as any).updated_at,
   };
 };
 
