@@ -1,7 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import { resolveSupabaseConfig } from "./supabaseConfig.mjs";
 
-const { url: SUPABASE_URL, key: SUPABASE_ANON_KEY } = resolveSupabaseConfig(import.meta.env);
+// Pass only the public Supabase settings; passing import.meta.env as a whole
+// would embed every VITE_* value in builds that share this module.
+const { url: SUPABASE_URL, key: SUPABASE_ANON_KEY } = resolveSupabaseConfig({
+  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+  VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  VITE_SUPABASE_PUBLISHABLE_KEY: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+});
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
