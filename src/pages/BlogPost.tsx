@@ -15,13 +15,13 @@ const renderContent = (content: string) => {
     const numberedPoint = line.match(/^(\d+)\.\s+(.*)$/);
     if (numberedPoint) {
       return (
-        <div
+        <h2
           key={`${line}-${index}`}
-          className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm leading-6"
+          className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm leading-6 [font-family:inherit]"
         >
           <span className="font-semibold text-primary">{numberedPoint[1]}. </span>
           <span>{numberedPoint[2]}</span>
-        </div>
+        </h2>
       );
     }
 
