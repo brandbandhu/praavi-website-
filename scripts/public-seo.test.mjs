@@ -201,9 +201,28 @@ test("June Offer static HTML preserves the shipped public app and provides initi
   assert(d.getElementById("root").textContent.length > 1000);
   assert.equal(d.querySelectorAll('link[rel="canonical"]').length, 1);
   assert.equal(d.querySelector('link[rel="canonical"]').href, "https://www.praaviconsultants.in/june-offer");
+  assert(d.querySelector("main").textContent.trim().length > 1000);
+  assert.equal(d.querySelectorAll('meta[name="description"]').length, 1);
+  for (const [key, value] of Object.entries({
+    "og:type": "website",
+    "og:title": "Praavi Consultants - Digital Growth for Marathi Businesses",
+    "og:description": "Website, SEO, Social Media and Google Ads dware tumcha vyavsay online vadhava.",
+    "og:url": "https://www.praaviconsultants.in/june-offer",
+    "twitter:card": "summary",
+    "twitter:title": d.title,
+    "twitter:description": d.querySelector('meta[name="description"]').content,
+  })) {
+    const tags = d.querySelectorAll(`meta[property="${key}"],meta[name="${key}"]`);
+    assert.equal(tags.length, 1, `June Offer: missing or duplicate ${key}`);
+    assert.equal(tags[0].content, value);
+  }
+  assert(!d.querySelector('meta[name="twitter:site"]'));
+  assert(!d.querySelector('meta[name="robots"][content*="noindex"]'));
   assert(d.querySelector('script[type="module"][src^="/june-offer/assets/"]'));
   // Re-capture its public HTML whenever the independently built app changes.
   const script = d.querySelector('script[type="module"]').getAttribute("src");
-  assert.equal(createHash("sha256").update(fs.readFileSync(`public${script}`)).digest("hex"), "a36b8e96c443160d3ba099e18c9230432aefdcadaffc688a6285599c45ad4493", "June Offer app changed: regenerate and verify its initial HTML snapshot");
+  // Git checkouts may use CRLF; line endings do not change the shipped app.
+  const scriptSource = fs.readFileSync(`public${script}`, "utf8").replace(/\r\n/g, "\n");
+  assert.equal(createHash("sha256").update(scriptSource).digest("hex"), "a36b8e96c443160d3ba099e18c9230432aefdcadaffc688a6285599c45ad4493", "June Offer app changed: regenerate and verify its initial HTML snapshot");
   dom.window.close();
 });
