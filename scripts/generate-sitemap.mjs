@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 import { loadEnv } from "vite";
 import { resolveSupabaseConfig } from "../src/lib/supabaseConfig.mjs";
+import { isInternalRoute } from "../src/lib/internalRoutes.mjs";
 import { SITE_URL, blogEntry, buildSitemapXml, canonicalLocation, checkIndexableEntries, fetchAllPublishedBlogs, validateSitemap } from "./lib/sitemap.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -17,7 +18,6 @@ const staticRoutes = [
   "/career",
   "/clients",
   "/contact",
-  "/diwali-wishes",
   "/industries/hospitals",
   "/industries/manufacturers",
   "/industries/real-estate",
@@ -69,6 +69,7 @@ const main = async () => {
   }
   const candidates = new Map();
   for (const route of [...staticRoutes, ...subServiceRoutes]) {
+    if (isInternalRoute(route)) continue;
     const loc = canonicalLocation(route);
     candidates.set(loc, { loc });
   }

@@ -1,11 +1,8 @@
 User-agent: *
 Allow: /
 
-# Prevent indexing of private/admin and conversion-only pages.
-Disallow: /admin
-Disallow: /admin/
-Disallow: /my_praavi_consultant_pc_admin_yes
-Disallow: /my_praavi_consultant_pc_admin_yes/
+# Internal pages use HTML/HTTP noindex. Allow crawling so robots can read it.
+# Keep the existing conversion-only crawl rules.
 Disallow: /landing
 Disallow: /landing/
 Disallow: /thank-you

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
 import AppErrorBoundary from "@/components/AppErrorBoundary";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import InternalRobots from "@/components/InternalRobots";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
 import SearchAds from "./pages/SearchAds";
@@ -165,6 +166,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <InternalRobots />
         <ScrollToTop />
         <AppShell />
       </BrowserRouter>

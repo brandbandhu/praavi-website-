@@ -1,6 +1,6 @@
 # SEO production readiness review
 
-Reviewed on 2026-11-16 (Asia/Calcutta). **Deployment is blocked by an existing upload credential exposure in the main browser bundle.** No push, deployment, credential rotation, or production configuration change was performed during this review.
+Reviewed on 2026-11-16 (Asia/Calcutta). **The upload credential exposure has now been remediated in local code and builds.** Approved rotation, server configuration, the unapplied Storage policy migration, deployment, and live smoke tests are still required. See [the secure upload deployment report](secure-media-uploads.md). No push, deployment, credential rotation, or live configuration change was performed.
 
 ## Scope and Git review
 
@@ -24,11 +24,11 @@ Private environment files, local `.tmp/` logs/screenshots, and Vite timestamp fi
 
 ## Remaining risks and approval boundary
 
-1. **Blocking: upload credential exposure.** The existing `src/lib/uploadApi.ts` reads `VITE_UPLOAD_API_SECRET` and sends it from the browser. Its configured value remains present in the main `dist/assets/index-*.js` bundle. This behavior predates the SEO work. Move private upload authorization server-side and rotate the exposed credential before approving deployment of this artifact. That remediation changes a separate feature and may require production configuration changes, so it was not performed here.
+1. **Credential remediation is implemented locally.** Browser uploads now use a user session and the authenticated backend; current browser bundles contain no upload credential. The exposed production value still requires an approved coordinated rotation/deployment. The initial review found the older upload flow described above; the subsequent security task replaced it without changing SEO behavior.
 2. **Social crawler reliability.** Blog metadata and JSON-LD are still inserted client-side. Reliable article social previews require SSR, prerendering, or article-specific static HTML. Existing crawler checks found generic metadata in the initial HTML.
 3. **Schema data limits.** Current blog records have no modification timestamps, so `dateModified` is correctly omitted. Organization authorship was confirmed by the owner. The earlier Schema Markup Validator check returned zero errors/warnings; Google Rich Results Test could not complete because it required login. That external validation remains outstanding.
 4. **Sitemap operation.** Generation requires the public Supabase dataset and website to be reachable. API failures, incomplete pages, or unverifiable responses fail the build instead of publishing a partial list. Published/deleted content requires a new production build and deployment to refresh this static sitemap.
 5. **Existing canonical mismatch.** `/diwali-wishes` is excluded because its page declares the non-www canonical. That canonical was not changed.
 6. **Non-blocking build notices.** The build reports a large JavaScript chunk and outdated Browserslist data. Test output also contains existing Node and React Router notices.
 
-The SEO implementation and sitemap checks pass. The generated project artifact is **not ready for production deployment** until the credential blocker is resolved. Pushes, deployment, and production configuration changes require the owner's confirmation.
+The SEO implementation and sitemap checks pass. Subsequent upload security checks also pass locally, including the browser credential gate. Production approval still requires the rotation, policy/configuration changes, live verification, and existing dependency-advisory review documented in the upload report. Pushes, deployment, credential rotation, and live configuration changes require the owner's confirmation.

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../lib/db.js";
 import { requireAuth, requireRole } from "../middleware/requireAuth.js";
 import { logActivity } from "../lib/activityLog.js";
+import { financeCollectionLimitError } from "../lib/financeCollectionLimits.js";
 import {
   drawChecklist,
   drawFacts,
@@ -101,6 +102,8 @@ async function snapshotDeliverables(deliverables: z.infer<typeof deliverableInpu
 }
 
 quotationsRouter.post("/", requireRole("accountant"), async (req, res) => {
+  const collectionError = financeCollectionLimitError(req.body, ["lineItems", "deliverables"]);
+  if (collectionError) return res.status(400).json({ error: collectionError });
   const parsed = createSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
 
@@ -157,6 +160,8 @@ const updateSchema = z.object({
 });
 
 quotationsRouter.put("/:id", requireRole("accountant"), async (req, res) => {
+  const collectionError = financeCollectionLimitError(req.body, ["lineItems", "deliverables"]);
+  if (collectionError) return res.status(400).json({ error: collectionError });
   const parsed = updateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
 

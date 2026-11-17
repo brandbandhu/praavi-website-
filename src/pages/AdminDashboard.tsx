@@ -24,7 +24,7 @@ import { supabase } from "@/lib/supabase";
 import { fetchContactLeads, type ContactLead } from "@/lib/contactLeadApi";
 import DiwaliGreetingsPanel from "@/components/admin/DiwaliGreetingsPanel";
 import { ADMIN_LOGIN_PATH } from "@/lib/adminRoutes";
-import { uploadImageToGodaddy, uploadImageToSupabaseStorage } from "@/lib/uploadApi";
+import { uploadAdminImage } from "@/lib/uploadApi";
 import {
   deleteBlogPostFromSupabase,
   deleteClientFromSupabase,
@@ -146,76 +146,6 @@ const getErrorMessage = (error: unknown) => {
 };
 
 const MAX_EMBEDDED_IMAGE_LENGTH = 1_500_000;
-
-const fileToDataUrl = (file: File) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
-    reader.onerror = () => reject(new Error("Failed to read file."));
-    reader.readAsDataURL(file);
-  });
-
-const blobToDataUrl = (blob: Blob) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : "");
-    reader.onerror = () => reject(new Error("Failed to read compressed image."));
-    reader.readAsDataURL(blob);
-  });
-
-const loadImageElement = (file: File) =>
-  new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    const objectUrl = URL.createObjectURL(file);
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      resolve(image);
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error("Failed to load image for compression."));
-    };
-    image.src = objectUrl;
-  });
-
-const canvasToBlob = (canvas: HTMLCanvasElement, type: string, quality: number) =>
-  new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
-      else reject(new Error("Failed to compress image."));
-    }, type, quality);
-  });
-
-const fileToCompactDataUrl = async (file: File) => {
-  const originalDataUrl = await fileToDataUrl(file);
-  if (originalDataUrl.length <= MAX_EMBEDDED_IMAGE_LENGTH || file.type === "image/svg+xml") {
-    return originalDataUrl;
-  }
-
-  const image = await loadImageElement(file);
-  const maxWidth = 1400;
-  const maxHeight = 900;
-  const scale = Math.min(1, maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
-  const width = Math.max(1, Math.round(image.naturalWidth * scale));
-  const height = Math.max(1, Math.round(image.naturalHeight * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("Image compression is not supported in this browser.");
-  context.fillStyle = "#ffffff";
-  context.fillRect(0, 0, width, height);
-  context.drawImage(image, 0, 0, width, height);
-
-  for (const quality of [0.82, 0.72, 0.62, 0.52, 0.42]) {
-    const blob = await canvasToBlob(canvas, "image/jpeg", quality);
-    const dataUrl = await blobToDataUrl(blob);
-    if (dataUrl.length <= MAX_EMBEDDED_IMAGE_LENGTH) return dataUrl;
-  }
-
-  throw new Error("Image is too large. Upload a smaller/compressed image.");
-};
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
@@ -978,24 +908,9 @@ const AdminDashboardPage = () => {
   const handleBlogImageUpload = async (file?: File) => {
     if (!file) return;
     try {
-      const uploadedUrl = await uploadImageToGodaddy(file, "blogs");
-      setImageUrl(uploadedUrl);
+      setImageUrl(await uploadAdminImage(file, "blogs"));
       setError("");
-    } catch (error) {
-      try {
-        const uploadedUrl = await uploadImageToSupabaseStorage(file, "blogs");
-        setImageUrl(uploadedUrl);
-        setError("");
-      } catch (storageError) {
-        try {
-          const dataUrl = await fileToCompactDataUrl(file);
-          setImageUrl(dataUrl);
-          setError("");
-        } catch {
-          setError(`Could not upload blog image: ${getErrorMessage(storageError)}`);
-        }
-      }
-    }
+    } catch (error) { setError(`Could not upload blog image: ${getErrorMessage(error)}`); }
   };
 
   const handleWorkImageUpload = async (file?: File) => {
@@ -1003,26 +918,10 @@ const AdminDashboardPage = () => {
     setWorkImageUploading(true);
     setWorkError("Uploading image...");
     try {
-      const uploadedUrl = await uploadImageToGodaddy(file, "works");
-      setWorkImageUrl(uploadedUrl);
+      setWorkImageUrl(await uploadAdminImage(file, "works"));
       setWorkError("");
-    } catch (error) {
-      try {
-        const uploadedUrl = await uploadImageToSupabaseStorage(file, "works");
-        setWorkImageUrl(uploadedUrl);
-        setWorkError("");
-      } catch (storageError) {
-        try {
-          const dataUrl = await fileToCompactDataUrl(file);
-          setWorkImageUrl(dataUrl);
-          setWorkError("");
-        } catch {
-          setWorkError(`Could not upload work image: ${getErrorMessage(storageError)}`);
-        }
-      }
-    } finally {
-      setWorkImageUploading(false);
-    }
+    } catch (error) { setWorkError(`Could not upload work image: ${getErrorMessage(error)}`); }
+    finally { setWorkImageUploading(false); }
   };
 
   const handleCaseStudyScreenshotUpload = async (file?: File) => {
@@ -1030,49 +929,18 @@ const AdminDashboardPage = () => {
     setCaseScreenshotUploading(true);
     setCaseError("");
     try {
-      const uploadedUrl = await uploadImageToGodaddy(file, "case-studies");
-      setCaseScreenshot(uploadedUrl);
+      setCaseScreenshot(await uploadAdminImage(file, "case-studies"));
       setCaseError("");
-    } catch (error) {
-      try {
-        const uploadedUrl = await uploadImageToSupabaseStorage(file, "case-studies");
-        setCaseScreenshot(uploadedUrl);
-        setCaseError("");
-      } catch (storageError) {
-        try {
-          const dataUrl = await fileToCompactDataUrl(file);
-          setCaseScreenshot(dataUrl);
-          setCaseError("");
-        } catch {
-          setCaseError(`Could not upload case study screenshot: ${getErrorMessage(storageError)}`);
-        }
-      }
-    } finally {
-      setCaseScreenshotUploading(false);
-    }
+    } catch (error) { setCaseError(`Could not upload case study screenshot: ${getErrorMessage(error)}`); }
+    finally { setCaseScreenshotUploading(false); }
   };
 
   const handleClientLogoUpload = async (file?: File) => {
     if (!file) return;
     try {
-      const uploadedUrl = await uploadImageToGodaddy(file, "clients");
-      setClientLogoUrl(uploadedUrl);
+      setClientLogoUrl(await uploadAdminImage(file, "clients"));
       setClientError("");
-    } catch (error) {
-      try {
-        const uploadedUrl = await uploadImageToSupabaseStorage(file, "clients");
-        setClientLogoUrl(uploadedUrl);
-        setClientError("");
-      } catch (storageError) {
-        try {
-          const dataUrl = await fileToCompactDataUrl(file);
-          setClientLogoUrl(dataUrl);
-          setClientError("");
-        } catch {
-          setClientError(`Could not upload client logo: ${getErrorMessage(storageError)}`);
-        }
-      }
-    }
+    } catch (error) { setClientError(`Could not upload client logo: ${getErrorMessage(error)}`); }
   };
 
   const handleLogout = async () => {

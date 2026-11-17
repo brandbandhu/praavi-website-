@@ -1,4 +1,5 @@
 import { JSDOM } from "jsdom";
+import { isInternalRoute } from "../../src/lib/internalRoutes.mjs";
 
 export const SITE_URL = "https://www.praaviconsultants.in";
 const XML_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9";
@@ -135,6 +136,7 @@ export const validateSitemap = (xml, expectedEntries) => {
       const loc = node.querySelector("loc").textContent;
       const url = new URL(loc);
       const route = url.pathname;
+      if (isInternalRoute(route)) throw new Error(`Internal route must not appear in sitemap: ${loc}`);
       if (url.origin !== SITE_URL || url.search || url.hash || canonicalLocation(route) !== loc) throw new Error(`Invalid sitemap URL: ${loc}`);
       if (found.has(loc)) throw new Error(`Duplicate sitemap URL: ${loc}`);
       if (!expected.has(loc)) throw new Error(`Unexpected sitemap URL: ${loc}`);

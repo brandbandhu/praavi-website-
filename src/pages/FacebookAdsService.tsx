@@ -1,3 +1,4 @@
+import SeoHead from "@/components/SeoHead";
 import { BarChart3, Image, Layers3, Target, Video } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
@@ -60,6 +61,7 @@ const processSteps = [
 const FacebookAdsServicePage = () => {
   return (
     <>
+      <SeoHead title="Facebook Ads Management Agency | Praavi Consultants" description="Scale your business with data-driven Facebook and Instagram ad campaigns focused on leads, sales, and ROI." canonicalPath="/services/social-ads/facebook-ads" />
       <PageHero
         tag="Social Media Ads Services"
         title="Facebook Ads Management Agency"

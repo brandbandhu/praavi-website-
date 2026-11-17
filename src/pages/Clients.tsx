@@ -1,3 +1,5 @@
+import SeoHead from "@/components/SeoHead";
+import { usePublicData } from "@/lib/publicPrerender";
 import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import PageHero from "@/components/PageHero";
@@ -9,7 +11,7 @@ import { fetchActiveClients } from "@/lib/contentApi";
 const ClientsPage = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
-  const [clients, setClients] = useState<ClientItem[]>(getClientsItems());
+  const [clients, setClients] = useState<ClientItem[]>(usePublicData().clients ?? getClientsItems());
 
   useEffect(() => {
     let mounted = true;
@@ -29,6 +31,7 @@ const ClientsPage = () => {
 
   return (
     <>
+      <SeoHead title="Our Clients | Praavi Consultants" description="Meet the businesses working with Praavi Consultants across industries and explore our client network." canonicalPath="/clients" />
       <PageHero
         title="Our Valuable Clients"
         highlightWord="Clients"

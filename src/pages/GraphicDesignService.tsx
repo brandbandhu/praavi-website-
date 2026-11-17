@@ -1,3 +1,4 @@
+import SeoHead from "@/components/SeoHead";
 import { Brush, Image as ImageIcon, LayoutTemplate, Package, PenTool, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
@@ -79,6 +80,7 @@ const processSteps = [
 const GraphicDesignServicePage = () => {
   return (
     <>
+      <SeoHead title="Graphic Design Services | Praavi Consultants" description="Creative designs that strengthen your brand identity and improve campaign performance." canonicalPath="/services/graphic-design" />
       <PageHero
         tag="Graphic Design Services"
         title="#1 Graphic Design Agency"

@@ -11,6 +11,7 @@ import {
   setBucketDueDay,
 } from "../lib/bucketConfigService.js";
 import { BUCKET_LABELS, BUCKET_NAMES, BUCKET_ROUTES_TO, type BucketName } from "../lib/types.js";
+import { financeCollectionLimitError } from "../lib/financeCollectionLimits.js";
 
 export const bucketConfigRouter = Router();
 bucketConfigRouter.use(requireAuth);
@@ -90,6 +91,8 @@ const updateSchema = z.object({
 // exactly 100%, validated both here (nice error) and again inside the
 // service (source of truth).
 bucketConfigRouter.post("/", requireRole("founder"), async (req, res) => {
+  const collectionError = financeCollectionLimitError(req.body, ["entries"]);
+  if (collectionError) return res.status(400).json({ error: collectionError });
   const parsed = updateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
 

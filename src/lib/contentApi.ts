@@ -1,3 +1,4 @@
+import { fetchPublicRows } from "./publicRows";
 import { supabase } from "@/lib/supabase";
 import type { BlogPost } from "@/lib/blogStore";
 import type { PortfolioItem } from "@/lib/portfolioStore";
@@ -52,30 +53,25 @@ const slugify = (value: string) =>
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 
+export const mapBlogPostRow = (row: any): BlogPost => ({
+  id: String(row.id),
+  slug: row.slug ?? String(row.id),
+  title: row.title ?? "Untitled",
+  excerpt: row.excerpt ?? "",
+  content: row.content ?? "",
+  category: row.category ?? "General",
+  readTime: row.read_time ?? "5 min read",
+  date: formatDate(row.published_at ?? row.created_at),
+  imageUrl: normalizeImageUrl(row.image_url),
+  createdAt: toTimestamp(row.published_at ?? row.created_at),
+  publishedAt: row.published_at,
+  modifiedAt: row.updated_at,
+});
+
 export const fetchPublishedBlogPosts = async (): Promise<BlogPost[]> => {
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("*")
-    .eq("status", "published")
-    .order("published_at", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false });
+  const data = await fetchPublicRows("blog_posts", [["published_at", { ascending: false, nullsFirst: false }], ["created_at", { ascending: false }]]);
 
-  if (error) throw error;
-
-  return (data ?? []).map((row: any) => ({
-    id: String(row.id),
-    slug: row.slug ?? String(row.id),
-    title: row.title ?? "Untitled",
-    excerpt: row.excerpt ?? "",
-    content: row.content ?? "",
-    category: row.category ?? "General",
-    readTime: row.read_time ?? "5 min read",
-    date: formatDate(row.published_at ?? row.created_at),
-    imageUrl: normalizeImageUrl(row.image_url),
-    createdAt: toTimestamp(row.published_at ?? row.created_at),
-    publishedAt: row.published_at,
-    modifiedAt: row.updated_at,
-  }));
+  return (data ?? []).map(mapBlogPostRow);
 };
 
 export const fetchPublishedBlogPostBySlug = async (slug: string): Promise<BlogPost | null> => {
@@ -89,30 +85,11 @@ export const fetchPublishedBlogPostBySlug = async (slug: string): Promise<BlogPo
   if (error) throw error;
   if (!data) return null;
 
-  return {
-    id: String((data as any).id),
-    slug: (data as any).slug ?? String((data as any).id),
-    title: (data as any).title ?? "Untitled",
-    excerpt: (data as any).excerpt ?? "",
-    content: (data as any).content ?? "",
-    category: (data as any).category ?? "General",
-    readTime: (data as any).read_time ?? "5 min read",
-    date: formatDate((data as any).published_at ?? (data as any).created_at),
-    imageUrl: normalizeImageUrl((data as any).image_url),
-    createdAt: toTimestamp((data as any).published_at ?? (data as any).created_at),
-    publishedAt: (data as any).published_at,
-    modifiedAt: (data as any).updated_at,
-  };
+  return mapBlogPostRow(data);
 };
 
 export const fetchPublishedPortfolioItems = async (): Promise<PortfolioItem[]> => {
-  const { data, error } = await supabase
-    .from("portfolio_items")
-    .select("*")
-    .eq("status", "published")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
+  const data = await fetchPublicRows("portfolio_items", [["created_at", { ascending: false }]]);
 
   return (data ?? []).map((row: any) => ({
     id: String(row.id),
@@ -128,13 +105,7 @@ export const fetchPublishedPortfolioItems = async (): Promise<PortfolioItem[]> =
 };
 
 export const fetchActiveClients = async (): Promise<ClientItem[]> => {
-  const { data, error } = await supabase
-    .from("clients")
-    .select("*")
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
+  const data = await fetchPublicRows("clients", [["created_at", { ascending: false }]]);
 
   const mapped = (data ?? []).map((row: any) => ({
     id: String(row.id),
@@ -155,14 +126,7 @@ export const fetchActiveClients = async (): Promise<ClientItem[]> => {
 };
 
 export const fetchPublishedCaseStudies = async (): Promise<CaseStudyItem[]> => {
-  const { data, error } = await supabase
-    .from("case_studies")
-    .select("*")
-    .eq("status", "published")
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
+  const data = await fetchPublicRows("case_studies", [["sort_order", { ascending: true }], ["created_at", { ascending: false }]]);
 
   return (data ?? []).map((row: any) => ({
     id: String(row.id),

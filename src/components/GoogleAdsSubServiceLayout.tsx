@@ -1,3 +1,5 @@
+import SeoHead from "@/components/SeoHead";
+import { useLocation } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
@@ -30,10 +32,12 @@ const GoogleAdsSubServiceLayout = ({
   deliverables,
   process,
 }: GoogleAdsSubServiceLayoutProps) => {
+  const { pathname } = useLocation();
   const highlightWord = title.replace(" Service", "");
 
   return (
     <>
+      <SeoHead title={`${title} | Praavi Consultants`} description={intro} canonicalPath={pathname.replace(/\/$/, "")} />
       <PageHero
         tag={tag}
         title={title}

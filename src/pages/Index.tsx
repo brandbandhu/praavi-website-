@@ -35,7 +35,7 @@ const Hero = () => (
         transition={{ duration: 0.7, delay: 0.15 }}
         className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight max-w-5xl mx-auto"
       >
-        We Build Websites, Generate Leads & Scale Businesses
+        Digital Marketing Agency in Pune
       </motion.h1>
 
       <motion.h2
@@ -53,7 +53,8 @@ const Hero = () => (
         transition={{ duration: 0.6, delay: 0.4 }}
         className="text-muted-foreground mt-3 text-sm sm:text-base max-w-3xl mx-auto"
       >
-        Praavi Consultants helps ambitious businesses in Maharashtra turn online visibility into qualified enquiries with websites, SEO, Google Ads, social media, and automation.
+        We Build Websites, Generate Leads & Scale Businesses. From our Loni Kalbhor base, we help businesses across Pune
+        connect website development, SEO, Google Ads and social media marketing around their goals.
       </motion.p>
 
       <motion.div
@@ -567,34 +568,34 @@ const VideoTestimonialsSection = () => {
 
 const localSeoSections = [
   {
-    title: "Website Development Services in Pune",
+    title: "Websites Built Around Your Business",
     description:
-      "We are a website development company in Loni Kalbhor and web development company in Pune delivering business website development Pune brands can scale with. As a website design company Pune businesses trust and a website development agency near me option, our team includes some of the best website designers in Pune.",
+      "Business websites, landing pages and ecommerce stores should make it easy to understand your offer and take the next step. We connect design, development, CMS and API integration around your project requirements.",
   },
   {
-    title: "SEO Services in Loni Kalbhor",
+    title: "Search Visibility That Supports Enquiries",
     description:
-      "As an SEO company in Pune, we provide professional SEO services Pune businesses use to improve rankings, leads, and conversions. If you are searching for an SEO expert near me or best SEO agency near me, our local SEO services in Pune are designed for measurable growth.",
+      "Technical audits, page improvements and content planning help us identify how your website can better answer customer searches. We review visibility, traffic and enquiries to guide the next round of work.",
   },
   {
-    title: "Social Media Marketing Agency in Pune",
+    title: "Social Media With a Clear Purpose",
     description:
-      "Praavi is a top social media marketing agency Pune brands trust for platform strategy, content, and paid campaigns. As a social media marketing agency in Pune, we support small business digital marketing Pune companies need to improve visibility and generate qualified inquiries.",
+      "Content planning, creative design and paid social campaigns work together to explain your offer and reach relevant audiences. We align the content and campaign approach with your business goals rather than posting without a plan.",
   },
   {
-    title: "Google Ads & PPC Services Pune",
+    title: "Google Ads & PPC Campaigns",
     description:
-      "Need a Google Ads agency in Pune with performance focus? We manage PPC services Pune businesses rely on, including search, display, video, and remarketing. Our media buyers include a Google Ads expert in Pune and provide Meta Ads agency in Pune campaign planning and optimization.",
+      "Search, display, video and remarketing campaigns connect your offer with relevant audiences. Campaign planning, landing-page recommendations and conversion tracking help us review where enquiries come from and what needs attention.",
   },
   {
-    title: "E-Commerce Website Development Pune",
+    title: "Ecommerce Journeys From Product to Checkout",
     description:
-      "Our ecommerce website development Pune service includes conversion-focused storefronts, product architecture, secure checkout, and marketing integrations. We also deliver WordPress website development Pune companies choose for flexible content management and growth.",
+      "We plan storefronts around product discovery, navigation and checkout, with the payment and marketing integrations your project needs. Shopify, WordPress and custom development options are discussed around your catalogue and content requirements.",
   },
   {
     title: "Local SEO Services for Small Businesses",
     description:
-      "For businesses in Loni Kalbhor, Hadapsar, Manjri, Uruli Kanchan, and across Pune, we combine maps optimization, local landing pages, and review strategies to improve local discovery. That makes us a best digital marketing company in Loni Kalbhor Pune option for near-me intent searches.",
+      "Accurate business information, Google Business Profile optimization and local citations support nearby discovery. We help businesses across Loni Kalbhor, Hadapsar, Manjri, Uruli Kanchan and the wider city present their services clearly.",
   },
 ];
 
@@ -604,11 +605,11 @@ const LocalSeoContentSection = () => {
       <div className="container-max">
         <div className="text-center mb-10">
           <h2 className="font-display text-3xl sm:text-4xl font-bold">
-            Digital Marketing Services in <span className="gradient-text">Loni Kalbhor & Pune</span>
+            Digital Marketing Services in <span className="gradient-text">Pune</span>
           </h2>
           <p className="text-muted-foreground mt-3 max-w-3xl mx-auto text-sm sm:text-base">
-            We work as your digital marketing company near me partner for growth-focused campaigns and websites, with
-            digital marketing services in Loni Kalbhor Pune businesses can grow from.
+            Start with your business goals, choose the services you need and review the work as it develops.
+            Our process covers discovery, strategy, design, development, testing, launch and support; the scope is agreed for each project.
           </p>
         </div>
 
@@ -625,19 +626,19 @@ const LocalSeoContentSection = () => {
           <h3 className="font-display text-xl font-semibold mb-3">Helpful Links</h3>
           <div className="flex flex-wrap gap-3 text-sm">
             <Link to="/services" className="text-primary hover:underline">
-              best digital marketing agency in Pune
+              Explore our services
             </Link>
             <Link to="/website-development" className="text-primary hover:underline">
-              professional website development services
+              Website design and development
             </Link>
             <Link to="/seo-services" className="text-primary hover:underline">
-              SEO experts in Loni Kalbhor
+              SEO services
             </Link>
-            <Link to="/social-media-marketing" className="text-primary hover:underline">
-              top digital marketing company near me
+            <Link to="/blog/how-to-choose-the-right-web-development-company" className="text-primary hover:underline">
+              Choosing a web development company
             </Link>
-            <Link to="/contact" className="text-primary hover:underline">
-              best digital marketing agency in Loni Kalbhor
+            <Link to="/blog/on-page-seo-vs-off-page-seo-complete-guide" className="text-primary hover:underline">
+              On-page and off-page SEO explained
             </Link>
           </div>
         </div>
@@ -650,7 +651,7 @@ const LocalSeoContentSection = () => {
 const Index = () => {
   const localBusinessSchema = {
     "@context": "https://schema.org",
-    "@type": "DigitalMarketingAgency",
+    "@type": "Organization",
     name: "Praavi Consultants",
     url: "https://www.praaviconsultants.in",
     image: "https://www.praaviconsultants.in/favicon.png",
@@ -676,8 +677,8 @@ const Index = () => {
   return (
     <>
     <SeoHead
-      title="Best Digital Marketing Agency in Pune | Website Development & SEO Services | Praavi Consultants"
-      description="Praavi Consultants is a leading digital marketing agency in Pune offering website development, SEO services, social media marketing, and Google Ads management to grow your business online."
+      title="Digital Marketing Agency in Pune | Praavi Consultants"
+      description="Praavi Consultants helps Pune businesses with website development, SEO, Google Ads and social media marketing. Explore our services and discuss your goals."
         canonicalPath="/"
         schema={localBusinessSchema}
       />

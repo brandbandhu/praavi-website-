@@ -50,11 +50,11 @@ const Footer = () => {
             <h4 className="font-display font-semibold mb-4 text-sm uppercase tracking-wider text-accent">Services</h4>
             <div className="flex flex-col gap-2">
               {[
-                { label: "Web Development", path: "/services/website-development" },
+                { label: "Web Development", path: "/website-development" },
                 { label: "AI Chatbots & Automation", path: "/ai-solutions" },
-                { label: "SEO Services", path: "/services/seo" },
+                { label: "SEO Services", path: "/seo-services" },
                 { label: "Google Search Ads", path: "/services/google-ads/search-ads" },
-                { label: "Social Media Ads", path: "/services/social-media-management" },
+                { label: "Social Media Ads", path: "/social-media-marketing" },
                 { label: "Shopify Development", path: "/services/shopify-development" },
                 { label: "Branding", path: "/services/graphic-design" },
               ].map((s) =>

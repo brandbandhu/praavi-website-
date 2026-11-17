@@ -1,3 +1,4 @@
+import SeoHead from "@/components/SeoHead";
 import { BarChart3, CircleDollarSign, Target, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
@@ -72,6 +73,7 @@ const adServices = [
 const GoogleAdsServicePage = () => {
   return (
     <>
+      <SeoHead title="Google Ads Management Services | Praavi Consultants" description="Generate qualified leads and sales with data-driven Google Ads campaigns built for measurable ROI." canonicalPath="/services/google-ads" />
       <PageHero
         tag="Google Ads Services"
         title="#1 Google Ads Agency"

@@ -36,6 +36,11 @@ await build({
             injectTo: "body",
           },
           {
+            tag: "meta",
+            attrs: { name: "robots", content: "noindex, nofollow" },
+            injectTo: "head",
+          },
+          {
             tag: "link",
             attrs: { rel: "canonical", href: "https://praaviconsultants.in/diwali-wishes" },
             injectTo: "head",

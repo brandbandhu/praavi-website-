@@ -3,6 +3,10 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import fs from "fs";
+import { internalSeoPlugin } from "./scripts/lib/internalSeo.mjs";
+import { aboutPagePlugin } from "./scripts/lib/aboutPage.mjs";
+import { blogPagesPlugin } from "./scripts/lib/blogPages.mjs";
+import { publicPagesPlugin } from "./scripts/lib/publicPages.mjs";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -20,6 +24,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
+    blogPagesPlugin(),
+    aboutPagePlugin(),
+    internalSeoPlugin(),
     react(),
     mode === "development" && componentTagger(),
     {
@@ -117,6 +124,7 @@ export default defineConfig(({ mode }) => ({
         });
       },
     },
+    publicPagesPlugin(),
   ].filter(Boolean),
   resolve: {
     alias: {
