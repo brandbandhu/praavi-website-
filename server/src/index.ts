@@ -12,10 +12,15 @@ import { reportCardRouter } from "./routes/reportCard.js";
 import { quotationsRouter } from "./routes/quotations.js";
 import { deliverableTypesRouter, quotationPackagesRouter } from "./routes/dmCatalog.js";
 import { socialDeskFollowersRouter } from "./routes/socialDeskFollowers.js";
+import { uploadsRouter } from "./routes/uploads.js";
+import { FINANCE_JSON_BODY_LIMIT_BYTES } from "./lib/financeCollectionLimits.js";
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+// Uploads perform Supabase admin authorization before reading multipart bodies
+// and contain their own sanitized error boundary.
+app.use("/api/uploads", uploadsRouter);
+app.use(express.json({ limit: FINANCE_JSON_BODY_LIMIT_BYTES }));
 
 function wrapAsyncRouter(router: express.Router): express.Router {
   for (const layer of (router as any).stack ?? []) {

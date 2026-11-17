@@ -23,7 +23,7 @@ const services = [
     title: "Website Development",
     desc: "Custom-built, high-performance websites using React, Next.js, and modern frameworks. From landing pages to full-stack web applications.",
     features: ["React & Next.js", "E-Commerce", "CMS Integration", "API Development"],
-    detailPath: "/services/website-development",
+    detailPath: "/website-development",
     subServices: [
       { label: "React Development", path: "/services/web-development/react-development" },
       { label: "E-Commerce", path: "/services/web-development/e-commerce" },
@@ -38,7 +38,7 @@ const services = [
     title: "SEO Services",
     desc: "Dominate search rankings with our proven SEO strategies. Technical SEO, content optimization, and link building that delivers results.",
     features: ["Technical SEO", "On-Page Optimization", "Link Building", "Local SEO"],
-    detailPath: "/services/seo",
+    detailPath: "/seo-services",
     subServices: [
       { label: "Technical SEO", path: "/services/seo-services/technical-seo" },
       { label: "On-Page SEO", path: "/services/seo-services/on-page-seo" },
@@ -112,7 +112,7 @@ const services = [
     title: "Social Media Management",
     desc: "End-to-end social media management. Content creation, scheduling, engagement, and growth strategies across all platforms.",
     features: ["Content Creation", "Community Management", "Analytics", "Growth Strategy"],
-    detailPath: "/services/social-media-management",
+    detailPath: "/social-media-marketing",
   },
 ];
 

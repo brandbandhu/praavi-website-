@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { build } from "vite";
 import { SITE_URL, blogEntry, buildSitemapXml, canonicalLocation, checkIndexableEntries, fetchAllPublishedBlogs, pageExclusion, sourceDate, validateSitemap } from "./lib/sitemap.mjs";
 import { resolveSupabaseConfig } from "../src/lib/supabaseConfig.mjs";
 
@@ -122,6 +124,35 @@ test("checks every candidate and fails on network errors instead of silently dro
 test("shares SPA configuration and honors production environment overrides", () => {
   assert.equal(resolveSupabaseConfig({}).url, "https://dcnfmxzppqighroqtzgm.supabase.co");
   assert.deepEqual(resolveSupabaseConfig({ VITE_SUPABASE_URL: ' "https://test.supabase.co/" ', VITE_SUPABASE_PUBLISHABLE_KEY: "public-test-key" }), { url: "https://test.supabase.co", key: "public-test-key" });
+});
+
+test("shared Supabase bundles exclude unrelated Vite environment values", async () => {
+  const unrelatedValue = "not-a-real-secret-regression-sentinel";
+  const result = await build({
+    configFile: false,
+    envFile: false,
+    publicDir: false,
+    logLevel: "silent",
+    define: {
+      "import.meta.env.VITE_SUPABASE_URL": JSON.stringify("https://test.supabase.co"),
+      "import.meta.env.VITE_SUPABASE_ANON_KEY": JSON.stringify("public-anon-key-for-test"),
+      "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": "undefined",
+      "import.meta.env": JSON.stringify({
+        VITE_SUPABASE_URL: "https://test.supabase.co",
+        VITE_SUPABASE_ANON_KEY: "public-anon-key-for-test",
+        VITE_UPLOAD_API_SECRET: unrelatedValue,
+      }),
+    },
+    build: {
+      write: false,
+      lib: { entry: fileURLToPath(new URL("../src/lib/supabase.ts", import.meta.url)), formats: ["es"], fileName: "config-test" },
+      rollupOptions: { external: ["@supabase/supabase-js"] },
+    },
+  });
+  const output = (Array.isArray(result) ? result : [result]).flatMap((bundle) => bundle.output).filter((item) => item.type === "chunk").map((item) => item.code).join("\n");
+  assert.ok(output.includes("https://test.supabase.co"));
+  assert.ok(output.includes("public-anon-key-for-test"));
+  assert.ok(!output.includes(unrelatedValue), "unrelated environment values must not enter shared bundles");
 });
 
 test("robots points to the correct production sitemap and hosting serves files before the SPA fallback", async () => {

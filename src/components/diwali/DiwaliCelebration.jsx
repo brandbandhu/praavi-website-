@@ -10,7 +10,7 @@ export default function DiwaliCelebration() {
   const [playing, setPlaying] = useState(false);
   const [cycle, setCycle] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function DiwaliCelebration() {
           </div>
         )}
       </div>
-      {createPortal(
+      {typeof document !== "undefined" && createPortal(
         <>
           <button
             type="button"

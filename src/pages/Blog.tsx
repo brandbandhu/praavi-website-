@@ -1,3 +1,4 @@
+import { usePublicData } from "@/lib/publicPrerender";
 import { useEffect, useState } from "react";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -7,7 +8,7 @@ import { fetchPublishedBlogPosts } from "@/lib/contentApi";
 import SeoHead from "@/components/SeoHead";
 
 const BlogPage = () => {
-  const [posts, setPosts] = useState<BlogPost[]>(getBlogPosts());
+  const [posts, setPosts] = useState<BlogPost[]>(usePublicData().blogs ?? getBlogPosts());
 
   useEffect(() => {
     let mounted = true;

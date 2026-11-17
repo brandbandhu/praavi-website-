@@ -1,3 +1,4 @@
+import SeoHead from "@/components/SeoHead";
 import { BarChart3, Gauge, Globe2, Megaphone, Search, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
@@ -59,6 +60,7 @@ const processSteps = [
 const DigitalMarketingServicePage = () => {
   return (
     <>
+      <SeoHead title="Digital Marketing Services & Strategy | Praavi Consultants" description="Grow your business with SEO, Google Ads, social media and content marketing services focused on measurable ROI." canonicalPath="/services/digital-marketing" />
       <PageHero
         tag="Digital Marketing Services"
         title="Data-Driven Digital Marketing That Delivers Results"
@@ -76,7 +78,7 @@ const DigitalMarketingServicePage = () => {
               Get Free Audit
             </Link>
             <Link
-              to="/portfolio"
+              to="/case-studies"
               className="px-6 py-3 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors"
             >
               See Case Studies

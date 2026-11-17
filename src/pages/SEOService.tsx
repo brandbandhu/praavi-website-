@@ -8,29 +8,29 @@ const coreCards = [
   {
     icon: Search,
     title: "Keyword Research",
-    desc: "Find the right high-intent keywords to rank higher and attract qualified traffic.",
+    desc: "Map relevant searches to your services and existing pages so content answers the right customer questions.",
   },
   {
     icon: Target,
     title: "On-Page SEO",
-    desc: "Optimize content, structure, and metadata for better visibility and conversions.",
+    desc: "Review titles, headings, internal links and content to make important pages easier to understand.",
   },
   {
     icon: Link2,
     title: "Link Building",
-    desc: "Build authority with quality backlinks through ethical off-page SEO strategies.",
+    desc: "Review relevant link opportunities and authority-building activity as part of your agreed SEO scope.",
   },
   {
     icon: BarChart3,
     title: "Analytics & Reporting",
-    desc: "Track rankings, traffic, and ROI with transparent performance reporting.",
+    desc: "Review organic visibility, website traffic and enquiries to guide the next round of improvements.",
   },
 ];
 
 const seoServices = [
   {
     title: "Technical SEO",
-    desc: "Optimize site structure, speed, crawlability, indexation, and Core Web Vitals.",
+    desc: "Identify crawlability, indexing, site-structure and performance issues, then prioritize practical fixes.",
     path: "/services/seo-services/technical-seo",
   },
   {
@@ -45,17 +45,17 @@ const seoServices = [
   },
   {
     title: "Local SEO",
-    desc: "Dominate local search with Google Business Profile optimization and local citations.",
+    desc: "Review Google Business Profile information, local citations and service-area relevance using accurate business details.",
     path: "/services/seo-services/local-seo",
   },
   {
     title: "Intent SEO",
-    desc: "Align content and landing pages with user search intent for better conversion quality.",
+    desc: "Map search intent to existing pages and plan content that answers buyer questions without duplicating service pages.",
     path: "/services/seo-services/content-strategy",
   },
   {
     title: "SEO Audits",
-    desc: "Run in-depth SEO audits to identify issues and prioritize technical/content fixes.",
+    desc: "Start with an audit, agree priorities and review implementation before planning the next improvements.",
     path: "/services/seo-services/technical-seo",
   },
   {
@@ -65,7 +65,7 @@ const seoServices = [
   },
   {
     title: "Content SEO",
-    desc: "Create SEO-ready content clusters and landing pages that capture long-tail demand.",
+    desc: "Plan useful articles and service-page updates, then review how they support relevant traffic and enquiries.",
     path: "/services/seo-services/content-strategy",
   },
 ];
@@ -74,22 +74,23 @@ const SEOServicePage = () => {
   return (
     <>
       <SeoHead
-        title="SEO Services in Loni Kalbhor Pune | Professional SEO Company in Pune"
-        description="Praavi Consultants offers professional SEO services Pune businesses trust, including technical SEO, local SEO services in Pune, and on-page optimization for higher rankings."
+        title="SEO Company in Pune | Praavi Consultants"
+        description="SEO services for Pune businesses, including technical audits, local SEO and content planning. Discuss your website goals with Praavi Consultants."
         canonicalPath="/seo-services"
       />
       <PageHero
         tag="SEO Services"
-        title="SEO Services in Loni Kalbhor Pune"
-        subtitle="Drive qualified traffic, increase conversions, and maximize ROI with performance-focused SEO services for Pune businesses."
+        title="SEO Company in Pune"
+        subtitle="Technical, on-page and local SEO focused on useful content, search visibility and relevant enquiries."
       />
 
       <section className="section-padding">
         <div className="container-max max-w-4xl text-center">
           <p className="text-muted-foreground leading-relaxed">
-            We combine technical precision, content strategy, and authority building to improve rankings and grow
-            organic business outcomes. If you are looking for SEO experts in Loni Kalbhor, our team builds practical
-            strategies for local and regional search growth.
+            Our SEO work starts with your existing website, services and customer searches. We use technical audits,
+            on-page improvements, content planning and local SEO to help the right visitors find useful pages. For projects
+            that also need <Link to="/website-development" className="text-primary hover:underline">website development</Link>,
+            we connect search requirements with the build.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
@@ -98,12 +99,12 @@ const SEOServicePage = () => {
             >
               Get Free Audit
             </Link>
-            <Link
-              to="/contact"
+            <a
+              href="tel:+919699369117"
               className="px-6 py-3 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors"
             >
               Call Now
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -131,7 +132,9 @@ const SEOServicePage = () => {
               Our <span className="gradient-text">SEO Services</span>
             </h2>
             <p className="text-muted-foreground mt-3">
-              Comprehensive SEO solutions tailored to your business goals.
+              Audit findings guide the plan, followed by implementation and ongoing review. Read our
+              <Link to="/blog/on-page-seo-vs-off-page-seo-complete-guide" className="text-primary hover:underline"> on-page and off-page SEO guide</Link> and
+              explore how SEO fits your <Link to="/" className="text-primary hover:underline">digital marketing strategy</Link>.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

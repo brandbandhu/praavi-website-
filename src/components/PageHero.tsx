@@ -13,6 +13,8 @@ interface PageHeroProps {
 
 const PageHero = ({ tag, title, highlightWord, subtitle }: PageHeroProps) => {
   const location = useLocation();
+  // These router segments are categories, not navigable index pages.
+  const nonPageParents = new Set(["/industries", "/pune", "/services/seo-services", "/services/social-ads", "/services/web-development"]);
 
   const breadcrumbItems = location.pathname
     .split("/")
@@ -62,6 +64,8 @@ const PageHero = ({ tag, title, highlightWord, subtitle }: PageHeroProps) => {
                     <span className="text-muted-foreground/50">/</span>
                     {isLast ? (
                       <span className="text-primary font-medium">{item.label}</span>
+                    ) : nonPageParents.has(item.href) ? (
+                      <span className="text-muted-foreground hover:text-foreground transition-colors">{item.label}</span>
                     ) : (
                       <Link to={item.href} className="text-muted-foreground hover:text-foreground transition-colors">
                         {item.label}

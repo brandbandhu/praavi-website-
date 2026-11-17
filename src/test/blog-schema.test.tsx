@@ -17,7 +17,7 @@ const article: BlogPost = {
   excerpt: "A well-maintained website ensures better performance, stronger security, improved SEO, and a seamless user experience. Use this comprehensive website maintenance checklist to keep your business website running smoothly all year round.",
   imageUrl: "https://media.praaviconsultants.in/uploads/blogs/1785296780-0d53a5aace0cb44c.webp",
   publishedAt: "2026-07-29T03:46:22.697+00:00",
-  content: "Test body",
+  content: "Intro paragraph\n1. First Section\n2. Second Section\nFinal paragraph",
   category: "Test",
   readTime: "5 min read",
   date: "Jul 29, 2026",
@@ -100,6 +100,10 @@ describe("blog schema lifecycle", () => {
       </StrictMode>,
     );
     await screen.findByRole("heading", { level: 1, name: article.title });
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent))
+      .toEqual(["1. First Section", "2. Second Section"]);
+    expect(screen.getByText("Intro paragraph").tagName).toBe("P");
     expect(scriptCount()).toBe(1);
     expect(readSchema().headline).toBe(article.title);
     expect(document.querySelector('meta[property="og:type"]')?.getAttribute("content")).toBe("article");

@@ -1,3 +1,5 @@
+import SeoHead from "@/components/SeoHead";
+import { usePublicData } from "@/lib/publicPrerender";
 import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, TrendingUp, Users } from "lucide-react";
@@ -9,7 +11,7 @@ import { fetchPublishedPortfolioItems } from "@/lib/contentApi";
 const PortfolioPage = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
-  const [projects, setProjects] = useState<PortfolioItem[]>([]);
+  const [projects, setProjects] = useState<PortfolioItem[]>(usePublicData().portfolio ?? []);
 
   useEffect(() => {
     let mounted = true;
@@ -29,6 +31,7 @@ const PortfolioPage = () => {
 
   return (
     <>
+      <SeoHead title="Our Work & Portfolio | Praavi Consultants" description="Explore websites, design projects and digital marketing work by Praavi Consultants for our clients." canonicalPath="/portfolio" />
       <PageHero
         title="Our Work Speaks for Itself"
         highlightWord="Itself"

@@ -16,22 +16,22 @@ const subServices = [
 const developmentServices = [
   {
     title: "Custom Web Design",
-    desc: "Bespoke designs tailored to your brand identity and business goals.",
+    desc: "Page layouts, navigation and calls to action shaped around your brand and the information your customers need.",
     tags: ["UI/UX", "Figma", "Adobe XD"],
   },
   {
     title: "Frontend Development",
-    desc: "Modern, responsive interfaces built with React, Next.js, and Tailwind CSS.",
+    desc: "Responsive interfaces using React, Next.js and Tailwind CSS, so visitors can browse and enquire across devices.",
     tags: ["React", "Next.js", "Tailwind CSS"],
   },
   {
     title: "Backend Development",
-    desc: "Robust server-side solutions with Node.js, Express, and databases.",
+    desc: "Node.js, Express and database integrations that support the forms, workflows and data your website needs.",
     tags: ["Node.js", "Express", "Databases"],
   },
   {
     title: "E-Commerce Solutions",
-    desc: "Feature-rich online stores with Shopify, WooCommerce, or custom builds.",
+    desc: "Product, cart and checkout journeys using Shopify, WooCommerce or a custom build, matched to your store requirements.",
     tags: ["Shopify", "WooCommerce", "Payment Integration"],
   },
   {
@@ -46,7 +46,7 @@ const developmentServices = [
   },
   {
     title: "Website Maintenance",
-    desc: "Ongoing support, updates, and optimization for your website.",
+    desc: "Updates, maintenance and optimization help keep your website useful after launch. Confirm the ongoing support scope for your project.",
     tags: ["Support", "Updates", "Optimization"],
   },
   {
@@ -94,15 +94,15 @@ const WebsiteDevelopmentPage = () => {
   return (
     <>
       <SeoHead
-        title="Website Development Company in Loni Kalbhor | Web Development Company in Pune"
-        description="Praavi Consultants is a website development company in Loni Kalbhor delivering business websites, ecommerce website development Pune projects, and WordPress website development Pune solutions."
+        title="Website Development Company in Pune | Praavi Consultants"
+        description="Website design and development for Pune businesses, including business websites, WordPress and ecommerce. Discuss your project with Praavi Consultants."
         canonicalPath="/website-development"
       />
       <PageHero
         tag="Web Development Services"
-        title="Website Development Services in Pune"
+        title="Website Development Company in Pune"
         highlightWord="Website Development"
-        subtitle="Custom-built, high-performance websites using React, Next.js, and modern frameworks."
+        subtitle="Website design and development that connects your business information, customer journey and enquiry goals."
       />
 
       <section className="section-padding">
@@ -111,10 +111,11 @@ const WebsiteDevelopmentPage = () => {
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center mb-5">
               <Code2 size={24} className="text-white" />
             </div>
-            <h2 className="font-display text-3xl font-bold mb-3">Website Development</h2>
+            <h2 className="font-display text-3xl font-bold mb-3">What Your Website Needs to Deliver</h2>
             <p className="text-muted-foreground leading-relaxed mb-5">
-              Custom-built, high-performance websites using React, Next.js, and modern frameworks. From landing pages
-              to full-stack web applications.
+              We plan business websites, landing pages and ecommerce stores around the information visitors need and
+              the actions you want them to take. Design, development, CMS and API integrations are discussed around your
+              project scope and wider <Link to="/" className="text-primary hover:underline">digital marketing goals</Link>.
             </p>
 
             <div className="flex flex-wrap gap-2 mb-6">
@@ -129,7 +130,7 @@ const WebsiteDevelopmentPage = () => {
             </div>
 
             <Link to="/contact" className="inline-flex items-center gap-2 text-primary font-semibold hover:underline mb-6">
-              Learn more
+              Discuss Your Website Project
               <ArrowRight size={16} />
             </Link>
 
@@ -171,10 +172,12 @@ const WebsiteDevelopmentPage = () => {
         <div className="container-max">
           <div className="text-center mb-12">
             <h2 className="font-display text-3xl sm:text-4xl font-bold">
-              Our <span className="gradient-text">Development Services</span>
+              Our <span className="gradient-text">Website Development Services</span>
             </h2>
             <p className="text-muted-foreground mt-3">
-              Comprehensive solutions for all your web development needs.
+              Discovery and design lead into development, testing and launch, with maintenance and support agreed around
+              your requirements. Read our <Link to="/blog/website-development-process-from-idea-to-launch" className="text-primary hover:underline">website development process guide</Link> and
+              discuss <Link to="/seo-services" className="text-primary hover:underline">SEO requirements</Link> alongside your build.
             </p>
           </div>
 

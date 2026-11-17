@@ -1,0 +1,44 @@
+<?php
+// Install only on the existing PHP media host, outside the React public assets.
+// Configure these environment variables privately on that host, not in this file.
+header('Content-Type: application/json');
+header('Cache-Control: no-store');
+header('X-Content-Type-Options: nosniff');
+ini_set('display_errors', '0');
+
+function failUpload($status, $message) {
+    http_response_code($status);
+    echo json_encode(['error' => $message]);
+    exit;
+}
+set_exception_handler(function ($error) { failUpload(503, 'Upload service unavailable'); });
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Allow: POST');
+    failUpload(405, 'Method not allowed');
+}
+$secret = getenv('UPLOAD_API_SECRET') ?: '';
+if ($secret === '') failUpload(503, 'Upload service unavailable');
+$provided = $_SERVER['HTTP_X_UPLOAD_SECRET'] ?? '';
+if (!hash_equals($secret, $provided)) failUpload(401, 'Unauthorized');
+
+$folder = $_POST['folder'] ?? '';
+$folders = ['blogs', 'works', 'clients', 'case-studies'];
+if (!in_array($folder, $folders, true) || !isset($_FILES['file'])) failUpload(400, 'Invalid request');
+$file = $_FILES['file'];
+if ($file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) failUpload(400, 'Invalid image upload');
+if ($file['size'] < 1 || $file['size'] > 4 * 1024 * 1024) failUpload(413, 'Image too large');
+
+// The authenticated Node API decodes and re-encodes all accepted inputs to WebP.
+// Never trust a supplied extension or allow executable/SVG content on this host.
+$finfo = new finfo(FILEINFO_MIME_TYPE);
+$image = @getimagesize($file['tmp_name']);
+if ($finfo->file($file['tmp_name']) !== 'image/webp' || !$image || $image['mime'] !== 'image/webp' || $image[0] > 1920 || $image[1] > 1920) failUpload(415, 'Invalid image');
+
+$origin = rtrim(getenv('UPLOAD_PUBLIC_ORIGIN') ?: 'https://media.praaviconsultants.in', '/');
+if (!preg_match('#^https://[a-zA-Z0-9.-]+$#', $origin)) failUpload(503, 'Upload service unavailable');
+$directory = __DIR__ . '/../uploads/' . $folder;
+if (!is_dir($directory) && !mkdir($directory, 0755, true)) failUpload(503, 'Upload service unavailable');
+$filename = bin2hex(random_bytes(16)) . '.webp';
+if (!move_uploaded_file($file['tmp_name'], $directory . '/' . $filename)) failUpload(503, 'Upload service unavailable');
+echo json_encode(['url' => $origin . '/uploads/' . $folder . '/' . $filename]);

@@ -1,3 +1,4 @@
+import SeoHead from "@/components/SeoHead";
 import { CheckCircle2, ShoppingBag, Store, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import PageHero from "@/components/PageHero";
@@ -52,6 +53,7 @@ const valuePoints = [
 const ShopifyDevelopmentServicePage = () => {
   return (
     <>
+      <SeoHead title="Shopify Development Services | Praavi Consultants" description="Explore Shopify store development, custom themes, migration and ecommerce features from Praavi Consultants." canonicalPath="/services/shopify-development" />
       <PageHero
         tag="Shopify Development Services"
         title="Power Your Business with Shopify"

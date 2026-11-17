@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
+import { PublicRenderContext } from "@/lib/publicPrerender";
 
-interface SeoHeadProps {
+export interface SeoHeadProps {
   title: string;
   description: string;
   canonicalPath?: string;
@@ -36,6 +37,16 @@ const SOCIAL_META_SELECTOR = 'meta[property^="og:"], meta[name^="og:"], meta[pro
 
 const readDefaultSocialMetadata = () => {
   const defaults = new Map<string, string>();
+  const initialDefaults = document.getElementById("seo-default-social");
+  if (initialDefaults) {
+    try {
+      const values = JSON.parse(initialDefaults.textContent ?? "");
+      for (const [key, value] of Object.entries(values)) {
+        if ((key.startsWith("og:") || key.startsWith("twitter:")) && key !== "twitter:site" && typeof value === "string") defaults.set(key, value);
+      }
+      if (defaults.size) return defaults;
+    } catch { /* Fall back to the current template if no valid snapshot exists. */ }
+  }
   document.querySelectorAll<HTMLMetaElement>(SOCIAL_META_SELECTOR).forEach((element) => {
     const key = element.getAttribute("property") ?? element.getAttribute("name")!;
     // No verified X handle is configured; article fields belong to the active page.
@@ -63,7 +74,9 @@ const socialImageUrl = (value?: string | null) => {
 };
 
 const upsertCanonical = (href: string) => {
-  let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+  const [first, ...duplicates] = document.querySelectorAll<HTMLLinkElement>('link[rel="canonical"]');
+  duplicates.forEach(element => element.remove());
+  let link = first;
   if (!link) {
     link = document.createElement("link");
     link.setAttribute("rel", "canonical");
@@ -73,6 +86,7 @@ const upsertCanonical = (href: string) => {
 };
 
 const SeoHead = ({ title, description, canonicalPath = "/", ogTitle, ogDescription, ogType = "website", ogImage, publishedTime, schema }: SeoHeadProps) => {
+  useContext(PublicRenderContext)?.capture?.({ title, description, canonicalPath, ogTitle, ogDescription, ogType, ogImage, publishedTime, schema });
   useEffect(() => {
     const defaults = readDefaultSocialMetadata();
     restoreSocialMetadata(defaults);

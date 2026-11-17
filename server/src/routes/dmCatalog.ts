@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../lib/db.js";
 import { requireAuth, requireRole } from "../middleware/requireAuth.js";
 import { DEPARTMENTS } from "../lib/types.js";
+import { financeCollectionLimitError } from "../lib/financeCollectionLimits.js";
 
 // ---- Deliverable types (the catalog everything else draws from) ----
 export const deliverableTypesRouter = Router();
@@ -94,6 +95,8 @@ const packageSchema = z.object({
 });
 
 quotationPackagesRouter.post("/", requireRole("accountant"), async (req, res) => {
+  const collectionError = financeCollectionLimitError(req.body, ["items"]);
+  if (collectionError) return res.status(400).json({ error: collectionError });
   const parsed = packageSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
   const count = await prisma.quotationPackage.count({ where: { department: parsed.data.department } });
@@ -115,6 +118,8 @@ quotationPackagesRouter.post("/", requireRole("accountant"), async (req, res) =>
 const packageUpdateSchema = packageSchema.partial().extend({ active: z.boolean().optional() });
 
 quotationPackagesRouter.put("/:id", requireRole("accountant"), async (req, res) => {
+  const collectionError = financeCollectionLimitError(req.body, ["items"]);
+  if (collectionError) return res.status(400).json({ error: collectionError });
   const parsed = packageUpdateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
   const existing = await prisma.quotationPackage.findUnique({ where: { id: req.params.id } });

@@ -1,3 +1,4 @@
+import { usePublicData } from "@/lib/publicPrerender";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -18,7 +19,7 @@ import { fetchPublishedCaseStudies } from "@/lib/contentApi";
 import { defaultCaseStudies, getCaseStudyItems, saveCaseStudyItems } from "@/lib/caseStudyStore";
 
 const CaseStudiesPage = () => {
-  const [caseStudies, setCaseStudies] = useState(getCaseStudyItems());
+  const [caseStudies, setCaseStudies] = useState(usePublicData().caseStudies ?? getCaseStudyItems());
 
   useEffect(() => {
     let mounted = true;

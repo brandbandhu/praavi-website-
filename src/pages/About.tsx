@@ -5,6 +5,8 @@ import { CheckCircle, Users, Trophy, Clock, Target, Rocket } from "lucide-react"
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
 import aboutImage from "@/assets/about.png";
+import SeoHead from "@/components/SeoHead";
+import { ABOUT_SEO } from "@/lib/aboutSeo.mjs";
 
 const values = [
   { icon: Target, title: "Data-Driven", desc: "Every decision backed by analytics and measurable outcomes." },
@@ -28,6 +30,7 @@ const AboutPage = () => {
 
   return (
     <>
+      <SeoHead title={ABOUT_SEO.title} description={ABOUT_SEO.description} canonicalPath={ABOUT_SEO.canonicalPath} />
       <PageHero
         title="Promote With Us"
         subtitle="Discover why Praavi Consultants is the trusted digital partner for 150+ brands."

@@ -5,6 +5,8 @@ import { getBlogPostBySlug, type BlogPost } from "@/lib/blogStore";
 import { fetchPublishedBlogPostBySlug } from "@/lib/contentApi";
 import SeoHead from "@/components/SeoHead";
 import { buildBlogPostingSchema } from "@/lib/blogSchema";
+import { readPrerenderedBlogPost } from "@/lib/blogPrerender";
+import BlogInlineLinks from "@/components/BlogInlineLinks";
 
 const renderContent = (content: string) => {
   const lines = content
@@ -21,14 +23,14 @@ const renderContent = (content: string) => {
           className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm leading-6 [font-family:inherit]"
         >
           <span className="font-semibold text-primary">{numberedPoint[1]}. </span>
-          <span>{numberedPoint[2]}</span>
+          <span><BlogInlineLinks text={numberedPoint[2]} /></span>
         </h2>
       );
     }
 
     return (
       <p key={`${line}-${index}`} className="text-sm leading-7 text-foreground/95">
-        {line}
+        <BlogInlineLinks text={line} />
       </p>
     );
   });
@@ -36,8 +38,9 @@ const renderContent = (content: string) => {
 
 const BlogPostPage = () => {
   const { slug } = useParams();
-  const [post, setPost] = useState<BlogPost | undefined>(slug ? getBlogPostBySlug(slug) : undefined);
-  const [loading, setLoading] = useState(!!slug);
+  const initialPost = readPrerenderedBlogPost(slug);
+  const [post, setPost] = useState<BlogPost | undefined>(initialPost ?? (slug ? getBlogPostBySlug(slug) : undefined));
+  const [loading, setLoading] = useState(!!slug && !initialPost);
 
   useEffect(() => {
     if (!slug) {
@@ -46,8 +49,9 @@ const BlogPostPage = () => {
     }
 
     let mounted = true;
-    setLoading(true);
-    setPost(getBlogPostBySlug(slug));
+    const prerendered = readPrerenderedBlogPost(slug);
+    setLoading(!prerendered);
+    setPost(prerendered ?? getBlogPostBySlug(slug));
     fetchPublishedBlogPostBySlug(slug)
       .then((livePost) => {
         if (!mounted) return;
@@ -91,6 +95,10 @@ const BlogPostPage = () => {
     );
   }
 
+  return <BlogPostContent post={post} />;
+};
+
+export const BlogPostContent = ({ post }: { post: BlogPost }) => {
   const schema = buildBlogPostingSchema(post);
 
   return (

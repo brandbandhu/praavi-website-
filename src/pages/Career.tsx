@@ -1,3 +1,4 @@
+import { usePublicData } from "@/lib/publicPrerender";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import {
@@ -48,9 +49,9 @@ const splitSkills = (value: string) =>
     .filter(Boolean);
 
 const CareerPage = () => {
-  const [jobs, setJobs] = useState<JobPost[]>([]);
+  const [jobs, setJobs] = useState<JobPost[]>(usePublicData().jobs ?? []);
   const [selectedJob, setSelectedJob] = useState<JobPost | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!usePublicData().jobs);
   const [error, setError] = useState("");
   const [form, setForm] = useState(emptyForm);
   const [resume, setResume] = useState<File | null>(null);

@@ -1,3 +1,4 @@
+import { fetchPublicRows } from "./publicRows";
 import { supabase } from "@/lib/supabase";
 import { sendFormToWeb3Forms } from "@/lib/leadWebhook";
 
@@ -105,13 +106,7 @@ const normalizePayload = (payload: JobPayload) => ({
 });
 
 export const fetchJobs = async () => {
-  const { data, error } = await supabase
-    .from("jobs")
-    .select("*")
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
+  const data = await fetchPublicRows("jobs", [["created_at", { ascending: false }]]);
   return (data ?? []).map(normalizeJob);
 };
 
