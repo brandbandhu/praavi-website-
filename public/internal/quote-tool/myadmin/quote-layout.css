@@ -74,6 +74,56 @@
   max-width: 100%;
 }
 
+.app .scope-point-editor {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.app .scope-point-editor summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.app .scope-point-rows {
+  display: grid;
+  gap: 8px;
+  max-height: 24rem;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding: 2px 6px 2px 2px;
+}
+
+.app .scope-point-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.app .scope-point-row textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  font: inherit;
+  color: inherit;
+}
+
+.app .scope-point-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.app .preview-list li {
+  overflow-wrap: anywhere;
+}
+
 .app .preview-table th:first-child,
 .app .preview-table td:first-child {
   text-align: left;
