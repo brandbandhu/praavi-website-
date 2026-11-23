@@ -1,7 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound, Bot, Database, Server, IndianRupee, Star, Quote } from "lucide-react";
+import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound, Bot, Database, Server, IndianRupee } from "lucide-react";
 import heroBackground from "@/assets/baner new.jpg";
 import ContactForm from "@/components/ContactForm";
 import SeoHead from "@/components/SeoHead";
@@ -491,6 +491,7 @@ const PricingSection = () => {
   );
 };
 
+/* Temporarily hidden. Restore the Star and Quote imports when re-enabling.
 const VideoTestimonialsSection = () => {
   const stories = [
     ["Client Video Review", "Short video testimonial placeholder for campaign experience and delivery confidence."],
@@ -519,6 +520,8 @@ const VideoTestimonialsSection = () => {
     </section>
   );
 };
+
+*/
 
 const localSeoSections = [
   {
@@ -644,7 +647,7 @@ const Index = () => {
       <ProcessSection />
       <TechStackSection />
       <PricingSection />
-      <VideoTestimonialsSection />
+      {/* <VideoTestimonialsSection /> */}
       <WhyChooseUs />
       <ContactForm />
     </>
