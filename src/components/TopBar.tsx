@@ -18,7 +18,15 @@ const TopBar = () => {
             </span>
           </div>
           <div className="hidden sm:flex items-center gap-3">
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Facebook size={14} /></a>
+            <a
+              href="https://www.facebook.com/profile.php?id=100090578472783#"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Praavi Consultants on Facebook"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Facebook size={14} aria-hidden="true" />
+            </a>
             <a
               href="https://www.instagram.com/praavi_consultants?dmpr=MTd0cHFpZWs0ZWUycg=="
               target="_blank"
@@ -28,7 +36,15 @@ const TopBar = () => {
             >
               <Instagram size={14} aria-hidden="true" />
             </a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Linkedin size={14} /></a>
+            <a
+              href="https://www.linkedin.com/company/praavi-consultants/home/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Praavi Consultants on LinkedIn"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Linkedin size={14} aria-hidden="true" />
+            </a>
           </div>
           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
             <Phone size={12} className="text-primary" />
