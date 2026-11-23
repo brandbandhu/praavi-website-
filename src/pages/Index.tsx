@@ -2,7 +2,7 @@ import { motion, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound, Bot, Database, Server, IndianRupee } from "lucide-react";
-import heroBackground from "@/assets/baner new.jpg";
+import heroPoster from "@/assets/banner video/banner video 2-poster.webp";
 import heroVideo from "@/assets/banner video/banner video 2.mp4";
 import ContactForm from "@/components/ContactForm";
 import SeoHead from "@/components/SeoHead";
@@ -25,7 +25,7 @@ const HeroBackground = () => {
 
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-      <img src={heroBackground} alt="" fetchPriority="high" className="h-full w-full object-cover object-bottom" />
+      <img src={heroPoster} alt="" fetchPriority="high" className="h-full w-full object-cover" />
       {motionAllowed && (
         <video
           src={heroVideo}
