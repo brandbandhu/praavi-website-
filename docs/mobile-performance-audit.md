@@ -24,6 +24,38 @@ The supplied PageSpeed Insights scores were 59 Performance, 94 Accessibility, 10
 
 Performance score runs were 61, 63, 61 before and 96, 97, 97 after. Lighthouse measured TBT on navigation. Field INP requires visitor interaction data and was unavailable for the local candidate. No production PSI score is claimed for the candidate.
 
+## Live production cross-check
+
+The latest supplied mobile PSI result was 61 Performance, 4.1 s FCP, 8.3 s LCP, 210 ms TBT, 6.0 s Speed Index and 0 CLS. A fresh mobile Lighthouse run against the public homepage scored 51 Performance, 95 Accessibility, 100 Best Practices and 100 SEO. It measured 3.37 s FCP, 7.90 s LCP, 712 ms TBT, 3.47 s Speed Index and 0 CLS. This is one observation of deployed production. The paired local medians above provide the equivalent before and after comparison.
+
+The live LCP node was `main.pb-20 > section.relative > div.pointer-events-none > img.h-full`, with source `/assets/banner%202%20hd-oV3441Ur.webp`. The request was high-priority but discovered after the app entry executed. Lighthouse recorded a 4.97 s simulated resource load delay, the largest LCP phase.
+
+| LCP phase | Live, one run | Local baseline, run 1 | Local candidate, run 2 |
+| --- | ---: | ---: | ---: |
+| Time to first byte | 658 ms | 451 ms | 450 ms |
+| Resource load delay | 4,970 ms | 4,895 ms | 177 ms |
+| Resource load duration | 769 ms | 199 ms | 76 ms |
+| Element render delay | 1,502 ms | 3,032 ms | 1,629 ms |
+
+Live Insights flagged render blocking with 840 ms estimated savings, 584 KiB in image delivery, 262 KiB in unused JavaScript, 32 KiB in unused CSS, font display, and a network dependency chain through the app and remote stylesheets. The headline was visible before the larger image painted. The Google tag script transferred 183.3 kB. Font Awesome and its brand font transferred 136.9 kB for one icon. These opportunity estimates overlap.
+
+The live trace spent 2,391 ms in main-thread work. In the representative matched local runs, main-thread work decreased from 1,673 to 910 ms. Style and layout went from 400 to 243 ms, script evaluation from 390 to 322 ms, and paint and compositing from 114 to 22 ms. Residual LCP time is dominated by rendering after the image arrives. Additional cache work would apply only to versioned static assets, after validating header precedence at the edge. Further tag deferral would require verifying page views, consent and lead events first.
+
+## Desktop regression check
+
+The three desktop preset scores were 93, 94, 93 before and 99, 100, 100 after. This comparison uses the same two local production builds, both with the desktop preset.
+
+| Desktop metric | Before median | After median |
+| --- | ---: | ---: |
+| Performance | 93 | 100 |
+| FCP | 0.72 s | 0.54 s |
+| LCP | 1.67 s | 0.65 s |
+| Speed Index | 1.02 s | 0.54 s |
+| TBT | 0 ms | 0 ms |
+| CLS | 0.008 | 0.005 |
+
+One candidate desktop run reached 98 ms TBT. Both repeats measured zero, matching the baseline median.
+
 ## Method and artifacts
 
 Lighthouse 12.8.2 in Chromium ran against output from `npm run build` on both sides. Both builds used the same loopback static server and gzip for text. Each run used a fresh browser profile and the mobile preset, with 412 × 823 CSS px at 1.75 DPR, 150 ms simulated RTT, 1,638.4 Kbps throughput and 4× CPU slowdown. Google Analytics collection URLs were blocked in both sets while the tag script remained eligible to load. This preserves its network and script cost without sending analytics collection events from the audit.
@@ -60,6 +92,31 @@ Raw reports, traces, DevTools network logs, request CSVs and HTML reports are in
 - The representative after run still reports unused JavaScript of about 106 KiB, unused CSS of about 13 KiB and additional image savings of about 42 KiB. The Google tag remains the largest individual request. Global CSS remains render-blocking, and the CSR render delay accounts for the largest portion of final LCP. Further reductions would involve server-rendering or targeted design and analytics changes.
 - The median CLS changed from 0.015 to 0.015. The trace shows a small shift in the hero text during font swap. Both medians remain in the good range and round to the same value. Mobile marquee motion is intentionally replaced by manual scrolling. The baseline About page lacked route-specific canonical metadata, which remains outside this performance patch.
 - The legacy browser WebP fallback still weighs 522 kB. Modern browsers select responsive AVIF and received 41.45 kB on the Lighthouse device.
+
+## Source changes by file
+
+| File | Change |
+| --- | --- |
+| `index.html` | Places the homepage preload insertion near the viewport meta and removes the remote icon stylesheet. |
+| `vite.config.ts` | Emits the page-specific responsive hero preload using the source definition shared with React. |
+| `src/App.tsx` | Loads non-home routes asynchronously and removes startup providers with no active consumers. |
+| `src/index.css` | Defines WOFF2 fonts with swap, CSS reveals, desktop marquee pausing when offscreen and mobile swipe behavior. |
+| `src/pages/Index.tsx` | Uses responsive hero AVIF, native lazy client logos, and lighter homepage interactions. |
+| `src/components/ContactForm.tsx` | Imports delivery modules on submit, adds accessible field names, and uses CSS reveals. |
+| `src/components/FloatingButtons.tsx` | Uses the local WhatsApp glyph. |
+| `src/assets/whatsapp.svg` | Makes the glyph outline visible so it can replace the icon font. |
+| `src/components/Navbar.tsx` | Supplies logo dimensions. |
+| `src/components/Footer.tsx` | Supplies logo dimensions, lazy loading and asynchronous decoding and uses semantic headings. |
+| `src/hooks/use-section-reveal.ts` | Shares in-view desktop motion across homepage and shared form sections. |
+| `src/lib/homeClientLogos.ts` | Records optimized logo filenames, alt text and intrinsic dimensions. |
+| `src/lib/homeHeroAssets.ts` | Shares breakpoint, source set and sizes between preload and picture. |
+| `src/pages/About.tsx` | Uses the sized WebP image with explicit dimensions. |
+| `src/pages/Team.tsx` | Uses sized WebP portraits and lazy-loads the CEO portrait below the fold. |
+| `public/assets/home-hero/` | Adds five AVIF hero files at the mobile and wide dimensions in the inventory. |
+| `public/assets/client-logos/` | Adds the 16 sized WebP logos in the inventory. |
+| `src/assets/fonts/` | Adds the four Poppins WOFF2 weights, one variable Space Grotesk WOFF2 and their OFL licenses. |
+| `src/assets/about.webp`, `src/assets/founders/CEO.webp`, `src/assets/founders/founder.webp` | Adds optimized photos while retaining original source artwork. |
+| `docs/mobile-performance-audit.md` | Records measurements, scope, validation and the inventory. |
 
 ## Modified files
 
