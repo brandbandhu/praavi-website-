@@ -29,6 +29,19 @@ const Hero = () => (
           Get Free Strategy Call <ArrowRight size={18} />
         </Link>
       </div>
+
+      <dl className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-2 sm:gap-3 lg:mt-9">
+        {[
+          ["150+", "Clients"],
+          ["500+", "Projects"],
+          ["98%", "Retention"],
+        ].map(([value, label]) => (
+          <div key={label} className="flex flex-col gap-1">
+            <dt className="text-xs text-foreground/75">{label}</dt>
+            <dd className="order-first font-display text-2xl font-bold gradient-text-orange sm:text-3xl">{value}</dd>
+          </div>
+        ))}
+      </dl>
     </div>
   </section>
 );
