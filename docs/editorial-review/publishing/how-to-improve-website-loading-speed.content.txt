@@ -1,0 +1,43 @@
+Start a speed-improvement project with an observed problem on a specific page. A slow first screen, a delayed server response and an unresponsive button have different causes. A useful checklist connects each symptom to an investigation, a change and a repeatable check.
+
+1. Record a baseline for representative pages
+
+Choose the templates that matter to your visitors, such as a service page, article, product page and enquiry form. Record the URL, device category, test conditions and the date of the test.
+
+Use [PageSpeed Insights](https://developers.google.com/speed/docs/insights/v5/about) for available lab diagnostics and field data. Keep the two sets of observations separate. Test more than once before deciding whether an unexpected result represents a persistent issue.
+
+2. Find where the delay begins
+
+Ask your developer to inspect the request sequence using the [browser's Network panel](https://developer.chrome.com/docs/devtools/network). Review when the main document arrives, when important assets are requested and which resources take time to transfer.
+
+Separate waiting for the server from downloading a large file or waiting for the browser to finish work. Buying a different hosting plan will not address every one of these causes. Record the evidence before choosing the change.
+
+3. Review the main image and other heavy media
+
+Serve images at dimensions appropriate to their displayed size and compare compressed versions for acceptable quality. Choose file formats around the image and browser requirements rather than assuming one format wins every time.
+
+The main visible image needs particular care. [LCP optimization guidance](https://web.dev/articles/optimize-lcp) explains why an important image must be discoverable and loaded promptly. Do not automatically lazy-load that image with the rest of the gallery. Images further down the page can be assessed for deferred loading. Keep essential text and navigation available while media loads.
+
+4. Investigate scripts before removing them
+
+Review third-party embeds, unused features and JavaScript needed for the current page. Large or long-running tasks can delay the browser's response to interaction; [INP optimization guidance](https://web.dev/articles/optimize-inp) helps explain that work.
+
+Ask which scripts are necessary immediately and which can load when their feature is needed. Avoid removing form protection, accessibility features or essential business functions just to improve a score. Confirm the site's actual behaviour after each change.
+
+5. Check styles, fonts and visual stability
+
+Review unnecessary styles and font files with the developer. Keep the weights and character support the design needs, and check the result when fonts arrive slowly or fail to load.
+
+Reserve appropriate space for images and embedded content. [Layout-shift guidance](https://web.dev/articles/optimize-cls) explains how unexpected movement can disrupt reading and interaction. Recheck the intended layout at different screen sizes; a faster transfer is not a complete improvement if the enquiry button becomes difficult to use.
+
+6. Review caching and server-side work
+
+Check whether repeated visits can reuse suitable static files and whether file versioning prevents stale assets after an update. Keep user-specific responses out of shared public caches.
+
+If the initial document is consistently delayed, investigate application work and hosting configuration using the recorded requests. A shared or cloud hosting label alone does not identify the bottleneck. Choose a remedy from the measured workload rather than a general assumption about the platform.
+
+7. Retest the page and its essential functions
+
+Repeat the baseline tests under comparable conditions and note which observations changed. Then test navigation, enquiry forms, validation messages and any checkout or account features affected by the work. Use approved test details rather than real customer information.
+
+Keep a change log and monitor important pages after significant content or feature updates. Praavi Consultants' [website development service](https://www.praaviconsultants.in/website-development) can be discussed when fixes involve templates, integrations or maintenance. For search-related prioritization, review the [technical SEO service](https://www.praaviconsultants.in/services/seo-services/technical-seo). Agree the work and verification method without promising a particular score, ranking or lead volume.

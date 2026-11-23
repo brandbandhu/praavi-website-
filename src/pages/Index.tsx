@@ -2,92 +2,46 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound, Bot, Database, Server, IndianRupee, Star, Quote } from "lucide-react";
+import heroBackground from "@/assets/baner new.jpg";
 import ContactForm from "@/components/ContactForm";
 import SeoHead from "@/components/SeoHead";
-import DiwaliCelebration from "@/components/diwali/DiwaliCelebration";
-import DiwaliHeroWish from "@/components/diwali/DiwaliHeroWish";
 
 /* ---- Hero ---- */
 const Hero = () => (
-  <section className="relative pt-8 sm:pt-10 lg:pt-12 pb-20 sm:pb-28 lg:pb-36 overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/50 to-background/70" />
-
-    {/* Glow */}
-    <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-primary/5 blur-[120px]" />
-    <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-accent/5 blur-[100px]" />
-    <DiwaliCelebration />
-
-    <div className="relative z-10 container-max px-4 sm:px-6 lg:px-8 text-center">
-      <DiwaliHeroWish />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full mb-6"
-      >
-        <Sparkles size={14} className="text-primary" />
-        <span className="text-xs sm:text-sm text-muted-foreground">Pune Growth Agency for Websites, Leads & Scale</span>
-      </motion.div>
-
-      <motion.h1
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.15 }}
-        className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight max-w-5xl mx-auto"
-      >
-        Digital Marketing Agency in Pune
-      </motion.h1>
-
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="font-display text-lg sm:text-xl md:text-2xl font-semibold text-accent mt-4"
-      >
-        150+ Clients • 500+ Projects • 98% Retention
-      </motion.h2>
-
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="text-muted-foreground mt-3 text-sm sm:text-base max-w-3xl mx-auto"
-      >
-        We Build Websites, Generate Leads & Scale Businesses. From our Loni Kalbhor base, we help businesses across Pune
-        connect website development, SEO, Google Ads and social media marketing around their goals.
-      </motion.p>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="mt-8 flex flex-wrap items-center justify-center gap-4"
-      >
+  <section className="relative isolate overflow-hidden bg-black px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+      <img src={heroBackground} alt="" fetchPriority="high" className="h-full w-full object-cover object-bottom" />
+      <div className="absolute inset-0 bg-black/20" />
+    </div>
+    <div className="container-max">
+      <div className="mx-auto max-w-4xl">
+        <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl xl:text-6xl">
+          Digital Marketing Agency in Pune
+        </h1>
+        <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-foreground/90 sm:text-base">
+          We Build Websites, Generate Leads &amp; Scale Businesses. From our Loni Kalbhor base, we help businesses across Pune
+          connect website development, SEO, Google Ads and social media marketing around their goals.
+        </p>
         <Link
           to="/contact"
-          className="gradient-bg px-8 py-3.5 rounded-xl font-semibold text-primary-foreground flex items-center gap-2 hover:opacity-90 transition-opacity"
+          className="gradient-bg mt-7 inline-flex items-center gap-2 rounded-xl px-8 py-3.5 font-semibold text-primary-foreground transition-opacity hover:opacity-90"
         >
           Get Free Strategy Call <ArrowRight size={18} />
         </Link>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="mt-10 grid grid-cols-3 gap-3 max-w-2xl mx-auto"
-      >
+      <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-2 sm:gap-3 lg:mt-9">
         {[
           ["150+", "Clients"],
           ["500+", "Projects"],
           ["98%", "Retention"],
         ].map(([value, label]) => (
-          <div key={label} className="glass-card rounded-xl px-4 py-4">
+          <div key={label} className="rounded-xl border border-white/15 bg-black/60 px-2 py-3 sm:px-4">
             <div className="font-display text-2xl sm:text-3xl font-bold gradient-text-orange">{value}</div>
-            <div className="text-xs text-muted-foreground mt-1">{label}</div>
+            <div className="mt-1 text-xs text-foreground/75">{label}</div>
           </div>
         ))}
-      </motion.div>
+      </div>
     </div>
   </section>
 );

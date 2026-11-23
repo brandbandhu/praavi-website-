@@ -1,0 +1,39 @@
+Website performance affects the work a visitor is trying to complete: reading about a service, checking a product or sending an enquiry. The useful question is whether the page becomes readable and usable without unnecessary waiting or disruption. A performance score is one way to investigate that experience, rather than the business outcome itself.
+
+1. Consider the whole visit
+
+The first screen matters, but a page also needs to respond when someone opens navigation, selects a product or uses a form. A visitor may see the page quickly and still encounter a delayed interaction later.
+
+For a service business, review the route from the service page to the completed enquiry. Look for the point where waiting interrupts the task. This gives the owner and developer a specific problem to investigate instead of a general request to "make everything faster."
+
+2. Understand what the main experience metrics describe
+
+[Google's Core Web Vitals guidance](https://developers.google.com/search/docs/appearance/core-web-vitals) describes three aspects of page experience: loading, responsiveness and visual stability.
+
+Largest Contentful Paint, or LCP, concerns when the largest visible image or text block appears. Interaction to Next Paint, or INP, concerns responsiveness to user interactions. Cumulative Layout Shift, or CLS, concerns unexpected movement of visible content. CLS is not a loading-time measurement.
+
+These measures can point to different problems. A large main image, a delayed response to a menu click and a moving enquiry button should not automatically receive the same fix.
+
+3. Give performance its proper role in SEO
+
+Google uses Core Web Vitals in its ranking systems, but good results do not guarantee a particular search position. Its [page-experience guidance](https://developers.google.com/search/docs/appearance/page-experience) also makes clear that a good overall experience involves more than a single score.
+
+Keep performance work alongside useful content and a clear explanation of your services. An SEO review can help establish priorities, but it should not turn a speed improvement into a promise of first-place rankings or a forecast of extra leads without evidence.
+
+4. Separate a test run from real visitor experience
+
+[PageSpeed Insights](https://developers.google.com/speed/docs/insights/v5/about) can show controlled lab tests and real-user field data when that data is available. These answer different questions: a lab test helps investigate a repeatable scenario, while field data describes observed experiences across visits.
+
+Missing field data is not proof that a page is fast or slow. Record which page, device category and test conditions were reviewed. Investigate differences between tests rather than treating one run as a complete verdict on the website.
+
+5. Prioritize pages that support important tasks
+
+Start with the pages visitors use to evaluate a service and make contact. A small issue on an important enquiry route may deserve attention before a cosmetic improvement on a rarely used page.
+
+Agree the task, the observed problem and how the team will verify a change. Check that navigation, forms and other essential functions still work after optimization. Keep conclusions tied to what was measured; visitor behaviour also depends on the offer, content and traffic source.
+
+6. Treat performance as ongoing maintenance
+
+Images, embedded tools and site features can change after launch. Include performance checks when adding substantial content or functionality, and keep a record of the affected pages and follow-up work.
+
+Praavi Consultants' [SEO services](https://www.praaviconsultants.in/seo-services) include technical audits that can inform search priorities. If the work also involves rebuilding templates or changing the site structure, review the [website development service](https://www.praaviconsultants.in/website-development) and agree the implementation scope. Any improvement should be assessed against a recorded baseline, without assuming a ranking or conversion result in advance.

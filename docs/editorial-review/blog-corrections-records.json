@@ -1,0 +1,201 @@
+{
+  "purpose": "EDITORIAL_REVIEW_ONLY_NOT_AN_UPDATE_PAYLOAD",
+  "approved": false,
+  "source_table": "blog_posts",
+  "source_read_only": true,
+  "records": [
+    {
+      "record_id": "93252b86-22a2-47af-887c-eea758d94e4f",
+      "selector": {
+        "id": "93252b86-22a2-47af-887c-eea758d94e4f",
+        "slug": "how-landing-pages-increase-business-leads"
+      },
+      "canonical_url": "https://www.praaviconsultants.in/blog/how-landing-pages-increase-business-leads",
+      "before": {
+        "id": "93252b86-22a2-47af-887c-eea758d94e4f",
+        "slug": "how-landing-pages-increase-business-leads",
+        "title": "How Landing Pages Increase Business Leads",
+        "excerpt": "An SSL certificate is essential for securing your website and protecting user data. Learn why SSL is important for trust, security, and SEO.",
+        "content": "In today’s digital world, website security is more important than ever. One of the most basic yet essential security measures for any website is an SSL certificate. If you’ve ever seen a padlock icon in your browser or “https://” in a website URL, that’s SSL in action.\n\nLet’s understand why an SSL certificate is important for your website.\n\n🔐 What Is an SSL Certificate?\n\nSSL (Secure Sockets Layer) is a security technology that encrypts the data exchanged between a user’s browser and a website server. This ensures that sensitive information like passwords, credit card details, and personal data remains safe.\n\n🛡️ Why SSL Is Important\n1. Protects User Data\n\nSSL encrypts all data transferred between the user and the website, preventing hackers from accessing sensitive information.\n\n2. Builds Trust and Credibility\n\nWebsites with SSL display a padlock icon in the browser, which assures users that the website is secure and trustworthy.\n\n3. Improves SEO Ranking\n\nSearch engines like Google prioritize secure websites. Having SSL can improve your website’s ranking in search results.\n\n4. Prevents Data Tampering\n\nSSL ensures that data is not altered or corrupted during transmission between the user and the server.\n\n5. Required for Online Transactions\n\nIf your website handles payments or personal information, SSL is mandatory to ensure secure transactions.\n\n6. Enhances User Confidence\n\nVisitors are more likely to interact, sign up, or make purchases on a secure website.\n\n7. Protects Against Cyber Attacks\n\nSSL helps protect your website from attacks like:\n\nMan-in-the-middle attacks\nData breaches\nPhishing\n🔍 Types of SSL Certificates\n1. Domain Validated (DV)\n\nBasic level security, suitable for small websites.\n\n2. Organization Validated (OV)\n\nProvides more verification and is suitable for business websites.\n\n3. Extended Validation (EV)\n\nHighest level of security with strong verification, often used by large companies.\n\n⚙️ How to Get an SSL Certificate\nPurchase from a hosting provider\nUse free options like Let’s Encrypt\nInstall and activate on your server\nEnsure your website runs on HTTPS\n🚀 Conclusion\n\nAn SSL certificate is no longer optional—it’s a necessity for every website. It protects user data, builds trust, improves SEO, and ensures secure communication. If you want your website to be reliable and professional, implementing SSL is a must.",
+        "status": "published",
+        "published_at": "2026-04-14T03:43:59.446+00:00",
+        "updated_at": null,
+        "body_sha256": "a6f13051a26b4185e7ab3afbbb5b72475efdd35c309ff20364f5328398907d02"
+      },
+      "preserve_original_published_at": "2026-04-14T03:43:59.446+00:00",
+      "proposal": {
+        "kind": "complete_editorial_draft",
+        "title": "How Landing Pages Increase Business Leads",
+        "computed_seo_title": "How Landing Pages Increase Business Leads | Praavi Blog",
+        "h1": "How Landing Pages Increase Business Leads",
+        "excerpt": "Learn how focused landing pages connect an offer, useful information and a clear enquiry process, with practical ways to measure lead quality.",
+        "h2_headings": [
+          "1. Match the page to one customer need",
+          "2. Explain the offer before asking for details",
+          "3. Choose a clear next step",
+          "4. Ask questions that help your team respond",
+          "5. Help visitors assess credibility",
+          "6. Test the complete mobile enquiry journey",
+          "7. Review lead quality alongside completed enquiries"
+        ],
+        "draft_file": "docs/editorial-review/landing-page-leads.draft.md",
+        "publication_format": "Human-readable Markdown review. For a later approved edit, use the matching body-only file in docs/editorial-review/publishing/. Inline Markdown links are supported; general Markdown block syntax remains unsupported."
+      },
+      "approved": false
+    },
+    {
+      "record_id": "1aa25abf-1764-42eb-bbcd-71a5efd2f57c",
+      "selector": {
+        "id": "1aa25abf-1764-42eb-bbcd-71a5efd2f57c",
+        "slug": "why-website-speed-matters-for-seo-and-users"
+      },
+      "canonical_url": "https://www.praaviconsultants.in/blog/why-website-speed-matters-for-seo-and-users",
+      "before": {
+        "id": "1aa25abf-1764-42eb-bbcd-71a5efd2f57c",
+        "slug": "why-website-speed-matters-for-seo-and-users",
+        "title": "Why Website Speed Matters for SEO and Users",
+        "excerpt": "Website speed plays a crucial role in both SEO rankings and user experience. Discover how faster loading times can boost traffic, engagement, and conversions.",
+        "content": "In today’s digital world, simply having a website isn’t enough. If people can’t find your site on search engines, you’re missing out on valuable traffic and potential customers. That’s where SEO comes in.\n\nWhat Is SEO?\n\nSEO, or Search Engine Optimization, is the process of improving your website so it ranks higher on search engine results pages (SERPs). The higher your website ranks, the more likely users are to visit it.\n\nSEO involves multiple strategies, including:\n\nKeyword optimization\nContent creation\nTechnical improvements\nLink building\nHow Search Engines Work\n\nSearch engines like Google use algorithms to crawl, index, and rank websites based on relevance and quality.\n\nHere’s a simple breakdown:\n\nCrawling: Search engines scan your website\nIndexing: Your content is stored in their database\nRanking: Your site is displayed based on relevance\nWhy SEO Is Important\n1. Increases Organic Traffic\n\nSEO helps your website appear in search results, bringing in free, targeted traffic without paid ads.\n\n2. Builds Credibility and Trust\n\nWebsites that rank higher are often seen as more trustworthy and authoritative by users.\n\n3. Improves User Experience\n\nGood SEO practices enhance website speed, mobile-friendliness, and usability—leading to a better user experience.\n\n4. Cost-Effective Marketing\n\nUnlike paid advertising, SEO delivers long-term results without ongoing costs per click.\n\n5. Gives You a Competitive Edge\n\nIf your competitors are using SEO and you’re not, you’re likely losing potential customers to them.\n\nKey Elements of SEO\nOn-Page SEO\nOptimizing content and keywords\nProper use of headings and meta tags\nInternal linking\nOff-Page SEO\nBacklinks from other websites\nSocial signals\nBrand mentions\nTechnical SEO\nWebsite speed\nMobile responsiveness\nSecure connections (HTTPS)\nCommon SEO Mistakes to Avoid\nKeyword stuffing\nIgnoring mobile users\nSlow website speed\nDuplicate content\nNot updating content regularly\nConclusion\n\nSEO is not just an option—it’s a necessity for any website that wants to succeed online. By investing in SEO, you improve your visibility, attract more visitors, and grow your business over time.\n\nStart small, stay consistent, and remember—SEO is a long-term strategy that delivers lasting results.",
+        "status": "published",
+        "published_at": "2026-03-23T04:06:03.2+00:00",
+        "updated_at": null,
+        "body_sha256": "868e10cd7a2bfe247fe0bdf84bf8eb4f8172499cbdc53f2497eed101081028aa"
+      },
+      "preserve_original_published_at": "2026-03-23T04:06:03.2+00:00",
+      "proposal": {
+        "kind": "complete_editorial_draft",
+        "title": "Why Website Speed Matters for SEO and Users",
+        "computed_seo_title": "Why Website Speed Matters for SEO and Users | Praavi Blog",
+        "h1": "Why Website Speed Matters for SEO and Users",
+        "excerpt": "Understand how loading, responsiveness and visual stability affect visitors, what speed means for SEO and how to set sensible performance priorities.",
+        "h2_headings": [
+          "1. Consider the whole visit",
+          "2. Understand what the main experience metrics describe",
+          "3. Give performance its proper role in SEO",
+          "4. Separate a test run from real visitor experience",
+          "5. Prioritize pages that support important tasks",
+          "6. Treat performance as ongoing maintenance"
+        ],
+        "draft_file": "docs/editorial-review/website-speed-importance.draft.md",
+        "publication_format": "Human-readable Markdown review. For a later approved edit, use the matching body-only file in docs/editorial-review/publishing/. Inline Markdown links are supported; general Markdown block syntax remains unsupported."
+      },
+      "approved": false
+    },
+    {
+      "record_id": "c4b1340d-425f-4e99-8b35-4a57a4a2f375",
+      "selector": {
+        "id": "c4b1340d-425f-4e99-8b35-4a57a4a2f375",
+        "slug": "how-to-improve-website-loading-speed"
+      },
+      "canonical_url": "https://www.praaviconsultants.in/blog/how-to-improve-website-loading-speed",
+      "before": {
+        "id": "c4b1340d-425f-4e99-8b35-4a57a4a2f375",
+        "slug": "how-to-improve-website-loading-speed",
+        "title": "How to Improve Website Loading Speed",
+        "excerpt": "Confused between a custom website and a WordPress website? This guide compares both options to help business owners choose the right solution based on cost, flexibility, and scalability.",
+        "content": "When building a website for your business, one of the biggest decisions is choosing between a custom-built website and a WordPress website. Both have their own advantages and limitations, and the right choice depends on your business goals, budget, and future plans.\n\nLet’s break it down in simple terms.\n\nWhat Is a WordPress Website?\n\nA WordPress website is built using a content management system (CMS) that allows you to create and manage your website using themes and plugins. It is beginner-friendly and widely used across the world.\n\nWhat Is a Custom Website?\n\nA custom website is built from scratch using programming languages like HTML, CSS, JavaScript, and backend technologies. It is tailored specifically to your business needs without relying on pre-made templates.\n\n🔍 Key Differences Between Custom Website and WordPress\n1. Cost\nWordPress: More affordable, especially for small businesses\nCustom Website: Higher upfront cost due to development\n\nWordPress is generally cheaper because it uses ready-made themes and plugins, while custom websites require full development.\n\n2. Development Time\nWordPress: Fast (can be built in days)\nCustom Website: Takes weeks or months\n\nIf you need a quick website, WordPress is the better option.\n\n3. Design & Customization\nWordPress: Limited by themes (but still flexible)\nCustom Website: Unlimited design freedom\n\nCustom websites allow complete control over design and functionality.\n\n4. Performance\nWordPress: Can slow down with too many plugins\nCustom Website: Faster and optimized\n\nCustom-built websites are usually more efficient because they are built specifically for your needs.\n\n5. Ease of Use\nWordPress: Beginner-friendly (no coding required)\nCustom Website: Requires developer support\n\nWordPress is ideal if you want to manage content yourself.\n\n6. Scalability\nWordPress: Good for small to medium websites\nCustom Website: Best for large and complex systems\n\nCustom websites scale better for advanced features and future growth.\n\n7. Security\nWordPress: More vulnerable if not updated\nCustom Website: More secure (less common target)\n\nSince WordPress is widely used, it can be more prone to attacks if not maintained properly.\n\n✅ Pros and Cons\nWordPress Advantages:\nLow cost\nQuick setup\nEasy to manage\nLarge plugin ecosystem\nWordPress Disadvantages:\nPlugin dependency\nPerformance issues\nLimited deep customization\nCustom Website Advantages:\nFull control\nBetter performance\nHigh scalability\nUnique design\nCustom Website Disadvantages:\nExpensive\nTakes more time\nRequires technical expertise\n🏆 Which Is Better?\n\n👉 There is no one-size-fits-all answer.\n\nChoose WordPress if:\nYou have a low budget\nYou need a website quickly\nYou want to manage content yourself\nChoose a Custom Website if:\nYou want a premium, unique design\nYou need advanced features\nYou are building for long-term growth\n🚀 Final Conclusion\n\nBoth WordPress and custom websites are powerful options. WordPress is perfect for beginners and small businesses, while custom websites are ideal for companies aiming for scalability, performance, and a strong brand identity.\n\n👉 The best choice depends on your business goals, not just the technology.",
+        "status": "published",
+        "published_at": "2026-03-31T04:40:55.959+00:00",
+        "updated_at": null,
+        "body_sha256": "189c309e6df86ddfb76f6e0e3ab1b1c86ec55e98a48bf1ab2578dbf772c7baef"
+      },
+      "preserve_original_published_at": "2026-03-31T04:40:55.959+00:00",
+      "proposal": {
+        "kind": "complete_editorial_draft",
+        "title": "How to Improve Website Loading Speed",
+        "computed_seo_title": "How to Improve Website Loading Speed | Praavi Blog",
+        "h1": "How to Improve Website Loading Speed",
+        "excerpt": "Use a practical website speed checklist to investigate images, scripts, fonts, caching and server delays, then verify changes without breaking key functions.",
+        "h2_headings": [
+          "1. Record a baseline for representative pages",
+          "2. Find where the delay begins",
+          "3. Review the main image and other heavy media",
+          "4. Investigate scripts before removing them",
+          "5. Check styles, fonts and visual stability",
+          "6. Review caching and server-side work",
+          "7. Retest the page and its essential functions"
+        ],
+        "draft_file": "docs/editorial-review/website-loading-speed.draft.md",
+        "publication_format": "Human-readable Markdown review. For a later approved edit, use the matching body-only file in docs/editorial-review/publishing/. Inline Markdown links are supported; general Markdown block syntax remains unsupported."
+      },
+      "approved": false
+    },
+    {
+      "record_id": "98f292e6-209f-4077-a985-bd1ad5bff001",
+      "selector": {
+        "id": "98f292e6-209f-4077-a985-bd1ad5bff001",
+        "slug": "shared-hosting-vs-cloud-hosting-which-is-better"
+      },
+      "canonical_url": "https://www.praaviconsultants.in/blog/shared-hosting-vs-cloud-hosting-which-is-better",
+      "before": {
+        "id": "98f292e6-209f-4077-a985-bd1ad5bff001",
+        "slug": "shared-hosting-vs-cloud-hosting-which-is-better",
+        "title": "Shared Hosting vs Cloud Hosting: Which Is Better?",
+        "excerpt": "Website design plays a crucial role in converting visitors into customers. Learn how good design improves user experience, builds trust, and boosts conversions.",
+        "content": "In today’s competitive digital world, having a website is not enough—it needs to be well-designed. Website design directly impacts how users interact with your business and whether they take action or leave.\n\nA good design can turn visitors into customers, while a poor design can drive them away.\n\nLet’s explore how website design affects customer conversion.\n\n1. First Impressions Matter\n\nUsers form an opinion about your website within seconds.\nA clean, modern, and professional design creates a positive first impression and encourages users to stay longer.\n\n2. Improves User Experience (UX)\n\nA well-structured website makes it easy for users to:\n\nNavigate pages\nFind information\nTake action\n\nBetter user experience leads to higher engagement and conversions.\n\n3. Builds Trust and Credibility\n\nDesign elements like:\n\nProfessional layout\nHigh-quality images\nConsistent branding\n\nhelp build trust. Users are more likely to convert when they feel confident in your brand.\n\n4. Mobile Responsiveness\n\nMost users browse on mobile devices.\nA responsive design ensures your website works perfectly on all screen sizes, improving user satisfaction and conversions.\n\n5. Fast Loading Speed\n\nA slow website frustrates users and increases bounce rate.\nOptimized design and performance ensure faster loading, keeping users engaged.\n\n6. Clear Call-to-Actions (CTA)\n\nEffective design highlights important actions like:\n\n“Buy Now”\n“Get a Quote”\n“Contact Us”\n\nWell-placed CTAs guide users toward conversion.\n\n7. Visual Hierarchy\n\nGood design uses size, color, and spacing to highlight key elements.\nThis helps users focus on important information and take action quickly.\n\n8. Consistent Branding\n\nUsing consistent colors, fonts, and design elements strengthens brand identity and improves user recognition.\n\n9. Reduces Bounce Rate\n\nAn attractive and user-friendly design keeps visitors on your website longer, increasing the chances of conversion.\n\n10. Enhances Emotional Connection\n\nDesign elements like colors, images, and layout can influence user emotions, making them more likely to trust and engage with your brand.\n\nConclusion\n\nWebsite design is a powerful factor in customer conversion. A well-designed website not only looks good but also improves user experience, builds trust, and guides visitors toward taking action.",
+        "status": "published",
+        "published_at": "2026-04-20T03:49:31.672+00:00",
+        "updated_at": null,
+        "body_sha256": "558c0239c3fb735ce186cd5483519edfd4c678ed4c81c1134bc23510a64094fe"
+      },
+      "preserve_original_published_at": "2026-04-20T03:49:31.672+00:00",
+      "proposal": {
+        "kind": "outline_only_not_publishable",
+        "title": "Shared vs Cloud Hosting: A Business Buying Checklist",
+        "computed_seo_title": "Shared vs Cloud Hosting: A Business Buying Checklist | Praavi Blog",
+        "h1": "Shared vs Cloud Hosting: A Business Buying Checklist",
+        "excerpt": "Compare shared and cloud hosting against your website's workload, support, backups and migration needs before choosing a hosting plan.",
+        "h2_headings": [
+          "1. Define the website you need to run",
+          "2. Ask about resource limits and demand",
+          "3. Check backups, recovery and responsibilities",
+          "4. Review support and deployment needs",
+          "5. Confirm costs and an exit route",
+          "6. Record the decision against requirements"
+        ],
+        "draft_file": null,
+        "requires_complete_draft_and_editorial_approval": true,
+        "notes": "Separate procurement-checklist intent from the other hosting comparison. No content copying, merge, redirect or canonical change authorized."
+      },
+      "approved": false
+    }
+  ],
+  "correct_hosting_comparison": {
+    "record_id": "5e855671-65bf-4799-baa5-00a05153be1b",
+    "canonical_url": "https://www.praaviconsultants.in/blog/shared-hosting-vs-cloud-hosting-which-is-better-1776761990173",
+    "before": {
+      "id": "5e855671-65bf-4799-baa5-00a05153be1b",
+      "slug": "shared-hosting-vs-cloud-hosting-which-is-better-1776761990173",
+      "title": "Shared Hosting vs Cloud Hosting: Which Is Better?",
+      "excerpt": "Confused between shared hosting and cloud hosting? This guide explains the differences, advantages, and which option is best for your business.",
+      "content": "When launching a website, choosing the right hosting is one of the most important decisions. Two of the most common options are shared hosting and cloud hosting. While both help you get your website online, they differ significantly in performance, scalability, and cost.\n\nLet’s understand which one is better for your business.\n\n🔍 What Is Shared Hosting?\n\nShared hosting is a type of hosting where multiple websites share a single server and its resources like CPU, RAM, and bandwidth.\n\n👉 It’s like renting a room in a shared apartment.\n\nAffordable\nEasy to manage\nSuitable for beginners\n\nHowever, performance can be affected if other websites on the same server use more resources.\n\n☁️ What Is Cloud Hosting?\n\nCloud hosting uses multiple interconnected servers to host your website.\n\n👉 Instead of relying on one server, your website runs on a network of servers.\n\nHigh performance\nBetter reliability\nScalable resources\n\nIf one server fails, another takes over, ensuring minimal downtime.\n\n⚖️ Key Differences\n1. Performance\nShared Hosting: Performance can fluctuate due to shared resources\nCloud Hosting: Stable and high performance\n2. Scalability\nShared Hosting: Limited scalability\nCloud Hosting: Easily scalable based on demand\n\nCloud hosting allows you to increase resources anytime, making it ideal for growing businesses.\n\n3. Reliability\nShared Hosting: Single server → higher downtime risk\nCloud Hosting: Multiple servers → better uptime\n4. Cost\nShared Hosting: Low cost (budget-friendly)\nCloud Hosting: Pay-as-you-use (can be higher)\n\nShared hosting is cheaper because resources are shared, while cloud hosting offers flexibility but may cost more as usage increases.\n\n5. Security\nShared Hosting: Lower security (shared environment)\nCloud Hosting: Better security and isolation\n6. Ease of Use\nShared Hosting: Beginner-friendly\nCloud Hosting: Slightly technical\n✅ Advantages of Shared Hosting\nLow cost\nEasy setup\nIdeal for beginners\nNo technical knowledge required\n✅ Advantages of Cloud Hosting\nHigh performance\nBetter uptime\nScalable resources\nSuitable for high traffic\n🏆 Which One Is Better?\n\n👉 Choose Shared Hosting if:\n\nYou are a beginner\nYou have a small website or blog\nYour budget is low\n\n👉 Choose Cloud Hosting if:\n\nYou expect high traffic\nYou need better performance\nYou want scalability for future growth\n🚀 Final Conclusion\n\nBoth shared hosting and cloud hosting have their own benefits. Shared hosting is perfect for small, budget-friendly websites, while cloud hosting is ideal for businesses that need performance, reliability, and scalability.",
+      "status": "published",
+      "published_at": "2026-04-21T08:59:50.176+00:00",
+      "updated_at": null,
+      "body_sha256": "7f92df71e1579c98fd2c21e02c5ee327ecbe8901c7da4ab0dea388f6c7625965"
+    },
+    "recommendation": "Keep unchanged during this review; topic-correct, with technical fact-check recommended separately.",
+    "proposal": null
+  },
+  "preserve": [
+    "record IDs",
+    "original slugs",
+    "original publication timestamps exactly as supplied",
+    "published status",
+    "images",
+    "author and publisher identity",
+    "canonical preferences",
+    "all existing URLs"
+  ],
+  "modification_date": "No draft dateModified is proposed. Observe a genuine source modification timestamp only when a later authorized edit occurs.",
+  "publishing_constraints": [
+    "No database writes authorized",
+    "No deletion, merge, redirect or canonical change authorized",
+    "Current title drives H1, social/schema headline and computed SEO title",
+    "Current excerpt drives description fields",
+    "Inline Markdown links are supported; convert block headings and omit the H1 as in the prepared body-only files.",
+    "Keep the article H1 out of the stored body",
+    "Recheck ID, slug, publication date and body fingerprint before any later authorized application"
+  ],
+  "updated_at_source_note": "No source modification timestamp is available in these snapshots. Null is not an instruction to clear any database column."
+}
