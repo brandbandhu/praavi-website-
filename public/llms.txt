@@ -1,0 +1,10 @@
+# Praavi Consultants
+
+> Digital marketing and website development services in Pune.
+
+## Main Pages
+
+- [Home](https://www.praaviconsultants.in/)
+- [About Us](https://www.praaviconsultants.in/about)
+- [Website Development](https://www.praaviconsultants.in/website-development)
+- [SEO Services](https://www.praaviconsultants.in/seo-services)
