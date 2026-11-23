@@ -1,51 +1,18 @@
 import { motion, useInView } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound, Bot, Database, Server, IndianRupee } from "lucide-react";
-import heroPoster from "@/assets/banner video/banner video 2-poster.webp";
-import heroVideo from "@/assets/banner video/banner video 2.mp4";
+import heroBackground from "@/assets/banner video/new banner.jpg";
 import ContactForm from "@/components/ContactForm";
 import SeoHead from "@/components/SeoHead";
 
 /* ---- Hero ---- */
-const HeroBackground = () => {
-  const [motionAllowed, setMotionAllowed] = useState(false);
-  const [playing, setPlaying] = useState(false);
-
-  useEffect(() => {
-    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const syncMotion = () => {
-      setMotionAllowed(!preference.matches);
-      if (preference.matches) setPlaying(false);
-    };
-    syncMotion();
-    preference.addEventListener("change", syncMotion);
-    return () => preference.removeEventListener("change", syncMotion);
-  }, []);
-
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-      <img src={heroPoster} alt="" fetchPriority="high" className="h-full w-full object-cover" />
-      {motionAllowed && (
-        <video
-          src={heroVideo}
-          className={`absolute inset-0 h-full w-full object-cover ${playing ? "" : "invisible"}`}
-          autoPlay
-          muted
-          loop
-          playsInline
-          onPlaying={() => setPlaying(true)}
-          onError={() => setPlaying(false)}
-        />
-      )}
-      <div className="absolute inset-0 bg-black/35" />
-    </div>
-  );
-};
-
 const Hero = () => (
   <section className="relative isolate overflow-hidden bg-black px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-    <HeroBackground />
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+      <img src={heroBackground} alt="" fetchPriority="high" className="h-full w-full object-cover" />
+      <div className="absolute inset-0 bg-black/25" />
+    </div>
     <div className="container-max">
       <div className="mx-auto max-w-4xl">
         <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl xl:text-6xl">
