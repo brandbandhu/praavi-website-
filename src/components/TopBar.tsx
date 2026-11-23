@@ -19,7 +19,15 @@ const TopBar = () => {
           </div>
           <div className="hidden sm:flex items-center gap-3">
             <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Facebook size={14} /></a>
-            <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Instagram size={14} /></a>
+            <a
+              href="https://www.instagram.com/praavi_consultants?dmpr=MTd0cHFpZWs0ZWUycg=="
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Praavi Consultants on Instagram"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Instagram size={14} aria-hidden="true" />
+            </a>
             <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Linkedin size={14} /></a>
           </div>
           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
