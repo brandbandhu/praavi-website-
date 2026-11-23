@@ -8,7 +8,7 @@ import SeoHead from "@/components/SeoHead";
 
 /* ---- Hero ---- */
 const Hero = () => (
-  <section className="relative isolate overflow-hidden bg-black px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+  <section className="relative isolate flex min-h-[510px] items-center justify-center overflow-hidden bg-black px-4 py-16 text-center sm:min-h-[540px] sm:px-6 sm:py-20 lg:min-h-[600px] lg:px-8 lg:py-24">
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
       <img src={heroBackground} alt="" fetchPriority="high" className="h-full w-full object-cover" />
       <div className="absolute inset-0 bg-black/25" />
@@ -28,19 +28,6 @@ const Hero = () => (
         >
           Get Free Strategy Call <ArrowRight size={18} />
         </Link>
-      </div>
-
-      <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-2 sm:gap-3 lg:mt-9">
-        {[
-          ["150+", "Clients"],
-          ["500+", "Projects"],
-          ["98%", "Retention"],
-        ].map(([value, label]) => (
-          <div key={label} className="rounded-xl border border-white/15 bg-black/60 px-2 py-3 sm:px-4">
-            <div className="font-display text-2xl sm:text-3xl font-bold gradient-text-orange">{value}</div>
-            <div className="mt-1 text-xs text-foreground/75">{label}</div>
-          </div>
-        ))}
       </div>
     </div>
   </section>
