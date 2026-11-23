@@ -1,4 +1,7 @@
 {
+  "git": {
+    "deploymentEnabled": { "perf/mobile-lighthouse": false }
+  },
   "routes": [
     { "src": "/diwali-wishes/?", "dest": "/diwali-wishes/index.html" },
     { "src": "/landing/?", "status": 308, "headers": { "Location": "/june-offer" } },
