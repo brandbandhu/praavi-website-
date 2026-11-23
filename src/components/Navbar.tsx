@@ -44,6 +44,7 @@ const Navbar = () => {
           <img
             src={logo}
             alt="Praavi Consultants"
+            width={230} height={90}
             className="h-10 w-auto sm:h-12"
           />
         </Link>

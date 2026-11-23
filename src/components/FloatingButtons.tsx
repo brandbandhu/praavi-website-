@@ -1,4 +1,5 @@
 import { Phone } from "lucide-react";
+import whatsappIcon from "@/assets/whatsapp.svg";
 
 const FloatingButtons = () => {
   return (
@@ -17,7 +18,7 @@ const FloatingButtons = () => {
         aria-label="Chat on WhatsApp"
         className="w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-200 hover:scale-105 shadow-[0_8px_24px_rgba(37,211,102,0.45)] bg-[#25D366]"
       >
-        <i className="fa-brands fa-whatsapp text-4xl" aria-hidden="true"></i>
+        <img src={whatsappIcon} alt="" width={36} height={36} />
       </a>
     </div>
   );

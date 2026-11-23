@@ -3,8 +3,8 @@ import { CheckCircle2, ShieldCheck, Users } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
 import SeoHead from "@/components/SeoHead";
-import founderImage from "@/assets/founders/founder .png";
-import ceoImage from "@/assets/founders/CEO.png";
+import founderImage from "@/assets/founders/founder.webp";
+import ceoImage from "@/assets/founders/CEO.webp";
 
 const trustPoints = [
   "Founder-led planning for every important website and marketing decision.",
@@ -44,7 +44,7 @@ const TeamPage = () => (
           >
             <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center">
               <div className="h-[460px] lg:h-[620px] rounded-xl border border-border bg-secondary/60 overflow-hidden">
-                <img src={founderImage} alt="Praavi Consultants founder" className="w-full h-full object-cover object-[center_18%]" />
+                <img src={founderImage} width={1050} height={1400} decoding="async" alt="Praavi Consultants founder" className="w-full h-full object-cover object-[center_18%]" />
               </div>
               <div>
                 <p className="text-sm text-primary font-semibold mb-2">Founder</p>
@@ -92,7 +92,7 @@ const TeamPage = () => (
                 </div>
               </div>
               <div className="order-1 lg:order-2 h-[460px] lg:h-[620px] rounded-xl border border-border bg-secondary/60 overflow-hidden">
-                <img src={ceoImage} alt="Praavi Consultants CEO" className="w-full h-full object-cover object-[center_18%]" />
+                <img src={ceoImage} width={1050} height={1400} loading="lazy" decoding="async" alt="Praavi Consultants CEO" className="w-full h-full object-cover object-[center_18%]" />
               </div>
             </div>
           </motion.article>

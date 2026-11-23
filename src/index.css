@@ -1,4 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("./assets/fonts/space-grotesk-400-700.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/poppins-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/poppins-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/poppins-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/poppins-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -66,7 +104,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Poppins', 'Inter', sans-serif;
+    font-family: 'Poppins', sans-serif;
     overflow-x: hidden;
   }
 
@@ -210,7 +248,8 @@
   }
 
   .logo-marquee {
-    @apply w-full overflow-hidden;
+    @apply w-full overflow-x-auto;
+    scrollbar-width: none;
     mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
   }
 
@@ -218,7 +257,15 @@
     display: flex;
     width: max-content;
     gap: 1rem;
-    animation: logo-marquee 52s linear infinite;
+  }
+
+  .logo-marquee-group {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .logo-marquee-group[aria-hidden="true"] {
+    display: none;
   }
 
   .logo-marquee-item {
@@ -228,12 +275,37 @@
   }
 }
 
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .logo-marquee-group[aria-hidden="true"] { display: flex; }
+
+  .logo-marquee[data-in-view="true"]:not(:hover):not(:focus-within) .logo-marquee-track {
+    animation-play-state: running;
+  }
+
+  .logo-marquee-track {
+    animation: logo-marquee 52s linear infinite paused;
+  }
+
+  [data-revealed="true"] .section-reveal, .tab-reveal {
+    animation: section-reveal 0.4s ease-out;
+  }
+}
+
+@media (max-width: 767px) {
+  .glass-card { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+@keyframes section-reveal {
+  from { opacity: 0.65; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes logo-marquee {
   from {
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(calc(-50% - 0.5rem));
   }
 }
 

@@ -1,13 +1,9 @@
 import { useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
 import { Send } from "lucide-react";
-import { sendLeadToPrivyr } from "@/lib/leadWebhook";
-import { saveContactLead } from "@/lib/contactLeadApi";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
 
 const ContactForm = () => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const ref = useSectionReveal();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -20,6 +16,10 @@ const ContactForm = () => {
     setSubmitting(true);
     setSubmitError("");
     try {
+      const [{ sendLeadToPrivyr }, { saveContactLead }] = await Promise.all([
+        import("@/lib/leadWebhook"),
+        import("@/lib/contactLeadApi"),
+      ]);
       const payload = {
         sourceForm: "contact-form",
         name: form.name,
@@ -53,11 +53,7 @@ const ContactForm = () => {
       <div className="container-max">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Left side */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6 }}
-          >
+          <div className="section-reveal">
             <span className="text-sm text-primary font-medium uppercase tracking-wider">Get In Touch</span>
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold mt-3 mb-4">
               Have any questions?{" "}
@@ -68,7 +64,7 @@ const ContactForm = () => {
             </p>
 
             <div className="space-y-4">
-              <h4 className="font-display font-semibold text-sm text-accent">Our Services</h4>
+              <h3 className="font-display font-semibold text-sm text-accent">Our Services</h3>
               <div className="flex flex-wrap gap-2">
                 {["Website Development", "SEO", "Google Ads", "Social Media Ads", "Branding"].map((s) => (
                   <span key={s} className="text-xs px-3 py-1.5 rounded-full bg-secondary text-muted-foreground border border-border">
@@ -77,7 +73,7 @@ const ContactForm = () => {
                 ))}
               </div>
 
-              <h4 className="font-display font-semibold text-sm text-accent mt-6">Why Choose Us?</h4>
+              <h3 className="font-display font-semibold text-sm text-accent mt-6">Why Choose Us?</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>✓ 150+ Satisfied Clients</li>
                 <li>✓ 24/7 Support</li>
@@ -85,14 +81,10 @@ const ContactForm = () => {
                 <li>✓ Transparent Pricing</li>
               </ul>
             </div>
-          </motion.div>
+          </div>
 
           {/* Right side - Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <div className="section-reveal">
             {submitted ? (
               <div className="service-card flex flex-col items-center justify-center py-16 text-center">
                 <div className="text-4xl mb-4">🎉</div>
@@ -105,6 +97,7 @@ const ContactForm = () => {
                 <input
                   type="text"
                   required
+                  aria-label="Your name"
                   placeholder="Your Name *"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -113,6 +106,7 @@ const ContactForm = () => {
                 <input
                   type="email"
                   required
+                  aria-label="Email address"
                   placeholder="Email Address *"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -120,12 +114,14 @@ const ContactForm = () => {
                 />
                 <input
                   type="tel"
+                  aria-label="Phone number"
                   placeholder="Phone Number"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                 />
                 <select
+                  aria-label="Select service"
                   required
                   value={form.service}
                   onChange={(e) => setForm({ ...form, service: e.target.value })}
@@ -139,6 +135,7 @@ const ContactForm = () => {
                   <option value="branding">Branding</option>
                 </select>
                 <textarea
+                  aria-label="Your message"
                   placeholder="Your Message"
                   rows={4}
                   value={form.message}
@@ -155,7 +152,7 @@ const ContactForm = () => {
                 </button>
               </form>
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

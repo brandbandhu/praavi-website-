@@ -3,6 +3,22 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import fs from "fs";
+import { homeHeroSources } from "./src/lib/homeHeroAssets";
+
+const homeHeroPreload = `<script>
+  if (location.pathname === "/") {
+    const sources = ${JSON.stringify(homeHeroSources)};
+    const source = matchMedia(sources.mobile.media).matches ? sources.mobile : sources.wide;
+    const preload = document.createElement("link");
+    preload.rel = "preload";
+    preload.as = "image";
+    preload.type = "image/avif";
+    preload.fetchPriority = "high";
+    preload.imageSrcset = source.srcSet;
+    preload.imageSizes = source.sizes;
+    document.head.append(preload);
+  }
+</script>`;
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -21,6 +37,10 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
+    {
+      name: "home-hero-preload",
+      transformIndexHtml: (html) => html.replace("<!-- Home hero preload -->", homeHeroPreload),
+    },
     mode === "development" && componentTagger(),
     {
       name: "serve-landing-static",

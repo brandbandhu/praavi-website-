@@ -1,0 +1,18 @@
+export const homeClientLogos = [
+  { name: "AIEMS", file: "aiems-R3CvcNqc.webp", width: 110, height: 90 },
+  { name: "ABK", file: "abk-CdGf5VGA.webp", width: 110, height: 90 },
+  { name: "Creo", file: "creo-DOaj1ts3.webp", width: 110, height: 90 },
+  { name: "Dadhichi Solar", file: "dadhchi-YDEcEBl5.webp", width: 110, height: 90 },
+  { name: "Impact Infra", file: "impactinfra-BMopwPl3.webp", width: 110, height: 90 },
+  { name: "Insider View", file: "insiderview-CjarhEse.webp", width: 110, height: 90 },
+  { name: "JKSC UK", file: "jkscuk-BbX_ttjn.webp", width: 110, height: 90 },
+  { name: "Kalidas", file: "kalidas-hDkP2ZMv.webp", width: 110, height: 90 },
+  { name: "Krayons", file: "krayons-BLCOAATw.webp", width: 110, height: 90 },
+  { name: "Mediport", file: "mediport-BlzfapUd.webp", width: 110, height: 90 },
+  { name: "Real Trips", file: "RealTrips-C0YTP2sd.webp", width: 110, height: 90 },
+  { name: "Samrat Holidays", file: "samratholidays-6rTTv7j-.webp", width: 110, height: 90 },
+  { name: "Skin City", file: "skincity-DKkG2hQT.webp", width: 110, height: 90 },
+  { name: "Transvolt", file: "Transvolt-CkBpN8z8.webp", width: 110, height: 90 },
+  { name: "Watsoft", file: "watsoft-BF1YD8YW.webp", width: 110, height: 90 },
+  { name: "Vishvanirmal Ayurveda", file: "Vishvanirmal-Ayurveda-CtiqTuU5.webp", width: 110, height: 90 },
+];

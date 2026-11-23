@@ -12,6 +12,9 @@ const Footer = () => {
               <img
                 src={logo}
                 alt="Praavi Consultants"
+                width={230} height={90}
+                loading="lazy"
+                decoding="async"
                 className="h-12 w-auto"
               />
             </Link>
@@ -21,7 +24,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold mb-4 text-sm uppercase tracking-wider text-accent">Pages</h4>
+            <h2 className="font-display font-semibold mb-4 text-sm uppercase tracking-wider text-accent">Pages</h2>
             <div className="flex flex-col gap-2">
               {[
                 { label: "Home", path: "/" },
@@ -47,7 +50,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold mb-4 text-sm uppercase tracking-wider text-accent">Services</h4>
+            <h2 className="font-display font-semibold mb-4 text-sm uppercase tracking-wider text-accent">Services</h2>
             <div className="flex flex-col gap-2">
               {[
                 { label: "Web Development", path: "/services/website-development" },
@@ -76,7 +79,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold mb-4 text-sm uppercase tracking-wider text-accent">Contact</h4>
+            <h2 className="font-display font-semibold mb-4 text-sm uppercase tracking-wider text-accent">Contact</h2>
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail size={14} className="text-primary flex-shrink-0" />

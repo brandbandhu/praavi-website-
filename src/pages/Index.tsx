@@ -1,16 +1,22 @@
-import { motion, useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Code, Palette, TrendingUp, Layers, Zap, BarChart3, Search, Monitor, Megaphone, Smartphone, PenTool, ShoppingCart, ChevronRight, Play, AppWindow, Rocket, Paintbrush, Share2, Youtube, MessageCircle, Repeat, ShoppingBag, FileCode2, LayoutTemplate, Store, Globe, Wrench, FileText, MapPin, ScanSearch, Brush, Package, Building2, Plane, HeartPulse, GraduationCap, Clapperboard, Landmark, HandHeart, Truck, Factory, Wallet, Clock3, Car, Gamepad2, UtensilsCrossed, Scale, Trophy, Dumbbell, KeyRound, Bot, Database, Server, IndianRupee } from "lucide-react";
 import heroBackground from "@/assets/banner video/banner 2 hd.webp";
 import ContactForm from "@/components/ContactForm";
 import SeoHead from "@/components/SeoHead";
+import { useSectionReveal } from "@/hooks/use-section-reveal";
+import { homeClientLogos } from "@/lib/homeClientLogos";
+import { homeHeroSources } from "@/lib/homeHeroAssets";
 
 /* ---- Hero ---- */
 const Hero = () => (
   <section className="relative isolate flex min-h-[510px] items-center justify-center overflow-hidden bg-black px-4 py-16 text-center sm:min-h-[540px] sm:px-6 sm:py-20 lg:min-h-[600px] lg:px-8 lg:py-24">
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-      <img src={heroBackground} alt="" fetchPriority="high" className="h-full w-full object-cover" />
+      <picture className="block h-full">
+        <source type="image/avif" media={homeHeroSources.mobile.media} srcSet={homeHeroSources.mobile.srcSet} sizes={homeHeroSources.mobile.sizes} />
+        <source type="image/avif" srcSet={homeHeroSources.wide.srcSet} sizes={homeHeroSources.wide.sizes} />
+        <img src={heroBackground} alt="" width={1920} height={1080} fetchPriority="high" className="h-full w-full object-cover" />
+      </picture>
       <div className="absolute inset-0 bg-black/25" />
     </div>
     <div className="container-max">
@@ -136,18 +142,14 @@ const serviceItemIcons: Record<string, { icon: React.ComponentType<{ size?: numb
 
 const ServiceTabsSection = () => {
   const [active, setActive] = useState(0);
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const ref = useSectionReveal();
 
   return (
     <section className="section-padding" ref={ref}>
       <div className="container-max">
         {/* Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-10"
+        <div
+          className="section-reveal flex flex-wrap justify-center gap-2 sm:gap-3 mb-10"
         >
           {serviceTabs.map((tab, i) => (
             <button
@@ -159,23 +161,18 @@ const ServiceTabsSection = () => {
               {tab.label}
             </button>
           ))}
-        </motion.div>
+        </div>
 
         {/* Active tab content */}
-        <motion.div
-          key={active}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <div key={active} className="tab-reveal">
           {(() => {
             const ActiveIcon = serviceTabs[active].icon;
             return (
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">
+                <h2 className="font-display text-xl sm:text-2xl font-bold flex items-center gap-2">
                   <ActiveIcon size={24} className="text-primary" />
                   {serviceTabs[active].label}
-                </h3>
+                </h2>
                 <Link to="/services" className="text-sm text-primary hover:underline flex items-center gap-1">
                   View All <ChevronRight size={14} />
                 </Link>
@@ -224,7 +221,7 @@ const ServiceTabsSection = () => {
               )
             })}
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -257,25 +254,21 @@ const industriesWeServe = [
 ];
 
 const IndustriesSection = () => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const ref = useSectionReveal();
 
   return (
     <section className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-16 sm:pb-20 lg:pb-24" ref={ref}>
       <div className="container-max">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-10"
+        <div
+          className="section-reveal text-center mb-10"
         >
           <h2 className="font-display text-3xl sm:text-4xl font-bold">
             Industries <span className="gradient-text">We Serve</span>
           </h2>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-          {industriesWeServe.map((industry, i) => {
+          {industriesWeServe.map((industry) => {
             const content = (
               <>
                 <span className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
@@ -286,15 +279,12 @@ const IndustriesSection = () => {
             );
 
             return (
-            <motion.div
+            <div
               key={industry.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.3, delay: i * 0.03 }}
-              className="service-card flex flex-col items-center justify-center text-center gap-3 min-h-[120px]"
+              className="section-reveal service-card flex flex-col items-center justify-center text-center gap-3 min-h-[120px]"
             >
               {industry.path ? <Link to={industry.path} className="flex flex-col items-center justify-center gap-3 h-full w-full">{content}</Link> : content}
-            </motion.div>
+            </div>
           )})}
         </div>
       </div>
@@ -311,39 +301,32 @@ const whyItems = [
 ];
 
 const WhyChooseUs = () => {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const ref = useSectionReveal();
 
   return (
     <section className="section-padding bg-card" ref={ref}>
       <div className="container-max">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+        <div
+          className="section-reveal text-center mb-12"
         >
           <span className="text-sm text-primary font-medium uppercase tracking-wider">Why Us</span>
           <h2 className="font-display text-3xl sm:text-4xl font-bold mt-3">
             Why Choose <span className="gradient-text">Praavi?</span>
           </h2>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {whyItems.map((item, i) => (
-            <motion.div
+          {whyItems.map((item) => (
+            <div
               key={item.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="service-card text-center"
+              className="section-reveal service-card text-center"
             >
               <div className="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-4">
                 <item.icon size={24} className="text-primary-foreground" />
               </div>
               <h3 className="font-display font-semibold mb-2">{item.title}</h3>
               <p className="text-sm text-muted-foreground">{item.desc}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -351,27 +334,17 @@ const WhyChooseUs = () => {
   );
 };
 
-const clientLogos = [
-  "aiems-R3CvcNqc.png",
-  "abk-CdGf5VGA.png",
-  "creo-DOaj1ts3.png",
-  "dadhchi-YDEcEBl5.png",
-  "impactinfra-BMopwPl3.png",
-  "insiderview-CjarhEse.png",
-  "jkscuk-BbX_ttjn.png",
-  "kalidas-hDkP2ZMv.png",
-  "krayons-BLCOAATw.png",
-  "mediport-BlzfapUd.png",
-  "RealTrips-C0YTP2sd.png",
-  "samratholidays-6rTTv7j-.png",
-  "skincity-DKkG2hQT.png",
-  "Transvolt-CkBpN8z8.png",
-  "watsoft-BF1YD8YW.png",
-  "Vishvanirmal Ayurveda-CtiqTuU5.png",
-];
-
 const ClientLogoWall = () => {
-  const logos = [...clientLogos, ...clientLogos];
+  const marquee = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const element = marquee.current;
+    if (!element || !window.IntersectionObserver) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      element.dataset.inView = String(entry.isIntersecting);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section className="py-12 border-y border-border bg-card/70 overflow-hidden">
@@ -383,11 +356,15 @@ const ClientLogoWall = () => {
           </Link>
         </div>
       </div>
-      <div className="logo-marquee">
+      <div className="logo-marquee" ref={marquee} tabIndex={0} role="region" aria-label="Client logos">
         <div className="logo-marquee-track">
-          {logos.map((logo, index) => (
-            <div key={`${logo}-${index}`} className="client-logo-card logo-marquee-item">
-              <img src={`/landing/assets/${logo}`} alt="Praavi client logo" className="max-h-20 max-w-48 object-contain" />
+          {[false, true].map((duplicate) => (
+            <div className="logo-marquee-group" aria-hidden={duplicate || undefined} key={String(duplicate)}>
+              {homeClientLogos.map(({ name, file, width, height }) => (
+                <div key={file} className="client-logo-card logo-marquee-item">
+                  <img src={`/assets/client-logos/${file}`} alt={duplicate ? "" : name} width={width} height={height} loading="lazy" decoding="async" className="max-h-20 max-w-48 object-contain" />
+                </div>
+              ))}
             </div>
           ))}
         </div>

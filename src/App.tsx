@@ -1,48 +1,49 @@
-import { useEffect } from "react";
-import { Toaster } from "@/components/ui/toaster";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
 import AppErrorBoundary from "@/components/AppErrorBoundary";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import Services from "./pages/Services";
-import SearchAds from "./pages/SearchAds";
-import DisplayAds from "./pages/DisplayAds";
-import ShoppingAds from "./pages/ShoppingAds";
-import VideoAds from "./pages/VideoAds";
-import AppAds from "./pages/AppAds";
-import PerformanceMaxAds from "./pages/PerformanceMaxAds";
-import SubServicePage from "./pages/SubServicePage";
-import WebsiteDevelopment from "./pages/WebsiteDevelopment";
-import SEOService from "./pages/SEOService";
-import GoogleAdsService from "./pages/GoogleAdsService";
-import FacebookAdsService from "./pages/FacebookAdsService";
-import GraphicDesignService from "./pages/GraphicDesignService";
-import DigitalMarketingService from "./pages/DigitalMarketingService";
-import SocialMediaManagementService from "./pages/SocialMediaManagementService";
-import ShopifyDevelopmentService from "./pages/ShopifyDevelopmentService";
-import Portfolio from "./pages/Portfolio";
-import CaseStudies from "./pages/CaseStudies";
-import Clients from "./pages/Clients";
-import About from "./pages/About";
-import Team from "./pages/Team";
-import AISolutions from "./pages/AISolutions";
-import IndustryPage from "./pages/IndustryPage";
-import PuneLandingPage from "./pages/PuneLandingPage";
-import Contact from "./pages/Contact";
-import Career from "./pages/Career";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
-import FinanceManagementSystem from "./pages/FinanceManagementSystem";
-import SocialDeskRoutes from "./pages/social-desk/SocialDeskRoutes";
-import DigitalMarketingTeamRoutes from "./pages/digital-marketing-team/DigitalMarketingTeamRoutes";
-import NotFound from "./pages/NotFound";
 import { ADMIN_DASHBOARD_PATH, ADMIN_LOGIN_PATH } from "./lib/adminRoutes";
+
+const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute"));
+const Services = lazy(() => import("./pages/Services"));
+const SearchAds = lazy(() => import("./pages/SearchAds"));
+const DisplayAds = lazy(() => import("./pages/DisplayAds"));
+const ShoppingAds = lazy(() => import("./pages/ShoppingAds"));
+const VideoAds = lazy(() => import("./pages/VideoAds"));
+const AppAds = lazy(() => import("./pages/AppAds"));
+const PerformanceMaxAds = lazy(() => import("./pages/PerformanceMaxAds"));
+const SubServicePage = lazy(() => import("./pages/SubServicePage"));
+const WebsiteDevelopment = lazy(() => import("./pages/WebsiteDevelopment"));
+const SEOService = lazy(() => import("./pages/SEOService"));
+const GoogleAdsService = lazy(() => import("./pages/GoogleAdsService"));
+const FacebookAdsService = lazy(() => import("./pages/FacebookAdsService"));
+const GraphicDesignService = lazy(() => import("./pages/GraphicDesignService"));
+const DigitalMarketingService = lazy(() => import("./pages/DigitalMarketingService"));
+const SocialMediaManagementService = lazy(() => import("./pages/SocialMediaManagementService"));
+const ShopifyDevelopmentService = lazy(() => import("./pages/ShopifyDevelopmentService"));
+const Portfolio = lazy(() => import("./pages/Portfolio"));
+const CaseStudies = lazy(() => import("./pages/CaseStudies"));
+const Clients = lazy(() => import("./pages/Clients"));
+const About = lazy(() => import("./pages/About"));
+const Team = lazy(() => import("./pages/Team"));
+const AISolutions = lazy(() => import("./pages/AISolutions"));
+const IndustryPage = lazy(() => import("./pages/IndustryPage"));
+const PuneLandingPage = lazy(() => import("./pages/PuneLandingPage"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Career = lazy(() => import("./pages/Career"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const FinanceManagementSystem = lazy(() => import("./pages/FinanceManagementSystem"));
+const SocialDeskRoutes = lazy(() => import("./pages/social-desk/SocialDeskRoutes"));
+const DigitalMarketingTeamRoutes = lazy(() => import("./pages/digital-marketing-team/DigitalMarketingTeamRoutes"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+const RoutePending = () => <p role="status" className="container-max px-4 py-12">Loading page?</p>;
 
 const queryClient = new QueryClient();
 
@@ -133,9 +134,11 @@ const AppShell = () => {
   if (isSocialDesk) {
     return (
       <AppErrorBoundary>
-        <Routes>
-          <Route path="/social_desk/*" element={<SocialDeskRoutes />} />
-        </Routes>
+        <Suspense fallback={<RoutePending />}>
+          <Routes>
+            <Route path="/social_desk/*" element={<SocialDeskRoutes />} />
+          </Routes>
+        </Suspense>
       </AppErrorBoundary>
     );
   }
@@ -143,9 +146,11 @@ const AppShell = () => {
   if (isDigitalMarketingTeam) {
     return (
       <AppErrorBoundary>
-        <Routes>
-          <Route path="/digital_marketing_team/*" element={<DigitalMarketingTeamRoutes />} />
-        </Routes>
+        <Suspense fallback={<RoutePending />}>
+          <Routes>
+            <Route path="/digital_marketing_team/*" element={<DigitalMarketingTeamRoutes />} />
+          </Routes>
+        </Suspense>
       </AppErrorBoundary>
     );
   }
@@ -153,7 +158,9 @@ const AppShell = () => {
   return (
     <Layout>
       <AppErrorBoundary>
-        <AppRoutes />
+        <Suspense fallback={<RoutePending />}>
+          <AppRoutes />
+        </Suspense>
       </AppErrorBoundary>
     </Layout>
   );
@@ -161,14 +168,11 @@ const AppShell = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <AppShell />
-      </BrowserRouter>
-    </TooltipProvider>
+    <Sonner />
+    <BrowserRouter>
+      <ScrollToTop />
+      <AppShell />
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

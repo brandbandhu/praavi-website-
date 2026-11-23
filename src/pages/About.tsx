@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { CheckCircle, Users, Trophy, Clock, Target, Rocket } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/components/ContactForm";
-import aboutImage from "@/assets/about.png";
+import aboutImage from "@/assets/about.webp";
 
 const values = [
   { icon: Target, title: "Data-Driven", desc: "Every decision backed by analytics and measurable outcomes." },
@@ -46,6 +46,9 @@ const AboutPage = () => {
             >
               <img
                 src={aboutImage}
+                width={920}
+                height={690}
+                decoding="async"
                 alt="Praavi Consultants team - digital marketing agency in Pune"
                 className="w-full h-full object-cover"
               />
