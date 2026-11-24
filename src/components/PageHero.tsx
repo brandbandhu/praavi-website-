@@ -6,12 +6,13 @@ interface PageHeroProps {
   title: string;
   highlightWord?: string;
   subtitle?: string;
+  justifySubtitle?: boolean;
   showCTA?: boolean;
   ctaText?: string;
   ctaHref?: string;
 }
 
-const PageHero = ({ tag, title, highlightWord, subtitle }: PageHeroProps) => {
+const PageHero = ({ tag, title, highlightWord, subtitle, justifySubtitle }: PageHeroProps) => {
   const location = useLocation();
 
   const breadcrumbItems = location.pathname
@@ -107,7 +108,7 @@ const PageHero = ({ tag, title, highlightWord, subtitle }: PageHeroProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-5 text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto"
+            className={`mt-5 text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto${justifySubtitle ? " text-justify" : ""}`}
           >
             {subtitle}
           </motion.p>

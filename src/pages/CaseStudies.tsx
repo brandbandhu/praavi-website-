@@ -50,6 +50,7 @@ const CaseStudiesPage = () => {
       title="Case Studies That Show Real Growth"
       highlightWord="Growth"
       subtitle="Detailed client stories with problems, solutions, technology, before-after impact, traffic growth, and lead generation results."
+      justifySubtitle
     />
 
     <section className="py-10 border-b border-border bg-card/60">
@@ -114,11 +115,11 @@ const CaseStudiesPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="rounded-xl border border-border bg-secondary/60 p-4">
                     <h3 className="font-display text-lg font-semibold mb-2">Client Problem</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{study.problem}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed text-justify">{study.problem}</p>
                   </div>
                   <div className="rounded-xl border border-border bg-secondary/60 p-4">
                     <h3 className="font-display text-lg font-semibold mb-2">Solution Provided</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{study.solution}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed text-justify">{study.solution}</p>
                   </div>
                 </div>
 
@@ -139,17 +140,17 @@ const CaseStudiesPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="rounded-xl border border-border bg-secondary/60 p-4">
                     <p className="text-xs text-muted-foreground mb-2">Before</p>
-                    <p className="text-sm font-medium leading-relaxed">{study.before}</p>
+                    <p className="text-sm font-medium leading-relaxed text-justify">{study.before}</p>
                   </div>
                   <div className="rounded-xl border border-primary/30 bg-primary/10 p-4">
                     <p className="text-xs text-primary mb-2">After</p>
-                    <p className="text-sm font-medium leading-relaxed">{study.after}</p>
+                    <p className="text-sm font-medium leading-relaxed text-justify">{study.after}</p>
                   </div>
                 </div>
 
                 <blockquote className="rounded-xl border border-border bg-secondary/60 p-4">
                   <MessageSquareQuote size={20} className="text-primary mb-3" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">{study.testimonial}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed text-justify">{study.testimonial}</p>
                   <footer className="text-xs text-primary mt-3">Client Testimonial</footer>
                 </blockquote>
 
@@ -165,7 +166,7 @@ const CaseStudiesPage = () => {
         <div className="service-card flex flex-col md:flex-row md:items-center md:justify-between gap-5">
           <div>
             <h2 className="font-display text-2xl font-bold mb-2">Want results like these?</h2>
-            <p className="text-sm text-muted-foreground">Book a free strategy call and we will map the best growth path for your business.</p>
+            <p className="text-sm text-muted-foreground text-justify">Book a free strategy call and we will map the best growth path for your business.</p>
           </div>
           <Link to="/contact" className="inline-flex items-center justify-center gap-2 gradient-bg px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground">
             Get Free Strategy Call <ArrowRight size={16} />

@@ -33,6 +33,7 @@ const PortfolioPage = () => {
         title="Our Work Speaks for Itself"
         highlightWord="Itself"
         subtitle="Crafting data-driven campaigns that transform brands and deliver exceptional results"
+        justifySubtitle
       />
 
       <div className="flex items-center justify-center gap-8 py-6">
@@ -74,7 +75,7 @@ const PortfolioPage = () => {
 
                 <p className="text-xs text-primary mb-2">{project.client}</p>
                 <h3 className="font-display text-lg font-semibold mb-2">{project.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{project.desc}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4 text-justify">{project.desc}</p>
 
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {project.tags.map((tag) => (
