@@ -12,11 +12,9 @@ const article = (content: string) => render(<MemoryRouter><BlogPostContent post=
 
 it("keeps legacy paragraphs, numbered H2s, text, metadata and original publication date", () => {
   const view = article(post.content);
-  const body = view.container.querySelector("article .space-y-3")!;
+  const body = view.getByRole("heading", { level: 2 }).parentElement!;
   expect([...body.children].map(n => n.tagName)).toEqual(["P", "H2", "P"]);
   expect(body.querySelector("h2")?.textContent).toBe("1. Original numbered section");
-  expect(body.querySelector("h2")?.className).toBe("rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm leading-6 [font-family:inherit]");
-  expect(body.querySelector("p")?.className).toBe("text-sm leading-7 text-foreground/95");
   expect(view.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   expect(view.getByRole("heading", { level: 1 }).textContent).toBe(post.title);
   expect(document.title).toBe(post.title + " | Praavi Blog");
@@ -29,7 +27,7 @@ it("keeps legacy paragraphs, numbered H2s, text, metadata and original publicati
 
 it("renders crawlable inline anchors in existing paragraphs and numbered headings", () => {
   const view = article("Read [website development](/website-development) and [Google guidance](https://developers.google.com/search/docs/appearance/page-experience).\n1. Plan [SEO services](/seo-services)");
-  const body = view.container.querySelector("article .space-y-3")!;
+  const body = view.getByRole("heading", { level: 2 }).parentElement!;
   expect(body.querySelector("p")?.textContent).toBe("Read website development and Google guidance.");
   expect(body.querySelector("h2")?.textContent).toBe("1. Plan SEO services");
   expect(body.querySelectorAll("a")).toHaveLength(3);
@@ -39,6 +37,52 @@ it("renders crawlable inline anchors in existing paragraphs and numbered heading
     expect(a.rel).not.toMatch(/nofollow/);
     expect(a.className).toBe("text-primary hover:underline");
   }
+});
+
+it("groups legacy and marked points into readable lists while preserving headings and prose", () => {
+  const view = article([
+    "What Is SEO?",
+    "SEO helps customers discover a business.",
+    "SEO involves:",
+    "",
+    "Keyword research",
+    "",
+    "[Technical SEO](/seo-services)",
+    "Internal linking",
+    "",
+    "Results vary with competition.",
+    "## Campaign setup",
+    "- Define your goals",
+    "• Identify your audience",
+    "### Launch checks",
+    "Before publishing:",
+    "1. Confirm tracking",
+    "2. Review the budget",
+    "Conclusion",
+  ].join("\r\n"));
+
+  expect(view.getAllByRole("heading", { level: 2 }).map((node) => node.textContent))
+    .toEqual(["What Is SEO?", "Campaign setup", "Conclusion"]);
+  expect(view.getByRole("heading", { level: 3 }).textContent).toBe("Launch checks");
+  expect(view.getAllByRole("list").map((list) => [...list.children].map((item) => item.textContent)))
+    .toEqual([
+      ["Keyword research", "Technical SEO", "Internal linking"],
+      ["Define your goals", "Identify your audience"],
+      ["Confirm tracking", "Review the budget"],
+    ]);
+  expect(view.getByRole("link", { name: "Technical SEO" }).getAttribute("href")).toBe("/seo-services");
+  expect(view.getByText("Results vary with competition.").tagName).toBe("P");
+});
+
+it.each([
+  "Factor\tSEO\tGoogle Ads\nTraffic source\tOrganic search\tPaid advertising",
+  "Factor\nSEO\nGoogle Ads\nTraffic source\nOrganic search\nPaid advertising",
+])("renders pasted comparison columns and keeps the following prose", (comparison) => {
+  const view = article(`SEO vs Google Ads: Key Differences\n${comparison}\nChoose based on your goals.`);
+  expect(view.getAllByRole("columnheader").map((cell) => cell.textContent)).toEqual(["Factor", "SEO", "Google Ads"]);
+  expect(view.getByRole("rowheader").textContent).toBe("Traffic source");
+  expect(view.getAllByRole("cell").map((cell) => cell.textContent)).toEqual(["Organic search", "Paid advertising"]);
+  expect(view.getByText("Choose based on your goals.").tagName).toBe("P");
 });
 
 it("preserves URL queries, fragments, punctuation and balanced URL parentheses", () => {

@@ -37,13 +37,14 @@ const BlogPage = () => {
         tag="Insights & Resources"
         title="Praavi Blog"
         subtitle="Actionable digital growth ideas from our SEO, web, and performance marketing team."
+        justifySubtitle
       />
 
       <section className="section-padding">
         <div className="container-max">
           <div className="service-card mb-8">
             <h2 className="font-display text-2xl font-bold mb-3">Blog Topics for Pune Businesses</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed text-justify">
               Explore digital marketing tips Pune brands can apply, a practical website development guide Pune
               founders can follow, and SEO strategies for small businesses. Our content also covers local SEO services
               Pune teams can use and the best marketing strategies for businesses in Pune.
@@ -66,7 +67,7 @@ const BlogPage = () => {
                 </span>
 
                 <h2 className="font-display text-xl font-semibold leading-snug mb-3">{post.title}</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5">{post.excerpt}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-5 text-justify">{post.excerpt}</p>
 
                 <div className="mt-auto pt-4 border-t border-border space-y-2 text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">

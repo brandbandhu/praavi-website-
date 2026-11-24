@@ -133,7 +133,7 @@ test("prerendered inline links are crawler-visible while raw HTML and unsafe des
   inspect(html, row);
   const dom = new JSDOM(html);
   try {
-    const body = dom.window.document.querySelector("article .space-y-3");
+    const body = dom.window.document.querySelector("article [data-blog-content]");
     assert.deepEqual([...body.querySelectorAll("a")].map(a => a.getAttribute("href")), ["/seo-services", "https://developers.google.com/search/docs/appearance/page-experience", "/website-development"]);
     assert.equal(body.querySelectorAll("script").length, 0);
     assert(body.textContent.includes("[unsafe](javascript:alert(1))"));
@@ -156,7 +156,7 @@ test("three prepared corrections prerender with working links and original publi
     const dom = new JSDOM(blogHtml(template, renderRow(row)));
     try {
       const d = dom.window.document;
-      const body = d.querySelector("article .space-y-3");
+      const body = d.querySelector("article [data-blog-content]");
       assert.equal(d.querySelectorAll("h1").length, 1);
       assert.equal(d.querySelector("h1").textContent, record.proposal.h1);
       assert.deepEqual([...body.querySelectorAll("h2")].map(n => n.textContent), record.proposal.h2_headings);
